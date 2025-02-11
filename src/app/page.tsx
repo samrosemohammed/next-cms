@@ -4,10 +4,12 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { MaxWidthWrapper } from "@/components/MaxWidthWrapper";
 import { buttonVariants } from "@/components/ui/button";
+import { NavBar } from "@/components/NavBar";
 
 export default function Home() {
   return (
     <>
+      <NavBar />
       <MaxWidthWrapper className="mb-12 mt-28 sm:mt-14 flex justify-center text-center items-center flex-col">
         <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
           <p>Classroom is now public !</p>

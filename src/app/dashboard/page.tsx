@@ -5,7 +5,7 @@ const Page = async () => {
   const session = await getServerSession(authOptions);
   console.log(session?.user);
   if (session?.user.role === "admin") {
-    return <div>Hello from the admin dashboard</div>;
+    return <div>How are you admin</div>;
   }
   return <div>Hello from the dashboard</div>;
 };
