@@ -39,17 +39,17 @@ const items = [
   },
   {
     title: "Module",
-    url: "#",
+    url: "/dashboard/module",
     icon: Folder,
   },
   {
     title: "Group",
-    url: "#",
+    url: "/dashboard/group",
     icon: Layers2,
   },
   {
     title: "Teacher",
-    url: "#",
+    url: "/dashboard/teacher",
     icon: UserRound,
   },
   {
