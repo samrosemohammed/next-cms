@@ -1,5 +1,4 @@
 "use client";
-import React, { ChangeEvent, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,22 +10,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { StudentFormData, studentSchema } from "@/lib/validator/zodValidation";
 import { cn } from "@/lib/utils";
-import { TeacherFormData, teacherSchema } from "@/lib/validator/zodValidation";
 import { useUploadThing } from "@/lib/uploadthing";
 import { trpc } from "@/app/_trpc/client";
-
-const TeacherCreationDialog = () => {
+export const StudentCreationDialog = () => {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
   const { startUpload } = useUploadThing("imageUploader");
-  const createTeacher = trpc.createUserWithTeacher.useMutation({
+  const createStudent = trpc.createUserWithStudent.useMutation({
     onSuccess: (data) => {
-      utils.getTeachers.invalidate();
+      utils.getStudents.invalidate();
       setOpen(false);
     },
   });
@@ -35,121 +34,121 @@ const TeacherCreationDialog = () => {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<TeacherFormData>({
-    resolver: zodResolver(teacherSchema),
+  } = useForm<StudentFormData>({
+    resolver: zodResolver(studentSchema),
   });
 
-  const onSubmit = async (data: TeacherFormData) => {
+  const onSubmit = async (data: StudentFormData) => {
     try {
-      const file = Array.from(data.teacherImage as FileList)[0];
+      const file = Array.from(data.studentImage as FileList)[0];
       const res = await startUpload([file]);
       if (res && res[0]) {
         console.log(res[0].ufsUrl);
       }
-      data.teacherImage = res ? res[0].ufsUrl : null;
-      await createTeacher.mutateAsync(data);
+      data.studentImage = res ? res[0].ufsUrl : null;
+      await createStudent.mutateAsync(data);
       console.log("data: ", data);
-    } catch (error) {
-      console.error("Error creating group:", error);
+    } catch (err) {
+      console.error("Error creating student:", err);
     }
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          Enroll Teacher <Plus />
+          Enroll Student <Plus />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Enroll Teacher</DialogTitle>
+          <DialogTitle>Enroll Student</DialogTitle>
           <DialogDescription>
-            Enroll a teacher. Click create when you're done.
+            Enroll a student. Click create when you're done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="space-y-1">
-              <Label htmlFor="teacher-id" className="w-full">
+              <Label htmlFor="student-id" className="w-full">
                 ID
               </Label>
               <Input
-                id="teacher-id"
-                {...register("teacherId")}
+                id="student-id"
+                {...register("studentId")}
                 className={cn("w-full", {
                   "border-destructive focus-visible:ring-destructive":
-                    errors.teacherId,
-                  "border-input focus-visible:ring-ring": !errors.teacherId,
+                    errors.studentId,
+                  "border-input focus-visible:ring-ring": !errors.studentId,
                 })}
-                onChange={(e) => setValue("teacherId", e.target.value)}
+                onChange={(e) => setValue("studentId", e.target.value)}
               />
-              {errors.teacherId && (
+              {errors.studentId && (
                 <p className="text-red-500 text-sm">
-                  {errors.teacherId.message?.toString()}
+                  {errors.studentId.message?.toString()}
                 </p>
               )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="teacher-name" className="w-full">
+              <Label htmlFor="student-name" className="w-full">
                 Name
               </Label>
               <Input
-                id="teacher-name"
-                {...register("teacherName")}
+                id="student-name"
+                {...register("studentName")}
                 className="w-full"
-                onChange={(e) => setValue("teacherName", e.target.value)}
+                onChange={(e) => setValue("studentName", e.target.value)}
               />
-              {errors.teacherName && (
+              {errors.studentName && (
                 <p className="text-red-500 text-sm">
-                  {errors.teacherName.message?.toString()}
+                  {errors.studentName.message?.toString()}
                 </p>
               )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="teacher-email" className="w-full">
+              <Label htmlFor="student-email" className="w-full">
                 Email
               </Label>
               <Input
-                id="teacher-email"
-                {...register("teacherEmail")}
+                id="student-email"
+                {...register("studentEmail")}
                 className="w-full"
-                onChange={(e) => setValue("teacherEmail", e.target.value)}
+                onChange={(e) => setValue("studentEmail", e.target.value)}
               />
-              {errors.teacherEmail && (
+              {errors.studentEmail && (
                 <p className="text-red-500 text-sm">
-                  {errors.teacherEmail.message?.toString()}
+                  {errors.studentEmail.message?.toString()}
                 </p>
               )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="teacher-password" className="w-full">
+              <Label htmlFor="student-password" className="w-full">
                 Password
               </Label>
               <Input
-                id="teacher-password"
-                {...register("teacherPassword")}
+                id="student-password"
+                {...register("studentPassword")}
                 className="w-full"
-                onChange={(e) => setValue("teacherPassword", e.target.value)}
+                onChange={(e) => setValue("studentPassword", e.target.value)}
               />
-              {errors.teacherPassword && (
+              {errors.studentPassword && (
                 <p className="text-red-500 text-sm">
-                  {errors.teacherPassword.message?.toString()}
+                  {errors.studentPassword.message?.toString()}
                 </p>
               )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="teacher-img" className="w-full">
+              <Label htmlFor="student-img" className="w-full">
                 Select Image
               </Label>
               <Input
                 type="file"
-                id="teacher-image"
-                {...register("teacherImage")}
+                id="student-image"
+                {...register("studentImage")}
                 className="w-full"
               />
-              {errors.teacherImage && (
+              {errors.studentImage && (
                 <p className="text-red-500 text-sm">
-                  {errors.teacherImage.message?.toString()}
+                  {errors.studentImage.message?.toString()}
                 </p>
               )}
             </div>
@@ -162,5 +161,3 @@ const TeacherCreationDialog = () => {
     </Dialog>
   );
 };
-
-export default TeacherCreationDialog;

@@ -54,7 +54,7 @@ const items = [
   },
   {
     title: "Student",
-    url: "#",
+    url: "/dashboard/student",
     icon: UserRound,
   },
   {

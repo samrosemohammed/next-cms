@@ -16,7 +16,7 @@ import { Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
-import { GroupFormData, groupSchema } from "@/lib/validator/groupSchema";
+import { GroupFormData, groupSchema } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
 const GroupCreationDialog = () => {
   const [open, setOpen] = useState<boolean>(false);

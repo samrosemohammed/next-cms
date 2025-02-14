@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { privateProcedure, publicProcedure, router } from "./trpc";
-import { moduleSchema } from "@/lib/validator/moduleSchema";
+import { moduleSchema, studentSchema } from "@/lib/validator/zodValidation";
 import { dbConnect } from "@/lib/db";
 import Module, { TModule } from "@/model/module";
-import { groupSchema } from "@/lib/validator/groupSchema";
+import { groupSchema } from "@/lib/validator/zodValidation";
 import Group, { TGroup } from "@/model/group";
-import { teacherSchema } from "@/lib/validator/teacherSchema";
+import { teacherSchema } from "@/lib/validator/zodValidation";
 import UserModel, { TUser } from "@/model/user";
 import mongoose from "mongoose";
 
@@ -53,6 +53,23 @@ export const appRouter = router({
       await u.save();
       return { u, message: "Teacher created" };
     }),
+  createUserWithStudent: privateProcedure
+    .input(studentSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      dbConnect();
+      const u = await UserModel.create({
+        name: input.studentName,
+        email: input.studentEmail,
+        image: input.studentImage,
+        password: input.studentPassword,
+        rollNumber: input.studentId,
+        role: "student",
+        createdBy: userId,
+      });
+      await u.save();
+      return { u, message: "Student created" };
+    }),
   getTeachers: privateProcedure.query(async ({ ctx }) => {
     const { userId, user } = ctx;
     console.log("getTeacher", user, ctx);
@@ -62,6 +79,15 @@ export const appRouter = router({
       createdBy: userId,
     });
     return t;
+  }),
+  getStudents: privateProcedure.query(async ({ ctx }) => {
+    const { userId, user } = ctx;
+    dbConnect();
+    const s: TUser[] = await UserModel.find({
+      role: "student",
+      createdBy: userId,
+    });
+    return s;
   }),
   getModules: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
@@ -82,6 +108,14 @@ export const appRouter = router({
       dbConnect();
       await UserModel.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Teacher deleted" };
+    }),
+  deleteStudent: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      dbConnect();
+      await UserModel.deleteOne({ _id: input.id, createdBy: userId });
+      return { success: true, message: "Student deleted" };
     }),
 });
 export type AppRouter = typeof appRouter;

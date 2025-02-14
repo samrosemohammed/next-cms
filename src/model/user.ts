@@ -30,7 +30,7 @@ const UserSchema = new Schema<MongoUser>(
     password: { type: String, required: true },
     image: { type: String },
     role: { type: String, required: true },
-    rollNumber: { type: String, required: false },
+    rollNumber: { type: String, required: false, unique: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

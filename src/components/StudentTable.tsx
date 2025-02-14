@@ -1,7 +1,13 @@
 "use client";
-
-import { trpc } from "@/app/_trpc/client";
-import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,60 +19,52 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { trpc } from "@/app/_trpc/client";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export const TeacherTable = () => {
+export const StudentTable = () => {
   const utils = trpc.useUtils();
-  const { data } = trpc.getTeachers.useQuery();
-  const deleteTeacher = trpc.deleteTeacher.useMutation({
+  const { data } = trpc.getStudents.useQuery();
+  const deleteStudent = trpc.deleteStudent.useMutation({
     onSuccess: (data) => {
-      utils.getTeachers.invalidate();
+      utils.getStudents.invalidate();
     },
     onError: (err) => {
-      console.error("Error deleting teacher:", err);
+      console.error("Error deleting student:", err);
     },
   });
   const handleDelete = (id: string) => {
     try {
-      deleteTeacher.mutate({ id });
+      deleteStudent.mutate({ id });
     } catch (err) {
       console.log(err);
     }
   };
-  console.log(data);
   return (
     <Table>
-      <TableCaption>A list of your recent group created.</TableCaption>
+      <TableCaption>A list of your recent student created.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[150px]">Teacher ID</TableHead>
-          <TableHead>Teacher Name</TableHead>
-          <TableHead>Teacher Email</TableHead>
-          <TableHead>Teacher Password</TableHead>
-          <TableHead>Teacher Image</TableHead>
+          <TableHead className="w-[150px]">Student ID</TableHead>
+          <TableHead>Student Name</TableHead>
+          <TableHead>Student Email</TableHead>
+          <TableHead>Student Password</TableHead>
+          <TableHead>Student Image</TableHead>
           <TableHead className="text-right">Action</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data?.map((t) => (
-          <TableRow key={t._id}>
-            <TableCell className="font-medium">{t.rollNumber}</TableCell>
-            <TableCell>{t.name}</TableCell>
-            <TableCell>{t.email}</TableCell>
-            <TableCell>{t.password}</TableCell>
+        {data?.map((s) => (
+          <TableRow key={s._id}>
+            <TableCell className="font-medium">{s.rollNumber}</TableCell>
+            <TableCell>{s.name}</TableCell>
+            <TableCell>{s.email}</TableCell>
+            <TableCell>{s.password}</TableCell>
             <TableCell>
               <Avatar className="w-8 h-8">
-                <AvatarImage src={t.image} alt={`${t.name} profile picture`} />
-                <AvatarFallback>{t.name.slice(0, 2)}</AvatarFallback>
+                <AvatarImage src={s.image} alt={`${s.name} profile picture`} />
+                <AvatarFallback>{s.name.slice(0, 2)}</AvatarFallback>
               </Avatar>
             </TableCell>
             <TableCell className="text-right space-x-2">
@@ -113,7 +111,7 @@ export const TeacherTable = () => {
                         size: "sm",
                         variant: "destructive",
                       })}
-                      onClick={() => handleDelete(t._id)}
+                      onClick={() => handleDelete(s._id)}
                     >
                       Delete
                     </AlertDialogAction>
