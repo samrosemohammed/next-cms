@@ -11,6 +11,8 @@ interface IUser {
   password: string;
   image: string;
   role: Role;
+  rollNumber?: string;
+  createdBy?: mongoose.Schema.Types.ObjectId;
 }
 
 export interface MongoUser extends IUser, Document {}
@@ -28,6 +30,12 @@ const UserSchema = new Schema<MongoUser>(
     password: { type: String, required: true },
     image: { type: String },
     role: { type: String, required: true },
+    rollNumber: { type: String, required: false },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    }, // Add the reference here
   },
   {
     timestamps: true,

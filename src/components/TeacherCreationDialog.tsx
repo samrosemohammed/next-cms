@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +17,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { TeacherFormData, teacherSchema } from "@/lib/validator/teacherSchema";
+import { useUploadThing } from "@/lib/uploadthing";
+import { trpc } from "@/app/_trpc/client";
 
 const TeacherCreationDialog = () => {
+  const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
-
+  const { startUpload } = useUploadThing("imageUploader");
+  const createTeacher = trpc.createUserWithTeacher.useMutation({
+    onSuccess: (data) => {
+      utils.getTeachers.invalidate();
+      setOpen(false);
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -29,9 +38,16 @@ const TeacherCreationDialog = () => {
   } = useForm<TeacherFormData>({
     resolver: zodResolver(teacherSchema),
   });
-  const onSubmit = async (data: any) => {
+
+  const onSubmit = async (data: TeacherFormData) => {
     try {
-      //   await createGroup.mutateAsync(data);
+      const file = Array.from(data.teacherImage as FileList)[0];
+      const res = await startUpload([file]);
+      if (res && res[0]) {
+        console.log(res[0].ufsUrl);
+      }
+      data.teacherImage = res ? res[0].ufsUrl : null;
+      await createTeacher.mutateAsync(data);
       console.log("data: ", data);
     } catch (error) {
       console.error("Error creating group:", error);
