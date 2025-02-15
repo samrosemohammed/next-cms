@@ -26,6 +26,7 @@ import {
   assignModuleSchema,
 } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
+import { useEffect } from "react";
 
 interface ModuleAssignDialogProps {
   open: boolean;
@@ -60,7 +61,7 @@ export const ModuleAssignDialog = ({
   });
   const onSubmit = async (data: AssignModuleFormData) => {
     try {
-      await createAssignModule.mutateAsync({ ...data, moduleId });
+      await createAssignModule.mutateAsync(data);
       console.log("data", data);
     } catch (error) {
       console.log("error", error);
@@ -72,6 +73,12 @@ export const ModuleAssignDialog = ({
       reset(); // Reset the form when the dialog is closed
     }
   };
+
+  useEffect(() => {
+    if (moduleId) {
+      setValue("moduleId", moduleId); // Ensure this matches the schema
+    }
+  }, [moduleId, setValue]);
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>

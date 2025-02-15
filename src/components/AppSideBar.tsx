@@ -59,7 +59,7 @@ const items = [
   },
   {
     title: "Assign",
-    url: "#",
+    url: "/dashboard/assign",
     icon: Bookmark,
   },
 ];

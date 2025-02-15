@@ -12,7 +12,7 @@ import Group, { TGroup } from "@/model/group";
 import { teacherSchema } from "@/lib/validator/zodValidation";
 import UserModel, { TUser } from "@/model/user";
 import mongoose from "mongoose";
-import AssignModule from "@/model/assignModule";
+import AssignModule, { TAssignModule } from "@/model/assignModule";
 
 export const appRouter = router({
   createAssignModule: privateProcedure
@@ -110,6 +110,17 @@ export const appRouter = router({
     const typeResult: TUser[] = s as unknown as TUser[];
     return typeResult;
   }),
+  getAssignModules: privateProcedure.query(async ({ ctx }) => {
+    const { userId, user } = ctx;
+    dbConnect();
+    const am = await AssignModule.find({ createdBy: userId })
+      .populate("moduleId")
+      .populate("group")
+      .populate("teacher")
+      .lean();
+    const typeResult: TAssignModule[] = am as unknown as TAssignModule[];
+    return typeResult;
+  }),
   getModules: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
     dbConnect();
@@ -145,6 +156,14 @@ export const appRouter = router({
       dbConnect();
       await Module.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Module deleted" };
+    }),
+  deleteAssignModule: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      dbConnect();
+      await AssignModule.deleteOne({ _id: input.id, createdBy: userId });
+      return { success: true, message: "Assign Module deleted" };
     }),
 });
 export type AppRouter = typeof appRouter;
