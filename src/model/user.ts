@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema } from "mongoose";
+import { TGroup } from "./group";
 
 enum Role {
   ADMIN = "admin",
@@ -12,6 +13,7 @@ interface IUser {
   image: string;
   role: Role;
   rollNumber?: string;
+  group: TGroup | null;
   createdBy?: mongoose.Schema.Types.ObjectId;
 }
 
@@ -31,6 +33,11 @@ const UserSchema = new Schema<MongoUser>(
     image: { type: String },
     role: { type: String, required: true },
     rollNumber: { type: String, required: false, unique: true },
+    group: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+      required: false,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

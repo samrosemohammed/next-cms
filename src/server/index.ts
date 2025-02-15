@@ -64,6 +64,7 @@ export const appRouter = router({
         image: input.studentImage,
         password: input.studentPassword,
         rollNumber: input.studentId,
+        group: input.studentGroup,
         role: "student",
         createdBy: userId,
       });
@@ -83,11 +84,14 @@ export const appRouter = router({
   getStudents: privateProcedure.query(async ({ ctx }) => {
     const { userId, user } = ctx;
     dbConnect();
-    const s: TUser[] = await UserModel.find({
+    const s = await UserModel.find({
       role: "student",
       createdBy: userId,
-    });
-    return s;
+    })
+      .populate("group")
+      .lean();
+    const typeResult: TUser[] = s as unknown as TUser[];
+    return typeResult;
   }),
   getModules: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;

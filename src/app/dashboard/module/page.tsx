@@ -14,7 +14,7 @@ const Page = async () => {
           <ModuleCreationDialog />
         </div>
 
-        <div>
+        <div className="px-2">
           <Module />
         </div>
       </div>

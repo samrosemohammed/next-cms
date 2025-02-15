@@ -5,6 +5,7 @@ export const studentSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   studentEmail: z.string().email("Invalid email format"),
   studentPassword: z.string().min(1, "Student Password is required"),
+  studentGroup: z.string().min(1, "Student Group is required"),
   studentImage: z.any().optional(),
 });
 export type StudentFormData = z.infer<typeof studentSchema>;
@@ -34,3 +35,9 @@ export const groupSchema = z.object({
     .regex(/^[A-Z]+$/, "Group Name must contain only capital letters"),
 });
 export type GroupFormData = z.infer<typeof groupSchema>;
+
+export const assignModuleSchema = z.object({
+  studentGroup: z.string().min(1, "Student Group is required"),
+  teacher: z.string().min(1, "Teacher is required"),
+});
+export type AssignModuleFormData = z.infer<typeof assignModuleSchema>;

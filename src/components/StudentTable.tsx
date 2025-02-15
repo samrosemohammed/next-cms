@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export const StudentTable = () => {
   const utils = trpc.useUtils();
   const { data } = trpc.getStudents.useQuery();
+  console.log(data);
   const deleteStudent = trpc.deleteStudent.useMutation({
     onSuccess: (data) => {
       utils.getStudents.invalidate();
@@ -50,6 +51,7 @@ export const StudentTable = () => {
           <TableHead>Student Name</TableHead>
           <TableHead>Student Email</TableHead>
           <TableHead>Student Password</TableHead>
+          <TableHead>Student Group</TableHead>
           <TableHead>Student Image</TableHead>
           <TableHead className="text-right">Action</TableHead>
         </TableRow>
@@ -61,6 +63,7 @@ export const StudentTable = () => {
             <TableCell>{s.name}</TableCell>
             <TableCell>{s.email}</TableCell>
             <TableCell>{s.password}</TableCell>
+            <TableCell>{s.group?.groupName ?? "N/A"}</TableCell>
             <TableCell>
               <Avatar className="w-8 h-8">
                 <AvatarImage src={s.image} alt={`${s.name} profile picture`} />

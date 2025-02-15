@@ -8,6 +8,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
@@ -23,6 +32,7 @@ export const StudentCreationDialog = () => {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
   const { startUpload } = useUploadThing("imageUploader");
+  const { data: groupData } = trpc.getGroups.useQuery();
   const createStudent = trpc.createUserWithStudent.useMutation({
     onSuccess: (data) => {
       utils.getStudents.invalidate();
@@ -133,6 +143,33 @@ export const StudentCreationDialog = () => {
               {errors.studentPassword && (
                 <p className="text-red-500 text-sm">
                   {errors.studentPassword.message?.toString()}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="student-group" className="w-full">
+                Group
+              </Label>
+              <Select
+                onValueChange={(value) => setValue("studentGroup", value)}
+              >
+                <SelectTrigger className="">
+                  <SelectValue placeholder="Select a Group" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Group</SelectLabel>
+                    {groupData?.map((group) => (
+                      <SelectItem key={group._id} value={group._id}>
+                        {group.groupName}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {errors.studentGroup && (
+                <p className="text-red-500 text-sm">
+                  {errors.studentGroup.message?.toString()}
                 </p>
               )}
             </div>
