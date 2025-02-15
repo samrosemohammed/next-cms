@@ -13,17 +13,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Bookmark, EllipsisVertical, Pencil, Trash } from "lucide-react";
 import moduleBanner from "../../public/module-banner.jpg";
 import Image from "next/image";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useState } from "react";
 import { ModuleAssignDialog } from "./ModuleAssignDialog";
 
 export const Module = () => {
-  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
+  const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
+  const [selectedModuleId, setSelectedModuleId] = useState<string>("");
   const { data } = trpc.getModules.useQuery();
-  console.log(data);
+  const handleDelete = async (moduleId: string) => {
+    console.log("module id to delete : ", moduleId);
+  };
   return (
     <div>
       <div className="grid grid-cols-3 gap-2">
@@ -47,6 +62,7 @@ export const Module = () => {
                   <DropdownMenuItem
                     onClick={() => {
                       setIsAssignOpen(true);
+                      setSelectedModuleId(m._id);
                     }}
                   >
                     <Bookmark />
@@ -56,13 +72,19 @@ export const Module = () => {
                     <Pencil />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      setIsDeleteAleartOpen(true);
+                      setSelectedModuleId(m._id);
+                    }}
+                  >
                     <Trash />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
             {/* <CardContent></CardContent> */}
             <CardFooter className="flex justify-between items-center">
               <p>{m.startDate}</p>
@@ -71,7 +93,45 @@ export const Module = () => {
           </Card>
         ))}
       </div>
-      <ModuleAssignDialog open={isAssignOpen} setOpen={setIsAssignOpen} />
+      <ModuleAssignDialog
+        moduleId={selectedModuleId}
+        open={isAssignOpen}
+        setOpen={setIsAssignOpen}
+      />
+      {/* for module delete creation */}
+      <AlertDialog
+        open={isDeleteAleartOpen}
+        onOpenChange={setIsDeleteAleartOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              assign module information and remove your data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className={buttonVariants({
+                size: "sm",
+                variant: "ghost",
+              })}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className={buttonVariants({
+                size: "sm",
+                variant: "destructive",
+              })}
+              onClick={() => handleDelete(selectedModuleId)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { privateProcedure, publicProcedure, router } from "./trpc";
-import { moduleSchema, studentSchema } from "@/lib/validator/zodValidation";
+import {
+  assignModuleSchema,
+  moduleSchema,
+  studentSchema,
+} from "@/lib/validator/zodValidation";
 import { dbConnect } from "@/lib/db";
 import Module, { TModule } from "@/model/module";
 import { groupSchema } from "@/lib/validator/zodValidation";
@@ -8,8 +12,21 @@ import Group, { TGroup } from "@/model/group";
 import { teacherSchema } from "@/lib/validator/zodValidation";
 import UserModel, { TUser } from "@/model/user";
 import mongoose from "mongoose";
+import AssignModule from "@/model/assignModule";
 
 export const appRouter = router({
+  createAssignModule: privateProcedure
+    .input(assignModuleSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      dbConnect();
+      const am = await AssignModule.create({
+        ...input,
+        createdBy: userId,
+      });
+      await am.save();
+      return { am, message: "Module assigned" };
+    }),
   createModule: privateProcedure
     .input(moduleSchema)
     .mutation(async ({ input, ctx }) => {
@@ -120,6 +137,14 @@ export const appRouter = router({
       dbConnect();
       await UserModel.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Student deleted" };
+    }),
+  deleteModule: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      dbConnect();
+      await Module.deleteOne({ _id: input.id, createdBy: userId });
+      return { success: true, message: "Module deleted" };
     }),
 });
 export type AppRouter = typeof appRouter;

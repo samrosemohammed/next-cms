@@ -37,7 +37,8 @@ export const groupSchema = z.object({
 export type GroupFormData = z.infer<typeof groupSchema>;
 
 export const assignModuleSchema = z.object({
-  studentGroup: z.string().min(1, "Student Group is required"),
   teacher: z.string().min(1, "Teacher is required"),
+  group: z.string().min(1, "Group is required"),
+  moduleId: z.string().min(1, "Module is required"),
 });
 export type AssignModuleFormData = z.infer<typeof assignModuleSchema>;

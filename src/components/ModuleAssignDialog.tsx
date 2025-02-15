@@ -30,13 +30,25 @@ import { trpc } from "@/app/_trpc/client";
 interface ModuleAssignDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  moduleId: string;
 }
 export const ModuleAssignDialog = ({
   open,
   setOpen,
+  moduleId,
 }: ModuleAssignDialogProps) => {
   const { data: groupData } = trpc.getGroups.useQuery();
   const { data: teacherData } = trpc.getTeachers.useQuery();
+  console.log("module id from assign", moduleId);
+  const createAssignModule = trpc.createAssignModule.useMutation({
+    onSuccess: (data) => {
+      console.log("data", data);
+      setOpen(false);
+    },
+    onError: (error) => {
+      console.log("error", error);
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -47,7 +59,12 @@ export const ModuleAssignDialog = ({
     resolver: zodResolver(assignModuleSchema),
   });
   const onSubmit = async (data: AssignModuleFormData) => {
-    console.log("data", data);
+    try {
+      await createAssignModule.mutateAsync({ ...data, moduleId });
+      console.log("data", data);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
   const handleDialogChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -55,6 +72,7 @@ export const ModuleAssignDialog = ({
       reset(); // Reset the form when the dialog is closed
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent className="max-w-md">
@@ -97,9 +115,7 @@ export const ModuleAssignDialog = ({
               <Label htmlFor="student-group" className="w-full">
                 Group
               </Label>
-              <Select
-                onValueChange={(value) => setValue("studentGroup", value)}
-              >
+              <Select onValueChange={(value) => setValue("group", value)}>
                 <SelectTrigger className="">
                   <SelectValue placeholder="Select a Group" />
                 </SelectTrigger>
@@ -114,9 +130,9 @@ export const ModuleAssignDialog = ({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {errors.studentGroup && (
+              {errors.group && (
                 <p className="text-red-500 text-sm">
-                  {errors.studentGroup.message?.toString()}
+                  {errors.group.message?.toString()}
                 </p>
               )}
             </div>
