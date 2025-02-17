@@ -30,6 +30,7 @@ import Image from "next/image";
 import { Button, buttonVariants } from "./ui/button";
 import { useState } from "react";
 import { ModuleAssignDialog } from "./ModuleAssignDialog";
+import { format } from "date-fns";
 
 export const Module = () => {
   const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
@@ -87,8 +88,8 @@ export const Module = () => {
 
             {/* <CardContent></CardContent> */}
             <CardFooter className="flex justify-between items-center">
-              <p>{m.startDate}</p>
-              <p>{m.endDate}</p>
+              <p>{format(m.startDate, "yyyy")}</p>
+              <p>{format(m.endDate, "yyyy")}</p>
             </CardFooter>
           </Card>
         ))}

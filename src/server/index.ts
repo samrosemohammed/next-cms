@@ -13,7 +13,19 @@ import { teacherSchema } from "@/lib/validator/zodValidation";
 import UserModel, { TUser } from "@/model/user";
 import mongoose from "mongoose";
 import AssignModule, { TAssignModule } from "@/model/assignModule";
+import { UTApi } from "uploadthing/server";
 
+const utapi = new UTApi();
+
+const deleteFile = async (imageUrl: string) => {
+  try {
+    const keyFromTheImageUrl = imageUrl.split("/").pop();
+    await utapi.deleteFiles(keyFromTheImageUrl!);
+    console.log("image deleted: ", keyFromTheImageUrl);
+  } catch (err) {
+    console.error("Error deleting file:", err);
+  }
+};
 export const appRouter = router({
   createAssignModule: privateProcedure
     .input(assignModuleSchema)
@@ -138,6 +150,13 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
       dbConnect();
+      const teacher = await UserModel.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (teacher && teacher.image) {
+        await deleteFile(teacher.image);
+      }
       await UserModel.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Teacher deleted" };
     }),
@@ -146,6 +165,13 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
       dbConnect();
+      const student = await UserModel.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (student && student.image) {
+        await deleteFile(student.image);
+      }
       await UserModel.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Student deleted" };
     }),

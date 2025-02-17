@@ -21,18 +21,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StudentFormData, studentSchema } from "@/lib/validator/zodValidation";
 import { cn } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
 import { trpc } from "@/app/_trpc/client";
+
 export const StudentCreationDialog = () => {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
   const { startUpload } = useUploadThing("imageUploader");
   const { data: groupData } = trpc.getGroups.useQuery();
+  const { data: studentData } = trpc.getStudents.useQuery();
   const createStudent = trpc.createUserWithStudent.useMutation({
     onSuccess: (data) => {
       utils.getStudents.invalidate();
@@ -47,6 +49,17 @@ export const StudentCreationDialog = () => {
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
   });
+
+  useEffect(() => {
+    if (studentData && studentData.length > 0) {
+      // If students exist, increment the last student ID
+      const lastStudentId = studentData[studentData.length - 1].rollNumber;
+      setValue("studentId", String(Number(lastStudentId) + 1));
+    } else {
+      // If no students exist, set the first student ID
+      setValue("studentId", "1");
+    }
+  }, [studentData, setValue]);
 
   const onSubmit = async (data: StudentFormData) => {
     try {
@@ -90,7 +103,7 @@ export const StudentCreationDialog = () => {
                     errors.studentId,
                   "border-input focus-visible:ring-ring": !errors.studentId,
                 })}
-                onChange={(e) => setValue("studentId", e.target.value)}
+                readOnly
               />
               {errors.studentId && (
                 <p className="text-red-500 text-sm">

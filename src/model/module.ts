@@ -3,8 +3,8 @@ import mongoose, { Schema, Model, Document } from "mongoose";
 interface IModule {
   name: string;
   code: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   createdBy: {
     id: mongoose.Schema.Types.ObjectId;
     ref: "users";
@@ -23,8 +23,8 @@ const ModuleSchema = new Schema<MongoUser>(
   {
     name: { type: String, required: true },
     code: { type: String, required: true, unique: true },
-    startDate: { type: String, required: true },
-    endDate: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",

@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,18 +8,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ModuleFormData, moduleSchema } from "@/lib/validator/zodValidation";
 import { Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { trpc } from "@/app/_trpc/client";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 export const ModuleCreationDialog = () => {
   const utils = trpc.useUtils();
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   const {
     register,
@@ -105,12 +115,39 @@ export const ModuleCreationDialog = () => {
               <Label htmlFor="module-start-date" className="w-full">
                 Start Date
               </Label>
-              <Input
-                id="module-start-date"
-                {...register("startDate")}
-                className="w-full"
-                onChange={(e) => setValue("startDate", e.target.value)}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon />
+                    {startDate ? (
+                      format(startDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={startDate!}
+                    onSelect={(date) => {
+                      if (date) {
+                        setStartDate(date);
+                        setValue("startDate", date);
+                      }
+                    }}
+                    disabled={(date) => !!endDate && date > endDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
               {errors.startDate && (
                 <p className="text-red-500 text-sm">
                   {errors.startDate.message?.toString()}
@@ -121,12 +158,38 @@ export const ModuleCreationDialog = () => {
               <Label htmlFor="module-end-date" className="w-full">
                 End Date
               </Label>
-              <Input
-                id="module-end-date"
-                {...register("endDate")}
-                className="w-full"
-                onChange={(e) => setValue("endDate", e.target.value)}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon />
+                    {endDate ? (
+                      format(endDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={endDate!}
+                    onSelect={(date) => {
+                      if (date) {
+                        setEndDate(date);
+                        setValue("endDate", date);
+                      }
+                    }}
+                    disabled={(date) => !!startDate && date < startDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
               {errors.endDate && (
                 <p className="text-red-500 text-sm">
                   {errors.endDate.message?.toString()}
