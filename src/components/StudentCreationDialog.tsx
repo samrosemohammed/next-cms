@@ -64,11 +64,14 @@ export const StudentCreationDialog = () => {
   const onSubmit = async (data: StudentFormData) => {
     try {
       const file = Array.from(data.studentImage as FileList)[0];
-      const res = await startUpload([file]);
-      if (res && res[0]) {
-        console.log(res[0].ufsUrl);
+      if (file) {
+        const res = await startUpload([file]);
+        if (res && res[0]) {
+          data.studentImage = res[0].ufsUrl;
+        }
+      } else {
+        data.studentImage = null;
       }
-      data.studentImage = res ? res[0].ufsUrl : null;
       await createStudent.mutateAsync(data);
       console.log("data: ", data);
     } catch (err) {

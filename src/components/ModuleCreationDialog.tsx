@@ -26,6 +26,8 @@ import { Plus } from "lucide-react";
 import { trpc } from "@/app/_trpc/client";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
 export const ModuleCreationDialog = () => {
   const utils = trpc.useUtils();
@@ -46,9 +48,13 @@ export const ModuleCreationDialog = () => {
       console.log("data: ", data);
       utils.getModules.invalidate();
       setOpen(false);
+      toast.success(data.message);
     },
     onError: (error) => {
       console.log("error: ", error.message);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
     },
   });
   const onSubmit = async (data: ModuleFormData) => {

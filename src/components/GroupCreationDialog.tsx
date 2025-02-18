@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,8 +18,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { GroupFormData, groupSchema } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 const GroupCreationDialog = () => {
   const [open, setOpen] = useState<boolean>(false);
+  const { data: groupData } = trpc.getGroups.useQuery();
   const utils = trpc.useUtils();
   const {
     register,
@@ -34,11 +37,24 @@ const GroupCreationDialog = () => {
       console.log("data", data);
       utils.getGroups.invalidate();
       setOpen(false);
+      toast.success(data.message);
     },
     onError: (error) => {
       console.log("error", error);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
     },
   });
+
+  useEffect(() => {
+    if (groupData && groupData.length > 0) {
+      const lastGroupId = groupData[groupData.length - 1].groupId;
+      setValue("groupId", String(Number(lastGroupId) + 1));
+    } else {
+      setValue("groupId", "1");
+    }
+  }, [groupData, setValue]);
   const onSubmit = async (data: GroupFormData) => {
     try {
       await createGroup.mutateAsync(data);
@@ -75,7 +91,7 @@ const GroupCreationDialog = () => {
                     errors.groupId,
                   "border-input focus-visible:ring-ring": !errors.groupId,
                 })}
-                onChange={(e) => setValue("groupId", e.target.value)}
+                readOnly
               />
               {errors.groupId && (
                 <p className="text-red-500 text-sm">

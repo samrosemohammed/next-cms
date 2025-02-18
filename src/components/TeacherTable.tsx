@@ -23,6 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
 export const TeacherTable = () => {
   const utils = trpc.useUtils();
@@ -30,9 +32,13 @@ export const TeacherTable = () => {
   const deleteTeacher = trpc.deleteTeacher.useMutation({
     onSuccess: (data) => {
       utils.getTeachers.invalidate();
+      toast.success(data.message);
     },
     onError: (err) => {
       console.error("Error deleting teacher:", err);
+      if (err instanceof TRPCClientError) {
+        toast.error(err.message);
+      }
     },
   });
   const handleDelete = (id: string) => {

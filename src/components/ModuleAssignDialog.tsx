@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { useForm } from "react-hook-form";
@@ -27,6 +26,8 @@ import {
 } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
 import { useEffect } from "react";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
 interface ModuleAssignDialogProps {
   open: boolean;
@@ -40,14 +41,17 @@ export const ModuleAssignDialog = ({
 }: ModuleAssignDialogProps) => {
   const { data: groupData } = trpc.getGroups.useQuery();
   const { data: teacherData } = trpc.getTeachers.useQuery();
-  console.log("module id from assign", moduleId);
   const createAssignModule = trpc.createAssignModule.useMutation({
     onSuccess: (data) => {
       console.log("data", data);
       setOpen(false);
+      toast.success(data.message);
     },
     onError: (error) => {
       console.log("error", error);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
     },
   });
   const {
@@ -62,7 +66,6 @@ export const ModuleAssignDialog = ({
   const onSubmit = async (data: AssignModuleFormData) => {
     try {
       await createAssignModule.mutateAsync(data);
-      console.log("data", data);
     } catch (error) {
       console.log("error", error);
     }

@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ const TeacherCreationDialog = () => {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
   const { startUpload } = useUploadThing("imageUploader");
+  const { data: teacherData } = trpc.getTeachers.useQuery();
   const createTeacher = trpc.createUserWithTeacher.useMutation({
     onSuccess: (data) => {
       utils.getTeachers.invalidate();
@@ -39,14 +40,28 @@ const TeacherCreationDialog = () => {
     resolver: zodResolver(teacherSchema),
   });
 
+  useEffect(() => {
+    if (teacherData && teacherData.length > 0) {
+      // If students exist, increment the last student ID
+      const lastteacherId = teacherData[teacherData.length - 1].rollNumber;
+      setValue("teacherId", String(Number(lastteacherId) + 1));
+    } else {
+      // If no students exist, set the first student ID
+      setValue("teacherId", "1");
+    }
+  }, [teacherData, setValue]);
+
   const onSubmit = async (data: TeacherFormData) => {
     try {
       const file = Array.from(data.teacherImage as FileList)[0];
-      const res = await startUpload([file]);
-      if (res && res[0]) {
-        console.log(res[0].ufsUrl);
+      if (file) {
+        const res = await startUpload([file]);
+        if (res && res[0]) {
+          data.teacherImage = res[0].ufsUrl;
+        }
+      } else {
+        data.teacherImage = null;
       }
-      data.teacherImage = res ? res[0].ufsUrl : null;
       await createTeacher.mutateAsync(data);
       console.log("data: ", data);
     } catch (error) {
@@ -81,7 +96,7 @@ const TeacherCreationDialog = () => {
                     errors.teacherId,
                   "border-input focus-visible:ring-ring": !errors.teacherId,
                 })}
-                onChange={(e) => setValue("teacherId", e.target.value)}
+                readOnly
               />
               {errors.teacherId && (
                 <p className="text-red-500 text-sm">

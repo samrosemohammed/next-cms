@@ -22,6 +22,8 @@ import {
 import { trpc } from "@/app/_trpc/client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
 export const StudentTable = () => {
   const utils = trpc.useUtils();
@@ -30,9 +32,13 @@ export const StudentTable = () => {
   const deleteStudent = trpc.deleteStudent.useMutation({
     onSuccess: (data) => {
       utils.getStudents.invalidate();
+      toast.success(data.message);
     },
     onError: (err) => {
       console.error("Error deleting student:", err);
+      if (err instanceof TRPCClientError) {
+        toast.error(err.message);
+      }
     },
   });
   const handleDelete = (id: string) => {

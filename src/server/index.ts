@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 import {
   assignModuleSchema,
@@ -11,9 +11,10 @@ import { groupSchema } from "@/lib/validator/zodValidation";
 import Group, { TGroup } from "@/model/group";
 import { teacherSchema } from "@/lib/validator/zodValidation";
 import UserModel, { TUser } from "@/model/user";
-import mongoose from "mongoose";
+import mongoose, { MongooseError } from "mongoose";
 import AssignModule, { TAssignModule } from "@/model/assignModule";
 import { UTApi } from "uploadthing/server";
+import { TRPCError } from "@trpc/server";
 
 const utapi = new UTApi();
 
@@ -32,6 +33,18 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
       dbConnect();
+
+      const existTeacherGroupAssign = await AssignModule.findOne({
+        group: input.group,
+        teacher: input.teacher,
+        createdBy: userId,
+      });
+      if (existTeacherGroupAssign) {
+        throw new TRPCError({
+          message: "Teacher already assigned to this group",
+          code: "BAD_REQUEST",
+        });
+      }
       const am = await AssignModule.create({
         ...input,
         createdBy: userId,
@@ -57,6 +70,16 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
       dbConnect();
+      const existGroupName = await Group.findOne({
+        groupName: input.groupName,
+        createdBy: userId,
+      });
+      if (existGroupName) {
+        throw new TRPCError({
+          message: "Group name already exist",
+          code: "BAD_REQUEST",
+        });
+      }
       const g = await Group.create({
         ...input,
         createdBy: userId,
