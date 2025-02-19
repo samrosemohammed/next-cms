@@ -11,7 +11,6 @@ import { groupSchema } from "@/lib/validator/zodValidation";
 import Group, { TGroup } from "@/model/group";
 import { teacherSchema } from "@/lib/validator/zodValidation";
 import UserModel, { TUser } from "@/model/user";
-import mongoose, { MongooseError } from "mongoose";
 import AssignModule, { TAssignModule } from "@/model/assignModule";
 import { UTApi } from "uploadthing/server";
 import { TRPCError } from "@trpc/server";
@@ -213,6 +212,14 @@ export const appRouter = router({
       dbConnect();
       await AssignModule.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Assign Module deleted" };
+    }),
+  deleteGroup: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId, user } = ctx;
+      dbConnect();
+      await Group.deleteOne({ _id: input.id, createdBy: userId });
+      return { success: true, message: "Group deleted" };
     }),
 });
 export type AppRouter = typeof appRouter;

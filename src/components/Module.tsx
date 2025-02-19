@@ -31,11 +31,13 @@ import { Button, buttonVariants } from "./ui/button";
 import { useState } from "react";
 import { ModuleAssignDialog } from "./ModuleAssignDialog";
 import { format } from "date-fns";
+import { ModuleCreationDialog } from "./ModuleCreationDialog";
 
 export const Module = () => {
   const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
   const [selectedModuleId, setSelectedModuleId] = useState<string>("");
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const { data } = trpc.getModules.useQuery();
   const handleDelete = async (moduleId: string) => {
     console.log("module id to delete : ", moduleId);
@@ -69,7 +71,12 @@ export const Module = () => {
                     <Bookmark />
                     Assign
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setIsEditOpen(true);
+                      setSelectedModuleId(m._id);
+                    }}
+                  >
                     <Pencil />
                     Edit
                   </DropdownMenuItem>
@@ -98,6 +105,11 @@ export const Module = () => {
         moduleId={selectedModuleId}
         open={isAssignOpen}
         setOpen={setIsAssignOpen}
+      />
+      <ModuleCreationDialog
+        moduleId={selectedModuleId}
+        open={isEditOpen}
+        setOpen={setIsEditOpen}
       />
       {/* for module delete creation */}
       <AlertDialog

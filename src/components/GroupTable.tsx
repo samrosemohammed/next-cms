@@ -10,10 +10,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { trpc } from "@/app/_trpc/client";
+import { toast } from "sonner";
 
 export const GroupTable = () => {
+  const utils = trpc.useUtils();
   const { data } = trpc.getGroups.useQuery();
+  const deleteGroup = trpc.deleteGroup.useMutation({
+    onSuccess: (data) => {
+      utils.getGroups.invalidate();
+      toast.success(data.message);
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+  const handleDelete = (id: string) => {
+    try {
+      deleteGroup.mutate({ id });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <Table>
@@ -39,14 +68,48 @@ export const GroupTable = () => {
               >
                 Edit
               </Button>
-              <Button
-                className={buttonVariants({
-                  size: "sm",
-                  variant: "destructive",
-                })}
-              >
-                Delete
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    size={"sm"}
+                    variant={"destructive"}
+                    className="outline-none"
+                  >
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your group information and remove your data from our
+                      servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "ghost",
+                      })}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "destructive",
+                      })}
+                      onClick={() => handleDelete(g._id)}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </TableCell>
           </TableRow>
         ))}

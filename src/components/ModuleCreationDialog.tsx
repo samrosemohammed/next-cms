@@ -29,7 +29,16 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
 
-export const ModuleCreationDialog = () => {
+interface ModuleCreationDialogProps {
+  moduleId?: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+export const ModuleCreationDialog = ({
+  moduleId,
+  open,
+  setOpen,
+}: ModuleCreationDialogProps) => {
   const utils = trpc.useUtils();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -42,7 +51,7 @@ export const ModuleCreationDialog = () => {
   } = useForm<ModuleFormData>({
     resolver: zodResolver(moduleSchema),
   });
-  const [open, setOpen] = useState<boolean>(false);
+  // const [open, setOpen] = useState<boolean>(false);
   const createModule = trpc.createModule.useMutation({
     onSuccess: (data) => {
       console.log("data: ", data);
@@ -67,16 +76,20 @@ export const ModuleCreationDialog = () => {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          Create Module <Plus />
-        </Button>
-      </DialogTrigger>
+      {!moduleId && (
+        <DialogTrigger asChild>
+          <Button>
+            {moduleId ? "Edit Module" : "Create Module"} <Plus />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Module Creation</DialogTitle>
           <DialogDescription>
-            Add a module. Click create when you're done.
+            {moduleId
+              ? "Edit the module details. Click save when you're done."
+              : "Add a module. Click create when you're done."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -204,7 +217,7 @@ export const ModuleCreationDialog = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create</Button>
+            <Button type="submit">{moduleId ? "Save" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
