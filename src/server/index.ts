@@ -167,6 +167,22 @@ export const appRouter = router({
     const g: TGroup[] = await Group.find({ createdBy: userId });
     return g;
   }),
+  editModule: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        moduleSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      dbConnect();
+      await Module.updateOne(
+        { _id: input.id, createdBy: userId },
+        input.moduleSchema
+      );
+      return { message: "Module updated" };
+    }),
   deleteTeacher: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

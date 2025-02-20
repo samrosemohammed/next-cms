@@ -32,11 +32,14 @@ import { useState } from "react";
 import { ModuleAssignDialog } from "./ModuleAssignDialog";
 import { format } from "date-fns";
 import { ModuleCreationDialog } from "./ModuleCreationDialog";
+import { ModuleFormData } from "@/lib/validator/zodValidation";
 
 export const Module = () => {
   const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
   const [selectedModuleId, setSelectedModuleId] = useState<string>("");
+  const [selectedModuleInfo, setSelectedModuleInfo] =
+    useState<ModuleFormData>();
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const { data } = trpc.getModules.useQuery();
   const handleDelete = async (moduleId: string) => {
@@ -75,6 +78,11 @@ export const Module = () => {
                     onClick={() => {
                       setIsEditOpen(true);
                       setSelectedModuleId(m._id);
+                      setSelectedModuleInfo({
+                        ...m,
+                        startDate: new Date(m.startDate),
+                        endDate: new Date(m.endDate),
+                      });
                     }}
                   >
                     <Pencil />
@@ -106,11 +114,14 @@ export const Module = () => {
         open={isAssignOpen}
         setOpen={setIsAssignOpen}
       />
-      <ModuleCreationDialog
-        moduleId={selectedModuleId}
-        open={isEditOpen}
-        setOpen={setIsEditOpen}
-      />
+      {isEditOpen && (
+        <ModuleCreationDialog
+          moduleInfo={selectedModuleInfo}
+          moduleId={selectedModuleId}
+          open={isEditOpen}
+          setOpen={setIsEditOpen}
+        />
+      )}
       {/* for module delete creation */}
       <AlertDialog
         open={isDeleteAleartOpen}

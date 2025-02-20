@@ -24,13 +24,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ModuleFormData, moduleSchema } from "@/lib/validator/zodValidation";
 import { Plus } from "lucide-react";
 import { trpc } from "@/app/_trpc/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
 
 interface ModuleCreationDialogProps {
   moduleId?: string;
+  moduleInfo?: ModuleFormData;
   open: boolean;
   setOpen: (open: boolean) => void;
 }
@@ -38,11 +39,11 @@ export const ModuleCreationDialog = ({
   moduleId,
   open,
   setOpen,
+  moduleInfo,
 }: ModuleCreationDialogProps) => {
   const utils = trpc.useUtils();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-
   const {
     register,
     handleSubmit,
@@ -51,7 +52,6 @@ export const ModuleCreationDialog = ({
   } = useForm<ModuleFormData>({
     resolver: zodResolver(moduleSchema),
   });
-  // const [open, setOpen] = useState<boolean>(false);
   const createModule = trpc.createModule.useMutation({
     onSuccess: (data) => {
       console.log("data: ", data);
@@ -66,20 +66,51 @@ export const ModuleCreationDialog = ({
       }
     },
   });
+  const editModule = trpc.editModule.useMutation({
+    onSuccess: (data) => {
+      utils.getModules.invalidate();
+      setOpen(false);
+      toast.success(data.message);
+    },
+    onError: (err) => {
+      console.error("Error editing module:", err);
+      if (err instanceof TRPCClientError) {
+        toast.error(err.message);
+      }
+    },
+  });
   const onSubmit = async (data: ModuleFormData) => {
     try {
-      await createModule.mutateAsync(data);
+      if (!moduleInfo) {
+        await createModule.mutateAsync(data);
+      } else {
+        if (moduleId) {
+          await editModule.mutateAsync({ moduleSchema: data, id: moduleId });
+        } else {
+          console.error("Module ID is undefined");
+        }
+        console.log("edit module");
+        console.log("selected module id : ", moduleId);
+      }
       console.log("data: ", data);
     } catch (error) {
       console.error("Error creating module:", error);
     }
   };
+  useEffect(() => {
+    if (moduleInfo) {
+      setValue("name", moduleInfo.name);
+      setValue("code", moduleInfo.code);
+      setValue("startDate", moduleInfo.startDate);
+      setValue("endDate", moduleInfo.endDate);
+    }
+  }, [moduleInfo]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {!moduleId && (
+      {!moduleInfo && (
         <DialogTrigger asChild>
           <Button>
-            {moduleId ? "Edit Module" : "Create Module"} <Plus />
+            {moduleInfo ? "Edit Module" : "Create Module"} <Plus />
           </Button>
         </DialogTrigger>
       )}
@@ -87,7 +118,7 @@ export const ModuleCreationDialog = ({
         <DialogHeader>
           <DialogTitle>Module Creation</DialogTitle>
           <DialogDescription>
-            {moduleId
+            {moduleInfo
               ? "Edit the module details. Click save when you're done."
               : "Add a module. Click create when you're done."}
           </DialogDescription>
@@ -144,8 +175,8 @@ export const ModuleCreationDialog = ({
                     )}
                   >
                     <CalendarIcon />
-                    {startDate ? (
-                      format(startDate, "PPP")
+                    {startDate || moduleInfo?.startDate ? (
+                      format(startDate! || moduleInfo?.startDate, "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -187,8 +218,8 @@ export const ModuleCreationDialog = ({
                     )}
                   >
                     <CalendarIcon />
-                    {endDate ? (
-                      format(endDate, "PPP")
+                    {endDate || moduleInfo?.endDate ? (
+                      format(endDate! || moduleInfo?.endDate, "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -217,7 +248,7 @@ export const ModuleCreationDialog = ({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">{moduleId ? "Save" : "Create"}</Button>
+            <Button type="submit">{moduleInfo ? "Save" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
