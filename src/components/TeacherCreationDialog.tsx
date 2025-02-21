@@ -19,16 +19,46 @@ import { cn } from "@/lib/utils";
 import { TeacherFormData, teacherSchema } from "@/lib/validator/zodValidation";
 import { useUploadThing } from "@/lib/uploadthing";
 import { trpc } from "@/app/_trpc/client";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
-const TeacherCreationDialog = () => {
+interface TeacherCreationDialogProps {
+  openFromEdit?: boolean;
+  setOpenFromEdit?: (open: boolean) => void;
+  teacherId?: string;
+  teacherInfo?: TeacherFormData;
+}
+const TeacherCreationDialog = ({
+  openFromEdit,
+  setOpenFromEdit,
+  teacherId,
+  teacherInfo,
+}: TeacherCreationDialogProps) => {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
+  const isOpen = openFromEdit !== undefined ? openFromEdit : open;
+  const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const { startUpload } = useUploadThing("imageUploader");
   const { data: teacherData } = trpc.getTeachers.useQuery();
   const createTeacher = trpc.createUserWithTeacher.useMutation({
     onSuccess: (data) => {
       utils.getTeachers.invalidate();
       setOpen(false);
+      toast.success(data.message);
+    },
+  });
+  const editTeacher = trpc.editTeacher.useMutation({
+    onSuccess: (data) => {
+      utils.getTeachers.invalidate();
+      setOpen(false);
+      setOpenFromEdit && setOpenFromEdit(false);
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      console.error("Error editing teacher:", error);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
     },
   });
   const {
@@ -41,40 +71,60 @@ const TeacherCreationDialog = () => {
   });
 
   useEffect(() => {
-    if (teacherData && teacherData.length > 0) {
-      // If students exist, increment the last student ID
+    if (teacherData && teacherData.length > 0 && !teacherInfo) {
       const lastteacherId = teacherData[teacherData.length - 1].rollNumber;
       setValue("teacherId", String(Number(lastteacherId) + 1));
     } else {
-      // If no students exist, set the first student ID
       setValue("teacherId", "1");
     }
-  }, [teacherData, setValue]);
+
+    if (teacherInfo) {
+      setValue("teacherId", teacherInfo.teacherId);
+      setValue("teacherName", teacherInfo.teacherName);
+      setValue("teacherEmail", teacherInfo.teacherEmail);
+      setValue("teacherPassword", teacherInfo.teacherPassword);
+      setValue("teacherImage", teacherInfo.teacherImage || null);
+    }
+  }, [teacherData, teacherInfo, setValue]);
 
   const onSubmit = async (data: TeacherFormData) => {
     try {
-      const file = Array.from(data.teacherImage as FileList)[0];
+      let uploadImageUrl = teacherInfo?.teacherImage || null;
+      const file =
+        data.teacherImage instanceof FileList && data.teacherImage.length > 0
+          ? data.teacherImage[0]
+          : null;
       if (file) {
         const res = await startUpload([file]);
         if (res && res[0]) {
-          data.teacherImage = res[0].ufsUrl;
+          uploadImageUrl = res[0].ufsUrl;
         }
-      } else {
-        data.teacherImage = null;
       }
-      await createTeacher.mutateAsync(data);
-      console.log("data: ", data);
+      const updatedTeacher = {
+        ...data,
+        teacherImage: uploadImageUrl,
+      };
+      if (teacherInfo) {
+        await editTeacher.mutateAsync({
+          id: teacherId!,
+          teacherSchema: updatedTeacher,
+        });
+      } else {
+        await createTeacher.mutateAsync(updatedTeacher);
+      }
     } catch (error) {
       console.error("Error creating group:", error);
     }
   };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          Enroll Teacher <Plus />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {!teacherInfo && (
+        <DialogTrigger asChild>
+          <Button>
+            Enroll Teacher <Plus />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Enroll Teacher</DialogTitle>
@@ -170,7 +220,7 @@ const TeacherCreationDialog = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create</Button>
+            <Button type="submit">{teacherInfo ? "Save" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

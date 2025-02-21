@@ -33,8 +33,11 @@ import { ModuleAssignDialog } from "./ModuleAssignDialog";
 import { format } from "date-fns";
 import { ModuleCreationDialog } from "./ModuleCreationDialog";
 import { ModuleFormData } from "@/lib/validator/zodValidation";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
 export const Module = () => {
+  const utils = trpc.useUtils();
   const [isAssignOpen, setIsAssignOpen] = useState<boolean>(false);
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
   const [selectedModuleId, setSelectedModuleId] = useState<string>("");
@@ -42,7 +45,22 @@ export const Module = () => {
     useState<ModuleFormData>();
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const { data } = trpc.getModules.useQuery();
+  const deleteModule = trpc.deleteModule.useMutation({
+    onSuccess: (data) => {
+      utils.getModules.invalidate();
+      setIsDeleteAleartOpen(false);
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      console.log("error: ", error.message);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
+    },
+  });
+
   const handleDelete = async (moduleId: string) => {
+    deleteModule.mutateAsync({ id: moduleId });
     console.log("module id to delete : ", moduleId);
   };
   return (

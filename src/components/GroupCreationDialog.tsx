@@ -20,8 +20,20 @@ import { GroupFormData, groupSchema } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
-const GroupCreationDialog = () => {
-  const [open, setOpen] = useState<boolean>(false);
+
+interface GroupCreationDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  groupInfo?: GroupFormData;
+  groupId?: string;
+}
+const GroupCreationDialog = ({
+  open,
+  setOpen,
+  groupInfo,
+  groupId,
+}: GroupCreationDialogProps) => {
+  // const [open, setOpen] = useState<boolean>(false);
   const { data: groupData } = trpc.getGroups.useQuery();
   const utils = trpc.useUtils();
   const {
@@ -47,34 +59,66 @@ const GroupCreationDialog = () => {
     },
   });
 
+  const editGroup = trpc.editGroup.useMutation({
+    onSuccess: (data) => {
+      utils.getGroups.invalidate();
+      setOpen(false);
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      console.log("error", error);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
+    },
+  });
+
   useEffect(() => {
-    if (groupData && groupData.length > 0) {
+    if (groupData && groupData.length > 0 && !groupInfo) {
       const lastGroupId = groupData[groupData.length - 1].groupId;
       setValue("groupId", String(Number(lastGroupId) + 1));
     } else {
       setValue("groupId", "1");
     }
-  }, [groupData, setValue]);
+    if (groupInfo) {
+      setValue("groupName", groupInfo.groupName);
+      setValue("groupId", groupInfo.groupId);
+    }
+  }, [groupData, groupInfo, setValue]);
+
   const onSubmit = async (data: GroupFormData) => {
     try {
-      await createGroup.mutateAsync(data);
-      console.log("data: ", data);
+      if (!groupInfo) {
+        await createGroup.mutateAsync(data);
+      } else {
+        if (groupId) {
+          await editGroup.mutateAsync({ groupSchema: data, id: groupId });
+        } else {
+          console.error("groupId is missing");
+        }
+      }
     } catch (error) {
       console.error("Error creating group:", error);
     }
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          Create Group <Plus />
-        </Button>
-      </DialogTrigger>
+      {!groupInfo && (
+        <DialogTrigger asChild>
+          <Button>
+            Create Group <Plus />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Group Creation</DialogTitle>
+          <DialogTitle>
+            {groupInfo ? "Group Edition" : "Group Creation"}
+          </DialogTitle>
           <DialogDescription>
-            Add a group. Click create when you're done.
+            {groupInfo
+              ? "Edit a group: Click save when you're done."
+              : "Add a group. Click create when you're done."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -117,7 +161,7 @@ const GroupCreationDialog = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create</Button>
+            <Button type="submit">{groupInfo ? "Save" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -14,6 +14,7 @@ import UserModel, { TUser } from "@/model/user";
 import AssignModule, { TAssignModule } from "@/model/assignModule";
 import { UTApi } from "uploadthing/server";
 import { TRPCError } from "@trpc/server";
+import mongoose from "mongoose";
 
 const utapi = new UTApi();
 
@@ -124,7 +125,7 @@ export const appRouter = router({
     }),
   getTeachers: privateProcedure.query(async ({ ctx }) => {
     const { userId, user } = ctx;
-    console.log("getTeacher", user, ctx);
+    // console.log("getTeacher", user, ctx);
     dbConnect();
     const t: TUser[] = await UserModel.find({
       role: "teacher",
@@ -182,6 +183,63 @@ export const appRouter = router({
         input.moduleSchema
       );
       return { message: "Module updated" };
+    }),
+  editGroup: privateProcedure
+    .input(z.object({ id: z.string(), groupSchema }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId, user } = ctx;
+      dbConnect();
+      await Group.updateOne(
+        { _id: input.id, createdBy: userId },
+        input.groupSchema
+      );
+      return { message: "Group updated" };
+    }),
+  editTeacher: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        teacherSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      console.log("editTeacher", input);
+      const { userId, user } = ctx;
+      dbConnect();
+      const existingTeacher = await UserModel.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (!existingTeacher) {
+        throw new TRPCError({
+          message: "Teacher not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      if (input.teacherSchema.teacherImage && existingTeacher.image) {
+        if (existingTeacher.image !== input.teacherSchema.teacherImage) {
+          await deleteFile(existingTeacher.image);
+        }
+      }
+
+      const updatedTeacher = await UserModel.findOneAndUpdate(
+        { _id: input.id, createdBy: userId },
+        {
+          name: input.teacherSchema.teacherName,
+          email: input.teacherSchema.teacherEmail,
+          image: input.teacherSchema.teacherImage,
+          password: input.teacherSchema.teacherPassword,
+          rollNumber: input.teacherSchema.teacherId,
+        },
+        { new: true }
+      );
+      if (!updatedTeacher) {
+        throw new TRPCError({
+          message: "Teacher no found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      return { message: "Teacher updated", updatedTeacher };
     }),
   deleteTeacher: privateProcedure
     .input(z.object({ id: z.string() }))
