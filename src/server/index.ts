@@ -241,6 +241,51 @@ export const appRouter = router({
       }
       return { message: "Teacher updated", updatedTeacher };
     }),
+  editStudent: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        studentSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userId, user } = ctx;
+      dbConnect();
+      const existingStudent = await UserModel.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (!existingStudent) {
+        throw new TRPCError({
+          message: "Student not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      if (input.studentSchema.studentImage && existingStudent.image) {
+        if (existingStudent.image !== input.studentSchema.studentImage) {
+          await deleteFile(existingStudent.image);
+        }
+      }
+      const updatedStudent = await UserModel.findOneAndUpdate(
+        { _id: input.id, createdBy: userId },
+        {
+          name: input.studentSchema.studentName,
+          email: input.studentSchema.studentEmail,
+          image: input.studentSchema.studentImage,
+          password: input.studentSchema.studentPassword,
+          rollNumber: input.studentSchema.studentId,
+          group: input.studentSchema.studentGroup,
+        },
+        { new: true }
+      );
+      if (!updatedStudent) {
+        throw new TRPCError({
+          message: "Student not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      return { message: "Student updated", updatedStudent };
+    }),
   deleteTeacher: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

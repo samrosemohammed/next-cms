@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,10 +28,27 @@ import { StudentFormData, studentSchema } from "@/lib/validator/zodValidation";
 import { cn } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
 import { trpc } from "@/app/_trpc/client";
+import { toast } from "sonner";
+import { TRPCClientError } from "@trpc/client";
 
-export const StudentCreationDialog = () => {
+interface StudentCreationDialogProps {
+  openFromEdit?: boolean;
+  setOpenFromEdit?: (open: boolean) => void;
+  studentId?: string;
+  studentInfo?: StudentFormData;
+}
+
+export const StudentCreationDialog = ({
+  openFromEdit,
+  setOpenFromEdit,
+  studentId,
+  studentInfo,
+}: StudentCreationDialogProps) => {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const isOpen = openFromEdit !== undefined ? openFromEdit : open;
+  const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const { startUpload } = useUploadThing("imageUploader");
   const { data: groupData } = trpc.getGroups.useQuery();
   const { data: studentData } = trpc.getStudents.useQuery();
@@ -39,6 +56,24 @@ export const StudentCreationDialog = () => {
     onSuccess: (data) => {
       utils.getStudents.invalidate();
       setOpen(false);
+      setIsLoading(false);
+    },
+  });
+
+  const editStudent = trpc.editStudent.useMutation({
+    onSuccess: (data) => {
+      utils.getStudents.invalidate();
+      setOpen(false);
+      setOpenFromEdit && setOpenFromEdit(false);
+      toast.success(data.message);
+      setIsLoading(false);
+    },
+    onError: (err) => {
+      console.error("Error editing student:", err);
+      if (err instanceof TRPCClientError) {
+        toast.error(err.message);
+      }
+      setIsLoading(false);
     },
   });
   const {
@@ -52,44 +87,67 @@ export const StudentCreationDialog = () => {
 
   useEffect(() => {
     if (studentData && studentData.length > 0) {
-      // If students exist, increment the last student ID
       const lastStudentId = studentData[studentData.length - 1].rollNumber;
       setValue("studentId", String(Number(lastStudentId) + 1));
     } else {
-      // If no students exist, set the first student ID
       setValue("studentId", "1");
     }
-  }, [studentData, setValue]);
+
+    if (studentInfo) {
+      setValue("studentId", studentInfo.studentId);
+      setValue("studentName", studentInfo.studentName);
+      setValue("studentEmail", studentInfo.studentEmail);
+      setValue("studentPassword", studentInfo.studentPassword);
+    }
+  }, [studentData, studentInfo, setValue]);
 
   const onSubmit = async (data: StudentFormData) => {
+    setIsLoading(true);
     try {
-      const file = Array.from(data.studentImage as FileList)[0];
+      let uploadImageUrl = studentInfo?.studentImage || null;
+      const file =
+        data.studentImage instanceof FileList && data.studentImage.length > 0
+          ? data.studentImage[0]
+          : null;
       if (file) {
         const res = await startUpload([file]);
         if (res && res[0]) {
-          data.studentImage = res[0].ufsUrl;
+          uploadImageUrl = res[0].ufsUrl;
         }
-      } else {
-        data.studentImage = null;
       }
-      await createStudent.mutateAsync(data);
+      const updatedStudent = {
+        ...data,
+        studentImage: uploadImageUrl,
+      };
+      if (!studentInfo) {
+        await createStudent.mutateAsync(updatedStudent);
+      } else {
+        await editStudent.mutateAsync({
+          id: studentId!,
+          studentSchema: updatedStudent,
+        });
+      }
       console.log("data: ", data);
     } catch (err) {
       console.error("Error creating student:", err);
     }
   };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          Enroll Student <Plus />
+          {studentInfo ? "Edit Student" : "Enroll Student"} <Plus />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Enroll Student</DialogTitle>
+          <DialogTitle>
+            {studentInfo ? "Edit Student" : "Enroll Student"}
+          </DialogTitle>
           <DialogDescription>
-            Enroll a student. Click create when you're done.
+            {studentInfo
+              ? "Edit a student. Click save when you're done"
+              : "Enroll a student. Click create when you're done."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -207,7 +265,10 @@ export const StudentCreationDialog = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create</Button>
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="animate-spin" /> : null}
+              {studentInfo ? "Save" : "Create"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

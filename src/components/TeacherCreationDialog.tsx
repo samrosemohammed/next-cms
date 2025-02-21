@@ -83,7 +83,6 @@ const TeacherCreationDialog = ({
       setValue("teacherName", teacherInfo.teacherName);
       setValue("teacherEmail", teacherInfo.teacherEmail);
       setValue("teacherPassword", teacherInfo.teacherPassword);
-      setValue("teacherImage", teacherInfo.teacherImage || null);
     }
   }, [teacherData, teacherInfo, setValue]);
 
