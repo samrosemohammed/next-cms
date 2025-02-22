@@ -32,18 +32,35 @@ import { TRPCClientError } from "@trpc/client";
 interface ModuleAssignDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  moduleId: string;
+  moduleId?: string;
+  assignModuleInfo?: AssignModuleFormData;
+  assignModuleId?: string;
 }
 export const ModuleAssignDialog = ({
   open,
   setOpen,
   moduleId,
+  assignModuleInfo,
+  assignModuleId,
 }: ModuleAssignDialogProps) => {
+  const utils = trpc.useUtils();
   const { data: groupData } = trpc.getGroups.useQuery();
   const { data: teacherData } = trpc.getTeachers.useQuery();
   const createAssignModule = trpc.createAssignModule.useMutation({
     onSuccess: (data) => {
-      console.log("data", data);
+      setOpen(false);
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      console.log("error", error);
+      if (error instanceof TRPCClientError) {
+        toast.error(error.message);
+      }
+    },
+  });
+  const editAssignModule = trpc.editAssignModule.useMutation({
+    onSuccess: (data) => {
+      utils.getAssignModules.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
@@ -63,9 +80,17 @@ export const ModuleAssignDialog = ({
   } = useForm<AssignModuleFormData>({
     resolver: zodResolver(assignModuleSchema),
   });
+  console.log("hello");
   const onSubmit = async (data: AssignModuleFormData) => {
     try {
-      await createAssignModule.mutateAsync(data);
+      if (assignModuleInfo) {
+        await editAssignModule.mutateAsync({
+          id: assignModuleId!,
+          assignModuleSchema: data,
+        });
+      } else {
+        await createAssignModule.mutateAsync(data);
+      }
     } catch (error) {
       console.log("error", error);
     }
@@ -81,15 +106,24 @@ export const ModuleAssignDialog = ({
     if (moduleId) {
       setValue("moduleId", moduleId); // Ensure this matches the schema
     }
-  }, [moduleId, setValue]);
+    if (assignModuleInfo) {
+      setValue("teacher", assignModuleInfo.teacher);
+      setValue("group", assignModuleInfo.group);
+      setValue("moduleId", assignModuleInfo.moduleId);
+    }
+  }, [assignModuleInfo, moduleId, setValue]);
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Assign Module</DialogTitle>
+          <DialogTitle>
+            {assignModuleInfo ? "Edit Module Assign" : "Assign Module"}
+          </DialogTitle>
           <DialogDescription>
-            Assign module to group and teacher. Click assign when you're done.
+            {assignModuleInfo
+              ? "Edit the module assign. Click save when you're done."
+              : "Assign module to group and teacher. Click assign when you're done."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -148,7 +182,9 @@ export const ModuleAssignDialog = ({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Assign</Button>
+            <Button type="submit">
+              {assignModuleInfo ? "Save" : "Assign"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

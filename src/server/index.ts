@@ -22,7 +22,7 @@ const deleteFile = async (imageUrl: string) => {
   try {
     const keyFromTheImageUrl = imageUrl.split("/").pop();
     await utapi.deleteFiles(keyFromTheImageUrl!);
-    console.log("image deleted: ", keyFromTheImageUrl);
+    // console.log("image deleted: ", keyFromTheImageUrl);
   } catch (err) {
     console.error("Error deleting file:", err);
   }
@@ -56,7 +56,7 @@ export const appRouter = router({
     .input(moduleSchema)
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
-      console.log(user, userId);
+      // console.log(user, userId);
       dbConnect();
       const m = await Module.create({
         ...input,
@@ -91,7 +91,7 @@ export const appRouter = router({
     .input(teacherSchema)
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
-      console.log("create : ", userId);
+      // console.log("create : ", userId);
       dbConnect();
       const u = await UserModel.create({
         name: input.teacherName,
@@ -203,7 +203,7 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("editTeacher", input);
+      // console.log("editTeacher", input);
       const { userId, user } = ctx;
       dbConnect();
       const existingTeacher = await UserModel.findOne({
@@ -285,6 +285,43 @@ export const appRouter = router({
         });
       }
       return { message: "Student updated", updatedStudent };
+    }),
+  editAssignModule: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        assignModuleSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      dbConnect();
+      const existingAssignModule = await AssignModule.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (!existingAssignModule) {
+        throw new TRPCError({
+          message: "Assign module not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      const updatedAssignModule = await AssignModule.findOneAndUpdate(
+        { _id: input.id, createdBy: userId },
+        {
+          moduleId: input.assignModuleSchema.moduleId,
+          teacher: input.assignModuleSchema.teacher,
+          group: input.assignModuleSchema.group,
+        },
+        { new: true }
+      );
+      if (!updatedAssignModule) {
+        throw new TRPCError({
+          message: "Assign module not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      return { message: "Assign module updated", updatedAssignModule };
     }),
   deleteTeacher: privateProcedure
     .input(z.object({ id: z.string() }))

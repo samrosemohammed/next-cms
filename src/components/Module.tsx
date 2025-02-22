@@ -61,7 +61,6 @@ export const Module = () => {
 
   const handleDelete = async (moduleId: string) => {
     deleteModule.mutateAsync({ id: moduleId });
-    console.log("module id to delete : ", moduleId);
   };
   return (
     <div>
