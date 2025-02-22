@@ -96,11 +96,18 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
   };
 
   const onSubmit = async (data: ResourceFormData) => {
+    console.log("Form data", data);
     const files = data.files as File[];
-    const fileUploads = await startUpload(files);
-    const fileUrls = fileUploads?.map((file) => file.ufsUrl);
-    console.log("File URLs", fileUrls);
-    createResource.mutateAsync(data);
+
+    if (files.length > 0) {
+      const fileUploads = await startUpload(files);
+      const fileData = fileUploads?.map((file) => ({
+        name: file.name,
+        url: file.url,
+        key: file.key,
+      }));
+      createResource.mutateAsync({ ...data, files: fileData });
+    }
   };
 
   console.log(userId);

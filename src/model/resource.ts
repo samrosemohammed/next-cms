@@ -6,7 +6,7 @@ interface ITeacherModuleResource {
   title: string;
   description?: string;
   links?: string[];
-  files: File[];
+  files: { name: string; url: string; key: string }[]; // Fix here
   moduleObjectId: TModule | null;
   teacherObjectId: TUser | null;
   createdBy: mongoose.Schema.Types.ObjectId;
@@ -25,7 +25,13 @@ const TeacherModuleResourceSchema = new Schema<MongoUser>(
     title: { type: String, required: true },
     description: { type: String },
     links: [{ type: String }],
-    files: [{ type: String }],
+    files: [
+      {
+        name: { type: String, required: true },
+        url: { type: String, required: true },
+        key: { type: String, required: true },
+      },
+    ],
     moduleObjectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Module",

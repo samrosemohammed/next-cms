@@ -38,7 +38,11 @@ export const appRouter = router({
       dbConnect();
       const tmr = await TeacherModuleResource.create({
         ...input,
-        files: input.files,
+        files: input.files?.map((file) => ({
+          name: file.name,
+          url: file.url,
+          key: file.key,
+        })),
         moduleObjectId: input.moduleId,
         teacherObjectId: input.teacherId,
         createdBy: userId,

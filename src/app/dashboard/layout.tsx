@@ -9,7 +9,7 @@ import { PropsWithChildren } from "react";
 const Layout = async ({ children }: PropsWithChildren) => {
   const session = await getServerSession(authOptions);
   const user = session?.user;
-  console.log(user);
+
   return (
     <SidebarProvider>
       <AppSidebar user={user!} />
