@@ -1,10 +1,14 @@
+"use client";
 import {
   Bookmark,
+  ChevronLeft,
   ChevronUp,
+  FileText,
   Folder,
   Layers2,
   LayoutGrid,
   LogOut,
+  MessageSquare,
   User2,
   UserRound,
   Wallet,
@@ -29,42 +33,67 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { User } from "next-auth";
+import { usePathname } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
-// Menu items.
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutGrid,
-  },
-  {
-    title: "Module",
-    url: "/dashboard/module",
-    icon: Folder,
-  },
-  {
-    title: "Group",
-    url: "/dashboard/group",
-    icon: Layers2,
-  },
-  {
-    title: "Teacher",
-    url: "/dashboard/teacher",
-    icon: UserRound,
-  },
-  {
-    title: "Student",
-    url: "/dashboard/student",
-    icon: UserRound,
-  },
-  {
-    title: "Assign",
-    url: "/dashboard/assign",
-    icon: Bookmark,
-  },
-];
+interface AppSidebarProps {
+  user: User;
+}
+const AppSidebar = ({ user }: AppSidebarProps) => {
+  const pathname = usePathname();
+  const isModulePage = /^\/dashboard\/module\/[^/]+(\/.*)?$/.test(
+    pathname ?? ""
+  );
+  const items = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutGrid,
+    },
+    {
+      title: "Module",
+      url: "/dashboard/module",
+      icon: Folder,
+    },
+    {
+      title: "Group",
+      url: "/dashboard/group",
+      icon: Layers2,
+    },
+    {
+      title: "Teacher",
+      url: "/dashboard/teacher",
+      icon: UserRound,
+    },
+    {
+      title: "Student",
+      url: "/dashboard/student",
+      icon: UserRound,
+    },
+    {
+      title: "Assign",
+      url: "/dashboard/assign",
+      icon: Bookmark,
+    },
+  ];
 
-const AppSidebar = () => {
+  const moduleItems = [
+    { title: "Back", url: "/dashboard/module", icon: ChevronLeft },
+    { title: "Files", url: `${pathname}/files`, icon: FileText },
+    { title: "Assignments", url: `${pathname}/assignments`, icon: Bookmark },
+    {
+      title: "Announcements",
+      url: `${pathname}/announcements`,
+      icon: MessageSquare,
+    },
+  ];
+  const filteredItems =
+    user?.role === "teacher"
+      ? items.filter(
+          (item) => item.title === "Dashboard" || item.title === "Module"
+        )
+      : items;
   return (
     <Sidebar>
       <SidebarHeader className="mb-2">Classroom.</SidebarHeader>
@@ -73,7 +102,7 @@ const AppSidebar = () => {
           <SidebarGroupLabel className="">Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2">
-              {items.map((item) => (
+              {(isModulePage ? moduleItems : filteredItems).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
@@ -93,7 +122,15 @@ const AppSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> Username
+                  {user.image ? (
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage src={user.image} alt="@classroom" />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <User2 />
+                  )}{" "}
+                  {user ? user.name : "Username"}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>

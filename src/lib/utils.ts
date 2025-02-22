@@ -1,4 +1,3 @@
-import { trpc } from "@/app/_trpc/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

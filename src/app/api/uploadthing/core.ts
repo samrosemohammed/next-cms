@@ -9,14 +9,32 @@ const f = createUploadthing();
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
   imageUploader: f({
-    image: {
-      /**
-       * For full list of options and defaults, see the File Route API reference
-       * @see https://docs.uploadthing.com/file-routes#route-config
-       */
-      maxFileSize: "4MB",
-      maxFileCount: 1,
+    // image: {
+    //   /**
+    //    * For full list of options and defaults, see the File Route API reference
+    //    * @see https://docs.uploadthing.com/file-routes#route-config
+    //    */
+    //   maxFileSize: "4MB",
+    //   maxFileCount: 1,
+    // },
+    // pdf: {
+    //   maxFileSize: "4MB",
+
+    // },
+    "application/pdf": { maxFileSize: "8MB" },
+    "application/msword": { maxFileSize: "8MB" },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+      maxFileSize: "8MB",
     },
+    "application/vnd.ms-excel": { maxFileSize: "8MB" },
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+      maxFileSize: "8MB",
+    },
+    "image/png": { maxFileSize: "8MB" },
+    "image/jpeg": { maxFileSize: "8MB" },
+    "video/mp4": { maxFileSize: "16MB" },
+    "audio/mpeg": { maxFileSize: "8MB" },
+    "text/plain": { maxFileSize: "8MB" },
   })
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {

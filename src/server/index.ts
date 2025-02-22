@@ -3,6 +3,7 @@ import { privateProcedure, publicProcedure, router } from "./trpc";
 import {
   assignModuleSchema,
   moduleSchema,
+  resourceSchema,
   studentSchema,
 } from "@/lib/validator/zodValidation";
 import { dbConnect } from "@/lib/db";
@@ -15,6 +16,7 @@ import AssignModule, { TAssignModule } from "@/model/assignModule";
 import { UTApi } from "uploadthing/server";
 import { TRPCError } from "@trpc/server";
 import mongoose from "mongoose";
+import TeacherModuleResource from "@/model/resource";
 
 const utapi = new UTApi();
 
@@ -28,6 +30,22 @@ const deleteFile = async (imageUrl: string) => {
   }
 };
 export const appRouter = router({
+  createModuleResource: privateProcedure
+    .input(resourceSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      console.log("create resource input : ", input);
+      dbConnect();
+      const tmr = await TeacherModuleResource.create({
+        ...input,
+        files: input.files,
+        moduleObjectId: input.moduleId,
+        teacherObjectId: input.teacherId,
+        createdBy: userId,
+      });
+      await tmr.save();
+      return { tmr, message: "Resource created" };
+    }),
   createAssignModule: privateProcedure
     .input(assignModuleSchema)
     .mutation(async ({ input, ctx }) => {
@@ -167,6 +185,17 @@ export const appRouter = router({
     dbConnect();
     const g: TGroup[] = await Group.find({ createdBy: userId });
     return g;
+  }),
+  getAssignModuleForTeacher: privateProcedure.query(async ({ ctx }) => {
+    const { user, userId } = ctx;
+    dbConnect();
+    const am = await AssignModule.find({ teacher: userId })
+      .populate("moduleId")
+      .populate("group")
+      .populate("teacher")
+      .lean();
+    const typeResult: TAssignModule[] = am as unknown as TAssignModule[];
+    return typeResult;
   }),
   editModule: privateProcedure
     .input(
