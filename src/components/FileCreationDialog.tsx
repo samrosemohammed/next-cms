@@ -1,5 +1,4 @@
 "use client";
-
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,11 +30,13 @@ interface FileCreationDialogProps {
 }
 export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
   const [open, setOpen] = useState<boolean>(false);
+  const utils = trpc.useUtils();
   const { moduleId } = useParams() as { moduleId: string };
   const { startUpload } = useUploadThing("imageUploader");
   const createResource = trpc.createModuleResource.useMutation({
     onSuccess: (data) => {
       console.log("Resource created successfully", data);
+      utils.getResourceFile.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
@@ -98,19 +99,17 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
   const onSubmit = async (data: ResourceFormData) => {
     console.log("Form data", data);
     const files = data.files as File[];
-
     if (files.length > 0) {
       const fileUploads = await startUpload(files);
       const fileData = fileUploads?.map((file) => ({
         name: file.name,
-        url: file.url,
+        url: file.ufsUrl,
         key: file.key,
       }));
       createResource.mutateAsync({ ...data, files: fileData });
     }
   };
 
-  console.log(userId);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

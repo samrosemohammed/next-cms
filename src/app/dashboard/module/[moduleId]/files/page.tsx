@@ -1,4 +1,5 @@
 import { FileCreationDialog } from "@/components/FileCreationDialog";
+import { GetResourceFile } from "@/components/GetResourceFile";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { useParams } from "next/navigation";
@@ -8,8 +9,11 @@ const Page = async () => {
   const user = session?.user;
 
   return (
-    <div className="flex justify-end px-2 py-4">
-      <FileCreationDialog userId={user?.id!} />
+    <div>
+      <div className="flex justify-end px-2 py-4">
+        <FileCreationDialog userId={user?.id!} />
+      </div>
+      <GetResourceFile />
     </div>
   );
 };

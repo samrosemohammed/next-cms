@@ -3,7 +3,7 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronUp,
-  FileText,
+  File,
   Folder,
   Layers2,
   LayoutGrid,
@@ -36,6 +36,7 @@ import {
 import { User } from "next-auth";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { signOut } from "next-auth/react";
 
 interface AppSidebarProps {
   user: User;
@@ -80,7 +81,7 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
 
   const moduleItems = [
     { title: "Back", url: "/dashboard/module", icon: ChevronLeft },
-    { title: "Files", url: `${pathname}/files`, icon: FileText },
+    { title: "Files", url: `${pathname}/files`, icon: File },
     { title: "Assignments", url: `${pathname}/assignments`, icon: Bookmark },
     {
       title: "Announcements",
@@ -94,6 +95,12 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
           (item) => item.title === "Dashboard" || item.title === "Module"
         )
       : items;
+
+  const handleLogOut = () => {
+    signOut({
+      callbackUrl: "/login",
+    });
+  };
   return (
     <Sidebar>
       <SidebarHeader className="mb-2">Classroom.</SidebarHeader>
@@ -138,23 +145,26 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <Link href={"#"} className="flex items-center gap-2">
                     <User2 size={16} />
                     <span>Account</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <Link href={"#"} className="flex items-center gap-2">
                     <Wallet size={16} />
                     <span>Billing</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link className="flex items-center gap-2" href={"#"}>
+                <DropdownMenuItem className="cursor-pointer">
+                  <div
+                    onClick={handleLogOut}
+                    className="flex items-center gap-2"
+                  >
                     <LogOut size={16} />
                     <span>Sign out</span>
-                  </Link>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

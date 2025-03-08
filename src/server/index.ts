@@ -16,7 +16,9 @@ import AssignModule, { TAssignModule } from "@/model/assignModule";
 import { UTApi } from "uploadthing/server";
 import { TRPCError } from "@trpc/server";
 import mongoose from "mongoose";
-import TeacherModuleResource from "@/model/resource";
+import TeacherModuleResource, {
+  TTeacherModuleResource,
+} from "@/model/resource";
 
 const utapi = new UTApi();
 
@@ -144,6 +146,18 @@ export const appRouter = router({
       });
       await u.save();
       return { u, message: "Student created" };
+    }),
+  getResourceFile: privateProcedure
+    .input(z.object({ moduleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { user, userId } = ctx;
+      dbConnect();
+      const resource: TTeacherModuleResource[] =
+        await TeacherModuleResource.find({
+          moduleObjectId: input.moduleId,
+          createdBy: userId,
+        });
+      return resource;
     }),
   getTeachers: privateProcedure.query(async ({ ctx }) => {
     const { userId, user } = ctx;
