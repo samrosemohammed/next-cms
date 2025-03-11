@@ -47,6 +47,7 @@ export const appRouter = router({
         })),
         moduleObjectId: input.moduleId,
         teacherObjectId: input.teacherId,
+        groupObjectId: input.groupId,
         createdBy: userId,
       });
       await tmr.save();
@@ -57,15 +58,15 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
       dbConnect();
-
-      const existTeacherGroupAssign = await AssignModule.findOne({
-        group: input.group,
+      const existAssignModule = await AssignModule.findOne({
+        moduleId: input.moduleId,
         teacher: input.teacher,
+        group: input.group,
         createdBy: userId,
       });
-      if (existTeacherGroupAssign) {
+      if (existAssignModule) {
         throw new TRPCError({
-          message: "Teacher already assigned to this group",
+          message: "Module already assigned to this group and teacher",
           code: "BAD_REQUEST",
         });
       }
@@ -152,12 +153,15 @@ export const appRouter = router({
     .query(async ({ ctx, input }) => {
       const { user, userId } = ctx;
       dbConnect();
-      const resource: TTeacherModuleResource[] =
-        await TeacherModuleResource.find({
-          moduleObjectId: input.moduleId,
-          createdBy: userId,
-        });
-      return resource;
+      const resource = await TeacherModuleResource.find({
+        moduleObjectId: input.moduleId,
+        createdBy: userId,
+      })
+        .populate("groupObjectId")
+        .lean();
+      const typeResult: TTeacherModuleResource[] =
+        resource as unknown as TTeacherModuleResource[];
+      return typeResult;
     }),
   getTeachers: privateProcedure.query(async ({ ctx }) => {
     const { userId, user } = ctx;

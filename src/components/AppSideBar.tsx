@@ -37,6 +37,7 @@ import { User } from "next-auth";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { signOut } from "next-auth/react";
+import { useParams } from "next/navigation";
 
 interface AppSidebarProps {
   user: User;
@@ -46,6 +47,7 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
   const isModulePage = /^\/dashboard\/module\/[^/]+(\/.*)?$/.test(
     pathname ?? ""
   );
+  const { moduleId } = useParams() as { moduleId: string };
   const items = [
     {
       title: "Dashboard",
@@ -81,11 +83,15 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
 
   const moduleItems = [
     { title: "Back", url: "/dashboard/module", icon: ChevronLeft },
-    { title: "Files", url: `${pathname}/files`, icon: File },
-    { title: "Assignments", url: `${pathname}/assignments`, icon: Bookmark },
+    { title: "Files", url: `/dashboard/module/${moduleId}/files`, icon: File },
+    {
+      title: "Assignments",
+      url: `/dashboard/module/${moduleId}/assignments`,
+      icon: Bookmark,
+    },
     {
       title: "Announcements",
-      url: `${pathname}/announcements`,
+      url: `/dashboard/module/${moduleId}/announcements`,
       icon: MessageSquare,
     },
   ];

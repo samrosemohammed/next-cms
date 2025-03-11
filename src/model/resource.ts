@@ -1,6 +1,7 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
 import { TModule } from "./module";
 import { TUser } from "./user";
+import { TGroup } from "./group";
 
 interface ITeacherModuleResource {
   title: string;
@@ -9,6 +10,7 @@ interface ITeacherModuleResource {
   files: { name: string; url: string; key: string }[]; // Fix here
   moduleObjectId: TModule | null;
   teacherObjectId: TUser | null;
+  groupObjectId: TGroup | null;
   createdBy: mongoose.Schema.Types.ObjectId;
 }
 
@@ -40,6 +42,11 @@ const TeacherModuleResourceSchema = new Schema<MongoUser>(
     teacherObjectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    groupObjectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
       required: true,
     },
     createdBy: {

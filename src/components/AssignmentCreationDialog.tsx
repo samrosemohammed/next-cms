@@ -1,8 +1,6 @@
 "use client";
-import { ChangeEvent, useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import { Plus, Trash } from "lucide-react";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,41 +21,28 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Plus, Trash } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+} from "./ui/select";
+import { ChangeEvent, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import {
-  ResourceFormData,
-  resourceSchema,
+  AssignmentFormData,
+  assignmentSchema,
 } from "@/lib/validator/zodValidation";
-import { trpc } from "@/app/_trpc/client";
-import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "next/navigation";
-import { useUploadThing } from "@/lib/uploadthing";
+import { trpc } from "@/app/_trpc/client";
+import { DatePicker } from "./DatePicker";
 
-interface FileCreationDialogProps {
+interface AssignmentCreationDialogProps {
   userId: string;
 }
-export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
+export const AssignmentCreationDialog = ({
+  userId,
+}: AssignmentCreationDialogProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const { data } = trpc.getAssignModuleForTeacher.useQuery();
-  const utils = trpc.useUtils();
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const { moduleId } = useParams() as { moduleId: string };
-  const { startUpload } = useUploadThing("imageUploader");
-  const createResource = trpc.createModuleResource.useMutation({
-    onSuccess: (data) => {
-      console.log("Resource created successfully", data);
-      utils.getResourceFile.invalidate();
-      setOpen(false);
-      toast.success(data.message);
-    },
-    onError: (err) => {
-      console.log("Error creating resource", err);
-      toast.error(err.message);
-    },
-  });
   const {
     register,
     control,
@@ -62,8 +50,8 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<ResourceFormData>({
-    resolver: zodResolver(resourceSchema),
+  } = useForm<AssignmentFormData>({
+    resolver: zodResolver(assignmentSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -73,7 +61,6 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
       teacherId: userId,
     },
   });
-
   // Manage Links using useFieldArray
   const {
     fields: linkFields,
@@ -93,8 +80,6 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
     control,
     name: "files",
   });
-
-  // Handle File Change
   const handleFileChange = (
     index: number,
     event: ChangeEvent<HTMLInputElement>
@@ -106,36 +91,31 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
     }
   };
 
-  const onSubmit = async (data: ResourceFormData) => {
-    console.log("Form data", data);
-    const files = data.files as File[];
-    if (files.length > 0) {
-      const fileUploads = await startUpload(files);
-      const fileData = fileUploads?.map((file) => ({
-        name: file.name,
-        url: file.ufsUrl,
-        key: file.key,
-      }));
-      createResource.mutateAsync({ ...data, files: fileData });
-    }
+  const handleDateChange = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    setValue("dueDate", selectedDate);
   };
 
   const uniqueGroups = data
     ? Array.from(new Map(data.map((d) => [d.group?._id, d])).values())
     : [];
 
+  const onSubmit = async (data: AssignmentFormData) => {
+    console.log("Form data", data);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          Upload Resource <Plus className="ml-2" />
+          Create Assignment <Plus className="ml-2" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Resource</DialogTitle>
+          <DialogTitle>Create Assignment</DialogTitle>
           <DialogDescription>
-            Add links or upload files. Click "Create" when you're done.
+            Add a assignment with due date. Click "Create" when you're done.
           </DialogDescription>
         </DialogHeader>
 
@@ -183,6 +163,26 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
               <p className="text-red-500 text-sm">
                 {errors.groupId.message?.toString()}
               </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="dueDate">Due Date</Label>
+            <DatePicker date={date} setDate={handleDateChange} />
+            {date && (
+              <div className="mt-4 rounded-md bg-muted p-2">
+                <p className="text-xs font-medium">Selected Date and Time:</p>
+                <p className="text-xs text-muted-foreground">
+                  {date.toLocaleString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true,
+                  })}
+                </p>
+              </div>
             )}
           </div>
 

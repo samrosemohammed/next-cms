@@ -9,18 +9,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { format } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 const GetTeacherModule = () => {
   const { data } = trpc.getAssignModuleForTeacher.useQuery();
   const navigate = useRouter();
   console.log(data);
+  const uniqueModules = data
+    ? Array.from(new Map(data.map((m) => [m?.moduleId?._id, m])).values())
+    : [];
   return (
     <div className="grid grid-cols-3 gap-2 mt-4">
-      {data?.map((m) => (
+      {uniqueModules?.map((m) => (
         <Card
           className="cursor-pointer"
-          onClick={() => navigate.push(`/dashboard/module/${m._id}`)}
+          onClick={() => navigate.push(`/dashboard/module/${m?.moduleId?._id}`)}
           key={m._id}
         >
           {/* <Image

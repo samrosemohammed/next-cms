@@ -28,6 +28,9 @@ export const GetResourceFile = () => {
                   {file.title}
                 </div>
                 <div className="flex items-center gap-2">
+                  <span className="p-1 text-xs rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
+                    Group {file.groupObjectId?.groupName}
+                  </span>
                   <p className="text-sm text-zinc-600">
                     {formatDate(file.createdAt)}
                   </p>
