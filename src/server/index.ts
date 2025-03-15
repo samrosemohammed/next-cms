@@ -1,6 +1,7 @@
 import { z, ZodError } from "zod";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 import {
+  assignmentSchema,
   assignModuleSchema,
   moduleSchema,
   resourceSchema,
@@ -19,6 +20,7 @@ import mongoose from "mongoose";
 import TeacherModuleResource, {
   TTeacherModuleResource,
 } from "@/model/resource";
+import Assignment, { TAssignment } from "@/model/assignment";
 
 const utapi = new UTApi();
 
@@ -31,7 +33,36 @@ const deleteFile = async (imageUrl: string) => {
     console.error("Error deleting file:", err);
   }
 };
+
+const deleteFilesByKeys = async (keys: string[]) => {
+  try {
+    await utapi.deleteFiles(keys);
+  } catch (err) {
+    console.error("Error deleting files:", err);
+  }
+};
 export const appRouter = router({
+  createAssignments: privateProcedure
+    .input(assignmentSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      console.log("createAssignments", input);
+      dbConnect();
+      const assignment = await Assignment.create({
+        ...input,
+        files: input.files?.map((file) => ({
+          name: file.name,
+          url: file.url,
+          key: file.key,
+        })),
+        moduleObjectId: input.moduleId,
+        teacherObjectId: input.teacherId,
+        groupObjectId: input.groupId,
+        createdBy: userId,
+      });
+      await assignment.save();
+      return { assignment, message: "Assignment created" };
+    }),
   createModuleResource: privateProcedure
     .input(resourceSchema)
     .mutation(async ({ input, ctx }) => {
@@ -147,6 +178,20 @@ export const appRouter = router({
       });
       await u.save();
       return { u, message: "Student created" };
+    }),
+  getAssignment: privateProcedure
+    .input(z.object({ moduleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { user, userId } = ctx;
+      dbConnect();
+      const assignment = await Assignment.find({
+        moduleObjectId: input.moduleId,
+        createdBy: userId,
+      })
+        .populate("groupObjectId")
+        .lean();
+      const typeResult: TAssignment[] = assignment as unknown as TAssignment[];
+      return typeResult;
     }),
   getResourceFile: privateProcedure
     .input(z.object({ moduleId: z.string() }))
@@ -373,6 +418,49 @@ export const appRouter = router({
         });
       }
       return { message: "Assign module updated", updatedAssignModule };
+    }),
+  deleteAssignment: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      dbConnect();
+      const assignment = await Assignment.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (assignment && assignment.files) {
+        const keys = assignment.files.map((file) => file.key);
+        const res = await deleteFilesByKeys(keys);
+        console.log("deleted files", res);
+      }
+      await Assignment.deleteOne({ _id: input.id, createdBy: userId });
+      return {
+        success: true,
+        message: "Assignment and associated files deleted",
+      };
+    }),
+  deleteResource: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      dbConnect();
+      const resource = await TeacherModuleResource.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (resource && resource.files) {
+        const keys = resource.files.map((file) => file.key);
+        const res = await deleteFilesByKeys(keys);
+        console.log("deleted files", res);
+      }
+      await TeacherModuleResource.deleteOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      return {
+        success: true,
+        message: "Resource and associated files deleted",
+      };
     }),
   deleteTeacher: privateProcedure
     .input(z.object({ id: z.string() }))

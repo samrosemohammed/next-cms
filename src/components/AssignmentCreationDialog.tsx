@@ -32,6 +32,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "next/navigation";
 import { trpc } from "@/app/_trpc/client";
 import { DatePicker } from "./DatePicker";
+import { toast } from "sonner";
+import { useUploadThing } from "@/lib/uploadthing";
 
 interface AssignmentCreationDialogProps {
   userId: string;
@@ -40,9 +42,21 @@ export const AssignmentCreationDialog = ({
   userId,
 }: AssignmentCreationDialogProps) => {
   const [open, setOpen] = useState<boolean>(false);
+  const { startUpload } = useUploadThing("imageUploader");
   const { data } = trpc.getAssignModuleForTeacher.useQuery();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { moduleId } = useParams() as { moduleId: string };
+  const createAssignment = trpc.createAssignments.useMutation({
+    onSuccess: (data) => {
+      console.log("Assignment created successfully", data);
+      setOpen(false);
+      toast.success(data.message);
+    },
+    onError: (err) => {
+      console.log("Error creating assignment", err);
+      toast.error(err.message);
+    },
+  });
   const {
     register,
     control,
@@ -102,6 +116,21 @@ export const AssignmentCreationDialog = ({
 
   const onSubmit = async (data: AssignmentFormData) => {
     console.log("Form data", data);
+    try {
+      const files = data.files as File[];
+      if (files.length > 0) {
+        const fileUploads = await startUpload(files);
+        const fileData = fileUploads?.map((file) => ({
+          name: file.name,
+          url: file.ufsUrl,
+          key: file.key,
+        }));
+        createAssignment.mutateAsync({ ...data, files: fileData });
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error(err.message);
+    }
   };
 
   return (

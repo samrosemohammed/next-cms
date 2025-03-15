@@ -21,8 +21,8 @@ const Layout = async ({ children }: PropsWithChildren) => {
             <Github size={20} />
             <Avatar className="w-8 h-8">
               <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="@classroom"
+                src={user?.image!}
+                alt={`${user?.name} profile picture`}
               />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>

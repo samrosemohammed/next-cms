@@ -64,7 +64,12 @@ export type ResourceFormData = z.infer<typeof resourceSchema>;
 export const assignmentSchema = z.object({
   title: z.string().min(3, "Title is requried"),
   description: z.string().min(5, "Description is required").optional(),
-  dueDate: z.date().optional(),
+  dueDate: z
+    .preprocess(
+      (arg) => (typeof arg === "string" ? new Date(arg) : arg),
+      z.date()
+    )
+    .optional(),
   moduleId: z.string().min(1, "Module is required"),
   teacherId: z.string().min(1, "Teacher is required"),
   groupId: z.string().min(1, "Group is required"),
