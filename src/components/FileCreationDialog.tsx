@@ -35,10 +35,22 @@ import { useParams } from "next/navigation";
 import { useUploadThing } from "@/lib/uploadthing";
 
 interface FileCreationDialogProps {
-  userId: string;
+  userId?: string;
+  openFromEdit?: boolean;
+  setOpenFromEdit?: (open: boolean) => void;
+  resourceInfo?: ResourceFormData;
+  resourceId?: string;
 }
-export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
+export const FileCreationDialog = ({
+  userId,
+  openFromEdit,
+  setOpenFromEdit,
+  resourceInfo,
+  resourceId,
+}: FileCreationDialogProps) => {
   const [open, setOpen] = useState<boolean>(false);
+  const isOpen = openFromEdit !== undefined ? openFromEdit : open;
+  const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const { data } = trpc.getAssignModuleForTeacher.useQuery();
   const utils = trpc.useUtils();
   const { moduleId } = useParams() as { moduleId: string };
@@ -52,6 +64,18 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
     },
     onError: (err) => {
       console.log("Error creating resource", err);
+      toast.error(err.message);
+    },
+  });
+  const editResource = trpc.editModuleResource.useMutation({
+    onSuccess: (data) => {
+      console.log("Resource edited successfully", data);
+      utils.getResourceFile.invalidate();
+      setOpen(false);
+      toast.success(data.message);
+    },
+    onError: (err) => {
+      console.log("Error editing resource", err);
       toast.error(err.message);
     },
   });
@@ -124,18 +148,32 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
     ? Array.from(new Map(data.map((d) => [d.group?._id, d])).values())
     : [];
 
+  useEffect(() => {
+    if (resourceInfo) {
+      setValue("title", resourceInfo.title);
+      setValue("description", resourceInfo.description);
+      setValue("links", resourceInfo.links);
+      setValue("files", resourceInfo.files);
+    }
+  }, [resourceInfo, setValue]);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          Upload Resource <Plus className="ml-2" />
+          {resourceInfo ? "Edit Resource" : "Upload Resource"}
+          <Plus className="ml-2" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Resource</DialogTitle>
+          <DialogTitle>
+            {resourceInfo ? "Edit Resource" : "Create Resource"}
+          </DialogTitle>
           <DialogDescription>
-            Add links or upload files. Click "Create" when you're done.
+            {resourceInfo
+              ? "Edit the resource details. Click save when you're done"
+              : "Add links or upload files. Click Create when you're done."}
           </DialogDescription>
         </DialogHeader>
 
@@ -256,7 +294,7 @@ export const FileCreationDialog = ({ userId }: FileCreationDialogProps) => {
           </div>
 
           <DialogFooter>
-            <Button type="submit">Create</Button>
+            <Button type="submit">{resourceInfo ? "Save" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

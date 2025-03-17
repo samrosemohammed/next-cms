@@ -39,6 +39,8 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
+import { ResourceFormData } from "@/lib/validator/zodValidation";
+import { FileCreationDialog } from "./FileCreationDialog";
 
 export const GetResourceFile = () => {
   const utils = trpc.useUtils();
@@ -46,6 +48,9 @@ export const GetResourceFile = () => {
   const { data } = trpc.getResourceFile.useQuery({ moduleId });
   const [selectedFileId, setSelectedFileId] = useState<string>("");
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
+  const [isEditResourceOpen, setIseditResourceOpen] = useState<boolean>(false);
+  const [selectedResourceInfo, setSelectedResourceInfo] =
+    useState<ResourceFormData>();
   const deleteResource = trpc.deleteResource.useMutation({
     onSuccess: (data) => {
       utils.getResourceFile.invalidate();
@@ -85,7 +90,20 @@ export const GetResourceFile = () => {
                       <EllipsisVertical className="cursor-pointer" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setIseditResourceOpen(true);
+                          setSelectedResourceInfo({
+                            title: file.title,
+                            moduleId: file.moduleObjectId?._id!,
+                            teacherId: file.teacherObjectId?._id!,
+                            groupId: file.groupObjectId?._id!,
+                            description: file.description,
+                            links: file.links,
+                            files: file.files,
+                          });
+                        }}
+                      >
                         <Pencil />
                         Edit
                       </DropdownMenuItem>
@@ -176,6 +194,14 @@ export const GetResourceFile = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {isEditResourceOpen && (
+        <FileCreationDialog
+          resourceInfo={selectedResourceInfo}
+          openFromEdit={isEditResourceOpen}
+          setOpenFromEdit={setIseditResourceOpen}
+          resourceId={selectedFileId}
+        />
+      )}
     </div>
   );
 };

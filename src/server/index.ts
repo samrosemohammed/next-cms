@@ -16,7 +16,6 @@ import UserModel, { TUser } from "@/model/user";
 import AssignModule, { TAssignModule } from "@/model/assignModule";
 import { UTApi } from "uploadthing/server";
 import { TRPCError } from "@trpc/server";
-import mongoose from "mongoose";
 import TeacherModuleResource, {
   TTeacherModuleResource,
 } from "@/model/resource";
@@ -418,6 +417,42 @@ export const appRouter = router({
         });
       }
       return { message: "Assign module updated", updatedAssignModule };
+    }),
+  editModuleResource: privateProcedure
+    .input(z.object({ id: z.string(), data: resourceSchema }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      dbConnect();
+      const existingResource = await TeacherModuleResource.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (!existingResource) {
+        throw new TRPCError({
+          message: "Resource not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      const existingFileKeys = existingResource.files.map((file) => file.key);
+      const newFileKeys = input?.data?.files?.map((file) => file.key);
+      const filesToDelete = existingFileKeys.filter(
+        (key) => !newFileKeys?.includes(key)
+      );
+      if (filesToDelete.length > 0) {
+        await deleteFilesByKeys(filesToDelete);
+      }
+      await TeacherModuleResource.findOneAndUpdate(
+        { _id: input.id, createdBy: userId },
+        {
+          ...input.data,
+          files: input.data.files?.map((file) => ({
+            name: file.name,
+            url: file.url,
+            key: file.key,
+          })),
+        }
+      );
+      return { message: "Resource updated" };
     }),
   deleteAssignment: privateProcedure
     .input(z.object({ id: z.string() }))
