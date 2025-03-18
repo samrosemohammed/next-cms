@@ -202,6 +202,8 @@ export const appRouter = router({
         createdBy: userId,
       })
         .populate("groupObjectId")
+        .populate("teacherObjectId")
+        .populate("moduleObjectId")
         .lean();
       const typeResult: TTeacherModuleResource[] =
         resource as unknown as TTeacherModuleResource[];
@@ -389,6 +391,7 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      console.log("editAssignModule", input);
       const { user, userId } = ctx;
       dbConnect();
       const existingAssignModule = await AssignModule.findOne({
@@ -419,10 +422,16 @@ export const appRouter = router({
       return { message: "Assign module updated", updatedAssignModule };
     }),
   editModuleResource: privateProcedure
-    .input(z.object({ id: z.string(), data: resourceSchema }))
+    .input(
+      z.object({
+        id: z.string(),
+        resourceSchema,
+      })
+    )
     .mutation(async ({ input, ctx }) => {
+      console.log("editModuleResource: ", input);
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const existingResource = await TeacherModuleResource.findOne({
         _id: input.id,
         createdBy: userId,
@@ -433,26 +442,43 @@ export const appRouter = router({
           code: "NOT_FOUND",
         });
       }
-      const existingFileKeys = existingResource.files.map((file) => file.key);
-      const newFileKeys = input?.data?.files?.map((file) => file.key);
-      const filesToDelete = existingFileKeys.filter(
-        (key) => !newFileKeys?.includes(key)
+      // Step 1: Identify files to delete
+      const existingFiles = existingResource.files || [];
+      const newFiles = input.resourceSchema.files || [];
+      const newFileKeys = newFiles.map((file) => file.key);
+      const filesToDelete = existingFiles.filter(
+        (file) => !newFileKeys.includes(file.key)
       );
       if (filesToDelete.length > 0) {
-        await deleteFilesByKeys(filesToDelete);
+        const keysToDelete = filesToDelete.map((file) => file.key);
+        const res = await deleteFilesByKeys(keysToDelete);
+        console.log("Deleted files:", res);
       }
-      await TeacherModuleResource.findOneAndUpdate(
-        { _id: input.id, createdBy: userId },
+      // Step 2: Update the resource with the new file list
+      const updatedResource = await TeacherModuleResource.findOneAndUpdate(
         {
-          ...input.data,
-          files: input.data.files?.map((file) => ({
+          _id: input.id,
+          createdBy: userId,
+        },
+        {
+          ...input.resourceSchema,
+          files: newFiles.map((file) => ({
             name: file.name,
             url: file.url,
             key: file.key,
           })),
-        }
+        },
+        { new: true } // return updated resource
       );
-      return { message: "Resource updated" };
+
+      if (!updatedResource) {
+        throw new TRPCError({
+          message: "Resource update failed",
+          code: "NOT_FOUND",
+        });
+      }
+
+      return { message: "Resource updated successfully", updatedResource };
     }),
   deleteAssignment: privateProcedure
     .input(z.object({ id: z.string() }))

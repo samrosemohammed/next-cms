@@ -67,6 +67,7 @@ export const GetResourceFile = () => {
   const handleDelete = async (fileId: string) => {
     deleteResource.mutateAsync({ id: fileId });
   };
+
   return (
     <div className="p-4">
       {data?.map((file) => (
@@ -95,13 +96,14 @@ export const GetResourceFile = () => {
                           setIseditResourceOpen(true);
                           setSelectedResourceInfo({
                             title: file.title,
-                            moduleId: file.moduleObjectId?._id!,
-                            teacherId: file.teacherObjectId?._id!,
-                            groupId: file.groupObjectId?._id!,
+                            moduleId: file?.moduleObjectId?._id!,
+                            teacherId: file?.teacherObjectId?._id!,
+                            groupId: file?.groupObjectId?._id!,
                             description: file.description,
                             links: file.links,
                             files: file.files,
                           });
+                          setSelectedFileId(file._id);
                         }}
                       >
                         <Pencil />
@@ -200,6 +202,7 @@ export const GetResourceFile = () => {
           openFromEdit={isEditResourceOpen}
           setOpenFromEdit={setIseditResourceOpen}
           resourceId={selectedFileId}
+          userId={selectedResourceInfo?.teacherId}
         />
       )}
     </div>

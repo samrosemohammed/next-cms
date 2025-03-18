@@ -57,7 +57,6 @@ export const FileCreationDialog = ({
   const { startUpload } = useUploadThing("imageUploader");
   const createResource = trpc.createModuleResource.useMutation({
     onSuccess: (data) => {
-      console.log("Resource created successfully", data);
       utils.getResourceFile.invalidate();
       setOpen(false);
       toast.success(data.message);
@@ -69,9 +68,8 @@ export const FileCreationDialog = ({
   });
   const editResource = trpc.editModuleResource.useMutation({
     onSuccess: (data) => {
-      console.log("Resource edited successfully", data);
       utils.getResourceFile.invalidate();
-      setOpen(false);
+      setIsOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
@@ -79,6 +77,7 @@ export const FileCreationDialog = ({
       toast.error(err.message);
     },
   });
+
   const {
     register,
     control,
@@ -132,15 +131,40 @@ export const FileCreationDialog = ({
 
   const onSubmit = async (data: ResourceFormData) => {
     console.log("Form data", data);
-    const files = data.files as File[];
-    if (files.length > 0) {
-      const fileUploads = await startUpload(files);
-      const fileData = fileUploads?.map((file) => ({
+    const allFiles = data.files as (
+      | File
+      | { key: string; name: string; url: string }
+    )[];
+    // Separate new files (File objects) and existing files (already uploaded)
+    const existingFiles = allFiles.filter(
+      (file) => typeof file !== "object" || "url" in file
+    );
+    const newFiles = allFiles.filter((file) => file instanceof File) as File[];
+    let uploadedFiles: { name: string; url: string; key: string }[] = [];
+    // Upload only new files
+    if (newFiles.length > 0) {
+      const fileUploads = await startUpload(newFiles);
+      if (!fileUploads) {
+        toast.error("File upload failed!");
+        return;
+      }
+
+      uploadedFiles = fileUploads.map((file) => ({
         name: file.name,
         url: file.ufsUrl,
         key: file.key,
       }));
-      createResource.mutateAsync({ ...data, files: fileData });
+    }
+
+    const finalFiles = [...existingFiles, ...uploadedFiles]; // Merge old & new files
+
+    if (resourceInfo) {
+      await editResource.mutateAsync({
+        id: resourceId!,
+        resourceSchema: { ...data, files: finalFiles },
+      });
+    } else {
+      await createResource.mutateAsync({ ...data, files: finalFiles });
     }
   };
 
