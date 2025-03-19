@@ -40,13 +40,16 @@ interface AssignmentCreationDialogProps {
   openFromEdit?: boolean;
   setOpenFromEdit?: (open: boolean) => void;
   assignmentInfo?: AssignmentFormData;
+  assignmentId?: string;
 }
 export const AssignmentCreationDialog = ({
   userId,
   openFromEdit,
   setOpenFromEdit,
   assignmentInfo,
+  assignmentId,
 }: AssignmentCreationDialogProps) => {
+  const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
   const isOpen = openFromEdit !== undefined ? openFromEdit : open;
   const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
@@ -57,11 +60,24 @@ export const AssignmentCreationDialog = ({
   const createAssignment = trpc.createAssignments.useMutation({
     onSuccess: (data) => {
       console.log("Assignment created successfully", data);
+      utils.getAssignment.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
       console.log("Error creating assignment", err);
+      toast.error(err.message);
+    },
+  });
+  const editAssignment = trpc.editModuleAssignment.useMutation({
+    onSuccess: (data) => {
+      console.log("Assignment edited successfully", data);
+      utils.getAssignment.invalidate();
+      setIsOpen(false);
+      toast.success(data.message);
+    },
+    onError: (err) => {
+      console.log("Error editing assignment", err);
       toast.error(err.message);
     },
   });
@@ -124,20 +140,35 @@ export const AssignmentCreationDialog = ({
 
   const onSubmit = async (data: AssignmentFormData) => {
     console.log("Form data", data);
-    try {
-      const files = data.files as File[];
-      if (files.length > 0) {
-        const fileUploads = await startUpload(files);
-        const fileData = fileUploads?.map((file) => ({
-          name: file.name,
-          url: file.ufsUrl,
-          key: file.key,
-        }));
-        createAssignment.mutateAsync({ ...data, files: fileData });
+    const allFiles = data.files as (
+      | File
+      | { key: string; name: string; url: string }
+    )[];
+    const existingFiles = allFiles.filter(
+      (file) => typeof file !== "object" || "url" in file
+    );
+    const newFiles = allFiles.filter((file) => file instanceof File) as File[];
+    let uploadedFiles: { name: string; url: string; key: string }[] = [];
+    if (newFiles.length > 0) {
+      const fileUploads = await startUpload(newFiles);
+      if (!fileUploads) {
+        toast.error("File upload failed");
+        return;
       }
-    } catch (err) {
-      console.log(err);
-      toast.error(err.message);
+      uploadedFiles = fileUploads.map((file) => ({
+        name: file.name,
+        url: file.ufsUrl,
+        key: file.key,
+      }));
+    }
+    const finalFiles = [...existingFiles, ...uploadedFiles];
+    if (assignmentInfo) {
+      await editAssignment.mutateAsync({
+        id: assignmentId!,
+        assignmentSchema: { ...data, files: finalFiles },
+      });
+    } else {
+      await createAssignment.mutateAsync({ ...data, files: finalFiles });
     }
   };
 
@@ -158,14 +189,19 @@ export const AssignmentCreationDialog = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          Create Assignment <Plus className="ml-2" />
+          {assignmentInfo ? "Edit Assignment" : "Create Assignment"}
+          <Plus className="ml-2" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Assignment</DialogTitle>
+          <DialogTitle>
+            {assignmentInfo ? "Edit Assignment" : "Create Assignment"}
+          </DialogTitle>
           <DialogDescription>
-            Add a assignment with due date. Click "Create" when you're done.
+            {assignmentInfo
+              ? "Edit the assignment details. Click save when you're done"
+              : " Add a assignment with due date. Click Create when you're done."}
           </DialogDescription>
         </DialogHeader>
 
@@ -306,7 +342,7 @@ export const AssignmentCreationDialog = ({
           </div>
 
           <DialogFooter>
-            <Button type="submit">Create</Button>
+            <Button type="submit">{assignmentInfo ? "Save" : "Create"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

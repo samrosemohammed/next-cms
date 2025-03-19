@@ -100,6 +100,7 @@ export const GetAssignment = () => {
                             moduleId: assignment.moduleObjectId?._id!,
                             dueDate: new Date(assignment.dueDate),
                           });
+                          setSelectedAssignmentId(assignment._id);
                         }}
                       >
                         <Pencil />
@@ -196,6 +197,8 @@ export const GetAssignment = () => {
           openFromEdit={isEditAssignmentOpen}
           setOpenFromEdit={setIsEditAssignmentOpen}
           assignmentInfo={selectedAssignmentInfo}
+          assignmentId={selectedAssignmentId}
+          userId={selectedAssignmentInfo?.teacherId}
         />
       )}
     </div>

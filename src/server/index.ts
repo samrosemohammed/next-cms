@@ -482,6 +482,62 @@ export const appRouter = router({
 
       return { message: "Resource updated successfully", updatedResource };
     }),
+  editModuleAssignment: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        assignmentSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      console.log("editModuleAssignment: ", input);
+      const { userId } = ctx;
+      await dbConnect();
+      const existingAssignment = await Assignment.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (!existingAssignment) {
+        throw new TRPCError({
+          message: "Assignment not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+
+      const existingFiles = existingAssignment.files || [];
+      const newFiles = input.assignmentSchema.files || [];
+      const newFileKeys = newFiles.map((file) => file.key);
+      const filesToDelete = existingFiles.filter(
+        (file) => !newFileKeys.includes(file.key)
+      );
+      if (filesToDelete.length > 0) {
+        const keysToDelete = filesToDelete.map((file) => file.key);
+        const res = await deleteFilesByKeys(keysToDelete);
+        console.log("Deleted files:", res);
+      }
+      const updatedAssignment = await Assignment.findOneAndUpdate(
+        {
+          _id: input.id,
+          createdBy: userId,
+        },
+        {
+          ...input.assignmentSchema,
+          files: newFiles.map((file) => ({
+            name: file.name,
+            url: file.url,
+            key: file.key,
+          })),
+        },
+        { new: true }
+      );
+      if (!updatedAssignment) {
+        throw new TRPCError({
+          message: "Assignment update failed",
+          code: "NOT_FOUND",
+        });
+      }
+      return { message: "Assignment updated successfully", updatedAssignment };
+    }),
   deleteAssignment: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

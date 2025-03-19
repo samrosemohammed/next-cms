@@ -4,29 +4,42 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
 interface TimePickerProps {
   date: Date;
   setDate: (date: Date) => void;
 }
+
 export const TimePicker = ({ date, setDate }: TimePickerProps) => {
   // Get hours and minutes from the date
   const hours = date.getHours();
   const minutes = date.getMinutes();
+  const isPM = hours >= 12;
 
   // Format hours and minutes to have leading zeros if needed
-  const formattedHours = hours.toString().padStart(2, "0");
+  const formattedHours = (hours % 12 || 12).toString().padStart(2, "0");
   const formattedMinutes = minutes.toString().padStart(2, "0");
 
   const [hoursValue, setHoursValue] = useState(formattedHours);
   const [minutesValue, setMinutesValue] = useState(formattedMinutes);
+  const [period, setPeriod] = useState(isPM ? "PM" : "AM");
 
   // Update the time when the inputs change
   const handleHoursChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Ensure the value is between 0 and 23
+    // Ensure the value is between 1 and 12
     if (
       value === "" ||
-      (Number.parseInt(value) >= 0 && Number.parseInt(value) <= 23)
+      (Number.parseInt(value) >= 1 && Number.parseInt(value) <= 12)
     ) {
       setHoursValue(value);
     }
@@ -43,10 +56,18 @@ export const TimePicker = ({ date, setDate }: TimePickerProps) => {
     }
   };
 
+  const handlePeriodChange = (value: string) => {
+    setPeriod(value);
+  };
+
   // Apply the time to the date
   const handleApply = () => {
+    let newHours = Number.parseInt(hoursValue) % 12;
+    if (period === "PM") {
+      newHours += 12;
+    }
     const newDate = new Date(date);
-    newDate.setHours(Number.parseInt(hoursValue) || 0);
+    newDate.setHours(newHours);
     newDate.setMinutes(Number.parseInt(minutesValue) || 0);
     setDate(newDate);
   };
@@ -86,6 +107,24 @@ export const TimePicker = ({ date, setDate }: TimePickerProps) => {
             placeholder="00"
             maxLength={2}
           />
+        </div>
+        <div className="grid gap-1">
+          <Label htmlFor="period" className="text-xs">
+            Period
+          </Label>
+
+          <Select onValueChange={handlePeriodChange} value={period}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select AM/PM" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Period</SelectLabel>
+                <SelectItem value="AM">AM</SelectItem>
+                <SelectItem value="PM">PM</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <Button onClick={handleApply} className="mt-2">
