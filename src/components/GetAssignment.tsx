@@ -32,9 +32,15 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
+import { AssignmentCreationDialog } from "./AssignmentCreationDialog";
+import { AssignmentFormData } from "@/lib/validator/zodValidation";
 export const GetAssignment = () => {
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
+  const [isEditAssignmentOpen, setIsEditAssignmentOpen] =
+    useState<boolean>(false);
+  const [selectedAssignmentInfo, setSelectedAssignmentInfo] =
+    useState<AssignmentFormData>();
   const { moduleId } = useParams() as { moduleId: string };
   const { data } = trpc.getAssignment.useQuery({ moduleId });
   const utils = trpc.useUtils();
@@ -81,7 +87,21 @@ export const GetAssignment = () => {
                       <EllipsisVertical className="cursor-pointer" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setIsEditAssignmentOpen(true);
+                          setSelectedAssignmentInfo({
+                            title: assignment.title,
+                            description: assignment.description,
+                            links: assignment.links,
+                            files: assignment.files,
+                            groupId: assignment.groupObjectId?._id!,
+                            teacherId: assignment.teacherObjectId?._id!,
+                            moduleId: assignment.moduleObjectId?._id!,
+                            dueDate: new Date(assignment.dueDate),
+                          });
+                        }}
+                      >
                         <Pencil />
                         Edit
                       </DropdownMenuItem>
@@ -171,6 +191,13 @@ export const GetAssignment = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {isEditAssignmentOpen && (
+        <AssignmentCreationDialog
+          openFromEdit={isEditAssignmentOpen}
+          setOpenFromEdit={setIsEditAssignmentOpen}
+          assignmentInfo={selectedAssignmentInfo}
+        />
+      )}
     </div>
   );
 };

@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   AssignmentFormData,
@@ -36,12 +36,20 @@ import { toast } from "sonner";
 import { useUploadThing } from "@/lib/uploadthing";
 
 interface AssignmentCreationDialogProps {
-  userId: string;
+  userId?: string;
+  openFromEdit?: boolean;
+  setOpenFromEdit?: (open: boolean) => void;
+  assignmentInfo?: AssignmentFormData;
 }
 export const AssignmentCreationDialog = ({
   userId,
+  openFromEdit,
+  setOpenFromEdit,
+  assignmentInfo,
 }: AssignmentCreationDialogProps) => {
   const [open, setOpen] = useState<boolean>(false);
+  const isOpen = openFromEdit !== undefined ? openFromEdit : open;
+  const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const { startUpload } = useUploadThing("imageUploader");
   const { data } = trpc.getAssignModuleForTeacher.useQuery();
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -133,8 +141,21 @@ export const AssignmentCreationDialog = ({
     }
   };
 
+  useEffect(() => {
+    if (assignmentInfo) {
+      setValue("title", assignmentInfo.title);
+      setValue("description", assignmentInfo.description);
+      setValue("groupId", assignmentInfo.groupId);
+      setValue("links", assignmentInfo.links);
+      setValue("files", assignmentInfo.files);
+      setDate(assignmentInfo.dueDate);
+    }
+  }, [assignmentInfo, setValue]);
+
+  console.log("Assignment Info", assignmentInfo);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
           Create Assignment <Plus className="ml-2" />

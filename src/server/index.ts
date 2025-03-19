@@ -188,6 +188,8 @@ export const appRouter = router({
         createdBy: userId,
       })
         .populate("groupObjectId")
+        .populate("teacherObjectId")
+        .populate("moduleObjectId")
         .lean();
       const typeResult: TAssignment[] = assignment as unknown as TAssignment[];
       return typeResult;

@@ -183,12 +183,14 @@ export const FileCreationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          {resourceInfo ? "Edit Resource" : "Upload Resource"}
-          <Plus className="ml-2" />
-        </Button>
-      </DialogTrigger>
+      {!resourceInfo && (
+        <DialogTrigger asChild>
+          <Button>
+            {resourceInfo ? "Edit Resource" : "Upload Resource"}
+            <Plus className="ml-2" />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
