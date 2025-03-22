@@ -57,6 +57,7 @@ export const appRouter = router({
         })),
         studentObjectId: input.studentId,
         assignmentObjectId: input.assignmentId,
+        moduleObjectId: input.moduleId,
       });
       await submitWork.save();
       return { submitWork, message: "Assignment submitted" };
@@ -197,6 +198,21 @@ export const appRouter = router({
       });
       await u.save();
       return { u, message: "Student created" };
+    }),
+  getSumbitWork: privateProcedure
+    .input(z.object({ moduleId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      await dbConnect();
+      const submitWork = await SubmitWork.find({
+        moduleObjectId: input.moduleId,
+        studentObjectId: userId,
+      })
+        .populate("assignmentObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      const typeResult: TAssignment[] = submitWork as unknown as TAssignment[];
+      return typeResult;
     }),
   getAssignment: privateProcedure
     .input(z.object({ moduleId: z.string() }))
@@ -630,6 +646,27 @@ export const appRouter = router({
         });
       }
       return { message: "Assignment updated successfully", updatedAssignment };
+    }),
+  deleteSubmitWork: privateProcedure
+    .input(z.object({ assignmnetId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const submitWork = await SubmitWork.findOne({
+        assignmentObjectId: input.assignmnetId,
+        studentObjectId: userId,
+      });
+      if (submitWork && submitWork.files) {
+        const keys = submitWork.files.map((file) => file.key);
+        const res = await deleteFilesByKeys(keys);
+        console.log("deleted files", res);
+      }
+
+      await SubmitWork.deleteOne({
+        assignmentObjectId: input.assignmnetId,
+        studentObjectId: userId,
+      });
+      return { message: "Submit work deleted with it's associated files" };
     }),
   deleteAssignment: privateProcedure
     .input(z.object({ id: z.string() }))

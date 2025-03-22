@@ -3,6 +3,7 @@ import mongoose, { Schema, Model, Document } from "mongoose";
 interface ISubmitWork {
   studentObjectId: string;
   assignmentObjectId: string;
+  moduleObjectId: string;
   links?: string[];
   files: { name: string; url: string; key: string }[];
 }
@@ -19,6 +20,7 @@ const SubmitWorkSchema = new Schema<MongoUser>(
   {
     studentObjectId: { type: String, required: true },
     assignmentObjectId: { type: String, required: true },
+    moduleObjectId: { type: String, required: true },
     links: [{ type: String }],
     files: [
       {
