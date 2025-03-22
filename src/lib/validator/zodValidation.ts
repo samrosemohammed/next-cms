@@ -78,3 +78,11 @@ export const assignmentSchema = z.object({
 });
 
 export type AssignmentFormData = z.infer<typeof assignmentSchema>;
+
+export const submitAssignmentSchema = z.object({
+  assignmentId: z.string().min(1, "Assignment ID is required"),
+  studentId: z.string().min(1, "Student ID is required"),
+  files: z.array(z.any()).min(1, "Files are required"),
+  links: z.array(z.string().url("Invalid URL format")).optional(),
+});
+export type SubmitAssignmentFormData = z.infer<typeof submitAssignmentSchema>;

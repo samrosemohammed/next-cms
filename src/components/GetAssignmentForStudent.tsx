@@ -13,9 +13,15 @@ import { File, Link2 } from "lucide-react";
 import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
 import { Button, buttonVariants } from "./ui/button";
+import StudentAssignmentSubmitDialog from "./StudentAssignmentSubmitDialog";
+import { useState } from "react";
 
-const GetAssignmentForStudent = () => {
+interface GetAssignmentForStudentProps {
+  userId?: string;
+}
+const GetAssignmentForStudent = ({ userId }: GetAssignmentForStudentProps) => {
   const { moduleId } = useParams() as { moduleId: string };
+  const [isSubmitWork, setIsSubmitWork] = useState<boolean>(false);
   const { data: assignment } = trpc.getAssignmentForStudent.useQuery({
     moduleId,
   });
@@ -82,7 +88,10 @@ const GetAssignmentForStudent = () => {
               ))}
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button>Submit Assignment</Button>
+            <StudentAssignmentSubmitDialog
+              clickAssignmentId={assignment._id}
+              userId={userId}
+            />
           </CardFooter>
         </Card>
       ))}

@@ -6,6 +6,7 @@ import {
   moduleSchema,
   resourceSchema,
   studentSchema,
+  submitAssignmentSchema,
 } from "@/lib/validator/zodValidation";
 import { dbConnect } from "@/lib/db";
 import Module, { TModule } from "@/model/module";
@@ -20,6 +21,7 @@ import TeacherModuleResource, {
   TTeacherModuleResource,
 } from "@/model/resource";
 import Assignment, { TAssignment } from "@/model/assignment";
+import SubmitWork from "@/model/submitWork";
 
 const utapi = new UTApi();
 
@@ -41,12 +43,30 @@ const deleteFilesByKeys = async (keys: string[]) => {
   }
 };
 export const appRouter = router({
+  createSumbitAssignment: privateProcedure
+    .input(submitAssignmentSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const submitWork = await SubmitWork.create({
+        ...input,
+        files: input.files?.map((file) => ({
+          name: file.name,
+          url: file.url,
+          key: file.key,
+        })),
+        studentObjectId: input.studentId,
+        assignmentObjectId: input.assignmentId,
+      });
+      await submitWork.save();
+      return { submitWork, message: "Assignment submitted" };
+    }),
   createAssignments: privateProcedure
     .input(assignmentSchema)
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
       console.log("createAssignments", input);
-      dbConnect();
+      await dbConnect();
       const assignment = await Assignment.create({
         ...input,
         files: input.files?.map((file) => ({

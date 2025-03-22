@@ -26,7 +26,7 @@ const Page = async () => {
   if (user?.role === "student") {
     return (
       <div>
-        <GetAssignmentForStudent />
+        <GetAssignmentForStudent userId={user.id!} />
       </div>
     );
   }
