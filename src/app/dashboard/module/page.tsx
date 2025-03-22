@@ -1,3 +1,4 @@
+import GetModuleForStudent from "@/components/GetModuleForStudent";
 import GetTeacherModule from "@/components/GetTeacherModule";
 import { Module } from "@/components/Module";
 import { ModuleCreationDialog } from "@/components/ModuleCreationDialog";
@@ -26,6 +27,15 @@ const Page = async () => {
       <div>
         <div className="px-2">
           <GetTeacherModule />
+        </div>
+      </div>
+    );
+  }
+  if (session?.user.role === "student") {
+    return (
+      <div>
+        <div className="px-2">
+          <GetModuleForStudent />
         </div>
       </div>
     );

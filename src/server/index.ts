@@ -258,7 +258,7 @@ export const appRouter = router({
   }),
   getAssignModuleForTeacher: privateProcedure.query(async ({ ctx }) => {
     const { user, userId } = ctx;
-    dbConnect();
+    await dbConnect();
     const am = await AssignModule.find({ teacher: userId })
       .populate("moduleId")
       .populate("group")
@@ -267,6 +267,79 @@ export const appRouter = router({
     const typeResult: TAssignModule[] = am as unknown as TAssignModule[];
     return typeResult;
   }),
+  getAssignModuleForStudent: privateProcedure.query(async ({ ctx }) => {
+    const { user, userId } = ctx;
+    await dbConnect();
+    const student = await UserModel.findOne({ _id: userId });
+    if (!student) {
+      throw new TRPCError({
+        message: "Student not found",
+        code: "NOT_FOUND",
+      });
+    }
+    const am = await AssignModule.find({ group: student.group })
+      .populate("moduleId")
+      .populate("group")
+      .populate("teacher")
+      .lean();
+    const typeResult: TAssignModule[] = am as unknown as TAssignModule[];
+    return typeResult;
+  }),
+  getAssignmentForStudent: privateProcedure
+    .input(
+      z.object({
+        moduleId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const student = await UserModel.findOne({ _id: userId });
+      if (!student) {
+        throw new TRPCError({
+          message: "Student not found",
+          code: "NOT_FOUND",
+        });
+      }
+      const assignment = await Assignment.find({
+        moduleObjectId: input.moduleId,
+        groupObjectId: student.group,
+      })
+        .populate("groupObjectId")
+        .populate("teacherObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      const typeResult: TAssignment[] = assignment as unknown as TAssignment[];
+      return typeResult;
+    }),
+  getModuleResourceForStudent: privateProcedure
+    .input(
+      z.object({
+        moduleId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const student = await UserModel.findOne({ _id: userId });
+      if (!student) {
+        throw new TRPCError({
+          message: "Student not found",
+          code: "NOT_FOUND",
+        });
+      }
+      const resource = await TeacherModuleResource.find({
+        moduleObjectId: input.moduleId,
+        groupObjectId: student.group,
+      })
+        .populate("groupObjectId")
+        .populate("teacherObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      const typeResult: TTeacherModuleResource[] =
+        resource as unknown as TTeacherModuleResource[];
+      return typeResult;
+    }),
   editModule: privateProcedure
     .input(
       z.object({
