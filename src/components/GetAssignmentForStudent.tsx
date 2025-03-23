@@ -15,16 +15,17 @@ import Link from "next/link";
 import { Button, buttonVariants } from "./ui/button";
 import StudentAssignmentSubmitDialog from "./StudentAssignmentSubmitDialog";
 import { useState } from "react";
+import ViewSubmitWork from "./ViewSubmitWork";
 
 interface GetAssignmentForStudentProps {
   userId?: string;
 }
 const GetAssignmentForStudent = ({ userId }: GetAssignmentForStudentProps) => {
   const { moduleId } = useParams() as { moduleId: string };
-  const [isSubmitWork, setIsSubmitWork] = useState<boolean>(false);
   const { data: assignment } = trpc.getAssignmentForStudent.useQuery({
     moduleId,
   });
+
   return (
     <div className="p-4">
       {assignment?.map((assignment) => (
@@ -87,7 +88,8 @@ const GetAssignmentForStudent = ({ userId }: GetAssignmentForStudentProps) => {
                 </Link>
               ))}
           </CardContent>
-          <CardFooter className="flex justify-end">
+          <CardFooter className="flex gap-2 justify-end">
+            <ViewSubmitWork assignmentId={assignment._id} />
             <StudentAssignmentSubmitDialog
               clickAssignmentId={assignment._id}
               userId={userId}

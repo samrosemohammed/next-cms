@@ -21,7 +21,7 @@ import TeacherModuleResource, {
   TTeacherModuleResource,
 } from "@/model/resource";
 import Assignment, { TAssignment } from "@/model/assignment";
-import SubmitWork from "@/model/submitWork";
+import SubmitWork, { TSubmitWork } from "@/model/submitWork";
 
 const utapi = new UTApi();
 
@@ -48,6 +48,20 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
       await dbConnect();
+      const assignment = await Assignment.findOne({ _id: input.assignmentId });
+      if (!assignment) {
+        throw new TRPCError({
+          message: "Assignment not found",
+          code: "NOT_FOUND",
+        });
+      }
+      const currentDate = new Date();
+      let status = "Missing";
+      if (currentDate <= new Date(assignment.dueDate)) {
+        status = "On Time";
+      } else {
+        status = "Late";
+      }
       const submitWork = await SubmitWork.create({
         ...input,
         files: input.files?.map((file) => ({
@@ -58,6 +72,7 @@ export const appRouter = router({
         studentObjectId: input.studentId,
         assignmentObjectId: input.assignmentId,
         moduleObjectId: input.moduleId,
+        status,
       });
       await submitWork.save();
       return { submitWork, message: "Assignment submitted" };
@@ -199,6 +214,23 @@ export const appRouter = router({
       await u.save();
       return { u, message: "Student created" };
     }),
+  getViewSubmitWork: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const submitWork = await SubmitWork.findOne({
+        assignmentObjectId: input.id,
+        studentObjectId: userId,
+      })
+        .populate("assignmentObjectId")
+        .populate("studentObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      console.log("Submit work from api : ", submitWork);
+      const typeResult: TSubmitWork = submitWork as unknown as TSubmitWork;
+      return typeResult;
+    }),
   getSumbitWork: privateProcedure
     .input(z.object({ moduleId: z.string() }))
     .query(async ({ input, ctx }) => {
@@ -209,9 +241,9 @@ export const appRouter = router({
         studentObjectId: userId,
       })
         .populate("assignmentObjectId")
-        .populate("moduleObjectId")
+        .populate("studentObjectId")
         .lean();
-      const typeResult: TAssignment[] = submitWork as unknown as TAssignment[];
+      const typeResult: TSubmitWork[] = submitWork as unknown as TSubmitWork[];
       return typeResult;
     }),
   getAssignment: privateProcedure
@@ -537,6 +569,13 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user, userId } = ctx;
       await dbConnect();
+      const assignment = await Assignment.findOne({ _id: input.id });
+      if (!assignment) {
+        throw new TRPCError({
+          message: "Assignment not found",
+          code: "NOT_FOUND",
+        });
+      }
       const existingSubmitWork = await SubmitWork.findOne({
         assignmentObjectId: input.id,
         studentObjectId: userId,
@@ -558,6 +597,14 @@ export const appRouter = router({
         const res = await deleteFilesByKeys(keysToDelete);
         console.log("Deleted files:", res);
       }
+
+      const currentDate = new Date();
+      let status = "Missing";
+      if (currentDate <= new Date(assignment.dueDate)) {
+        status = "On Time";
+      } else {
+        status = "Late";
+      }
       const updatedSubmitWork = await SubmitWork.findOneAndUpdate(
         {
           assignmentObjectId: input.id,
@@ -570,6 +617,7 @@ export const appRouter = router({
             url: file.url,
             key: file.key,
           })),
+          status,
         },
         { new: true }
       );

@@ -67,6 +67,7 @@ const StudentAssignmentSubmitDialog = ({
     onSuccess: (data) => {
       setOpen(false);
       utils.getSumbitWork.invalidate();
+      utils.getViewSubmitWork.invalidate();
       toast.success(data.message);
     },
     onError: (err) => {
@@ -86,7 +87,6 @@ const StudentAssignmentSubmitDialog = ({
     },
   });
   const { data: getSubmittedWork } = trpc.getSumbitWork.useQuery({ moduleId });
-  console.log(getSubmittedWork);
   const {
     register,
     control,
@@ -157,7 +157,6 @@ const StudentAssignmentSubmitDialog = ({
     }
     const finalFiles = [...existingFiles, ...uploadFiles];
     if (hasSubmittedWork) {
-      console.log("Re-submission detected. Not calling createSubmitWork.");
       reSubmitWork.mutateAsync({
         id: clickAssignmentId!,
         submitAssignmentSchema: { ...data, files: finalFiles },
@@ -166,11 +165,13 @@ const StudentAssignmentSubmitDialog = ({
       createSubmitWork.mutateAsync({ ...data, files: finalFiles });
     }
   };
-  const hasSubmittedWork = getSubmittedWork?.some(
-    (work) =>
-      work.assignmentObjectId === clickAssignmentId &&
-      work.studentObjectId === userId
-  );
+
+  const hasSubmittedWork = getSubmittedWork?.some((work) => {
+    return (
+      work?.assignmentObjectId?._id === clickAssignmentId &&
+      work?.studentObjectId?._id === userId
+    );
+  });
 
   const handleDelete = (assignmnetId: string) => {
     deleteSubmitWork.mutateAsync({ assignmnetId: assignmnetId });
@@ -180,8 +181,8 @@ const StudentAssignmentSubmitDialog = ({
     if (hasSubmittedWork && getSubmittedWork) {
       const submittedWork = getSubmittedWork.find(
         (work) =>
-          work.assignmentObjectId === clickAssignmentId &&
-          work.studentObjectId === userId
+          work?.assignmentObjectId?._id === clickAssignmentId &&
+          work?.studentObjectId?._id === userId
       );
       if (submittedWork) {
         setValue("files", submittedWork.files || []);
