@@ -63,6 +63,17 @@ const StudentAssignmentSubmitDialog = ({
     },
   });
 
+  const reSubmitWork = trpc.editSubmitWork.useMutation({
+    onSuccess: (data) => {
+      setOpen(false);
+      utils.getSumbitWork.invalidate();
+      toast.success(data.message);
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
   const deleteSubmitWork = trpc.deleteSubmitWork.useMutation({
     onSuccess: (data) => {
       setOpen(false);
@@ -123,19 +134,36 @@ const StudentAssignmentSubmitDialog = ({
 
   const onSubmit = async (data: SubmitAssignmentFormData) => {
     console.log("form data: ", data);
-    const files = data.files as File[];
-    if (files.length > 0) {
-      const fileUploads = await startUpload(files);
+    const allFiles = data.files as (
+      | File
+      | { key: string; name: string; url: string }
+    )[];
+    const existingFiles = allFiles.filter(
+      (file) => typeof file !== "object" || "url" in file
+    );
+    const newFiles = allFiles.filter((file) => file instanceof File) as File[];
+    let uploadFiles: { name: string; url: string; key: string }[] = [];
+    if (newFiles.length > 0) {
+      const fileUploads = await startUpload(newFiles);
       if (!fileUploads) {
         toast.error("Failed to upload files");
         return;
       }
-      const fileData = fileUploads.map((file) => ({
-        key: file.key,
+      uploadFiles = fileUploads.map((file) => ({
         name: file.name,
         url: file.ufsUrl,
+        key: file.key,
       }));
-      createSubmitWork.mutate({ ...data, files: fileData });
+    }
+    const finalFiles = [...existingFiles, ...uploadFiles];
+    if (hasSubmittedWork) {
+      console.log("Re-submission detected. Not calling createSubmitWork.");
+      reSubmitWork.mutateAsync({
+        id: clickAssignmentId!,
+        submitAssignmentSchema: { ...data, files: finalFiles },
+      });
+    } else {
+      createSubmitWork.mutateAsync({ ...data, files: finalFiles });
     }
   };
   const hasSubmittedWork = getSubmittedWork?.some(
@@ -147,6 +175,20 @@ const StudentAssignmentSubmitDialog = ({
   const handleDelete = (assignmnetId: string) => {
     deleteSubmitWork.mutateAsync({ assignmnetId: assignmnetId });
   };
+
+  useEffect(() => {
+    if (hasSubmittedWork && getSubmittedWork) {
+      const submittedWork = getSubmittedWork.find(
+        (work) =>
+          work.assignmentObjectId === clickAssignmentId &&
+          work.studentObjectId === userId
+      );
+      if (submittedWork) {
+        setValue("files", submittedWork.files || []);
+        setValue("links", submittedWork.links || []);
+      }
+    }
+  }, [hasSubmittedWork, getSubmittedWork, setValue, clickAssignmentId, userId]);
 
   return (
     <div>

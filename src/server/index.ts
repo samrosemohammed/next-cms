@@ -532,6 +532,55 @@ export const appRouter = router({
       }
       return { message: "Assign module updated", updatedAssignModule };
     }),
+  editSubmitWork: privateProcedure
+    .input(z.object({ id: z.string(), submitAssignmentSchema }))
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const existingSubmitWork = await SubmitWork.findOne({
+        assignmentObjectId: input.id,
+        studentObjectId: userId,
+      });
+      if (!existingSubmitWork) {
+        throw new TRPCError({
+          message: "Submit work not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      const existingFiles = existingSubmitWork.files || [];
+      const newFiles = input.submitAssignmentSchema.files || [];
+      const newFileKeys = newFiles.map((file) => file.key);
+      const filesToDelete = existingFiles.filter(
+        (file) => !newFileKeys.includes(file.key)
+      );
+      if (filesToDelete.length > 0) {
+        const keysToDelete = filesToDelete.map((file) => file.key);
+        const res = await deleteFilesByKeys(keysToDelete);
+        console.log("Deleted files:", res);
+      }
+      const updatedSubmitWork = await SubmitWork.findOneAndUpdate(
+        {
+          assignmentObjectId: input.id,
+          studentObjectId: userId,
+        },
+        {
+          ...input.submitAssignmentSchema,
+          files: newFiles.map((file) => ({
+            name: file.name,
+            url: file.url,
+            key: file.key,
+          })),
+        },
+        { new: true }
+      );
+      if (!updatedSubmitWork) {
+        throw new TRPCError({
+          message: "Submit work update failed",
+          code: "NOT_FOUND",
+        });
+      }
+      return { message: "Submit work updated", updatedSubmitWork };
+    }),
   editModuleResource: privateProcedure
     .input(
       z.object({
