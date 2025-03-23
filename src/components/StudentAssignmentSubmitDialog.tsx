@@ -38,12 +38,14 @@ interface StudentAssignmentSubmitDialogProps {
   clickAssignmentId?: string;
   openFromEdit?: boolean;
   setOpenFromEdit?: (open: boolean) => void;
+  isPastDueDate?: boolean;
 }
 const StudentAssignmentSubmitDialog = ({
   userId,
   clickAssignmentId,
   openFromEdit,
   setOpenFromEdit,
+  isPastDueDate,
 }: StudentAssignmentSubmitDialogProps) => {
   const utils = trpc.useUtils();
   const { startUpload } = useUploadThing("imageUploader");
@@ -56,6 +58,7 @@ const StudentAssignmentSubmitDialog = ({
     onSuccess: (data) => {
       setOpen(false);
       utils.getSumbitWork.invalidate();
+      utils.getViewSubmitWork.invalidate();
       toast.success(data.message);
     },
     onError: (error) => {
@@ -80,6 +83,7 @@ const StudentAssignmentSubmitDialog = ({
       setOpen(false);
       setIsDeleteAleartOpen(false);
       utils.getSumbitWork.invalidate();
+      utils.getViewSubmitWork.invalidate();
       toast.success(data.message);
     },
     onError: (error) => {
@@ -195,17 +199,27 @@ const StudentAssignmentSubmitDialog = ({
     <div>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button
-            className={`${
-              hasSubmittedWork
-                ? buttonVariants({
-                    variant: "edit",
-                  })
-                : ""
-            }`}
-          >
-            {hasSubmittedWork ? "Re-submit" : "Submit Assignment"}
-          </Button>
+          {isPastDueDate ? (
+            <span
+              className={`${buttonVariants({
+                variant: "destructive",
+              })}`}
+            >
+              Missing
+            </span>
+          ) : (
+            <Button
+              className={`${
+                hasSubmittedWork
+                  ? buttonVariants({
+                      variant: "edit",
+                    })
+                  : ""
+              }`}
+            >
+              {hasSubmittedWork ? "Re-submit" : "Submit Assignment"}
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -335,7 +349,7 @@ const StudentAssignmentSubmitDialog = ({
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete your
-              resources information and remove your data from our servers.
+              submitted work information and remove your data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
