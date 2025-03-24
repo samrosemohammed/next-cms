@@ -83,6 +83,7 @@ export const submitAssignmentSchema = z.object({
   assignmentId: z.string().min(1, "Assignment ID is required"),
   studentId: z.string().min(1, "Student ID is required"),
   moduleId: z.string().min(1, "Module ID is required"),
+  groupId: z.string().min(1, "Group ID is required"),
   files: z.array(z.any()).min(1, "Files are required"),
   links: z.array(z.string().url("Invalid URL format")).optional(),
 });

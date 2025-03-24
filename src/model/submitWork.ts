@@ -2,6 +2,7 @@ import mongoose, { Schema, Model, Document } from "mongoose";
 import { TUser } from "./user";
 import { TAssignment } from "./assignment";
 import { TModule } from "./module";
+import { TGroup } from "./group";
 
 enum SubmitStatus {
   MISSING = "Missing",
@@ -12,6 +13,7 @@ interface ISubmitWork {
   studentObjectId: TUser | null;
   assignmentObjectId: TAssignment | null;
   moduleObjectId: TModule | null;
+  groupObjectId?: TGroup | null;
   links?: string[];
   files: { name: string; url: string; key: string }[];
   status?: SubmitStatus;
@@ -40,6 +42,11 @@ const SubmitWorkSchema = new Schema<MongoUser>(
     moduleObjectId: {
       type: Schema.Types.ObjectId,
       ref: "Module",
+      required: true,
+    },
+    groupObjectId: {
+      type: Schema.Types.ObjectId,
+      ref: "Group",
       required: true,
     },
     links: [{ type: String }],

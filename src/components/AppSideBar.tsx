@@ -95,6 +95,15 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
       url: `/dashboard/module/${moduleId}/announcements`,
       icon: MessageSquare,
     },
+    ...(user?.role === "teacher"
+      ? [
+          {
+            title: "Submit Work",
+            url: `/dashboard/module/${moduleId}/submit-works`,
+            icon: File,
+          },
+        ]
+      : []),
   ];
   const filteredItems =
     user?.role === "teacher" || user?.role === "student"

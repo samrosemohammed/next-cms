@@ -25,7 +25,6 @@ const GetAssignmentForStudent = ({ userId }: GetAssignmentForStudentProps) => {
   const { data: assignment } = trpc.getAssignmentForStudent.useQuery({
     moduleId,
   });
-
   const sortedAssignments = assignment?.slice().sort((a, b) => {
     return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
   });
@@ -104,6 +103,7 @@ const GetAssignmentForStudent = ({ userId }: GetAssignmentForStudentProps) => {
                 clickAssignmentId={assignment._id}
                 userId={userId}
                 isPastDueDate={isPastDueDate}
+                studentGroupId={assignment.groupObjectId?._id!}
               />
             </CardFooter>
           </Card>

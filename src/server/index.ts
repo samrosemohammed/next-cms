@@ -72,6 +72,7 @@ export const appRouter = router({
         studentObjectId: input.studentId,
         assignmentObjectId: input.assignmentId,
         moduleObjectId: input.moduleId,
+        groupObjectId: input.groupId,
         status,
       });
       await submitWork.save();
@@ -213,6 +214,38 @@ export const appRouter = router({
       });
       await u.save();
       return { u, message: "Student created" };
+    }),
+  getViewSubmitWorkForTeacher: privateProcedure
+    .input(
+      z.object({
+        moduleId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const assignModule = await AssignModule.find({
+        teacher: userId,
+        moduleId: input.moduleId,
+      })
+        .populate("group")
+        .lean();
+      console.log("Assign module: ", assignModule);
+
+      // extract group id
+      const groupIds = assignModule.map((am) => am?.group?._id);
+
+      const submitWork = await SubmitWork.find({
+        moduleObjectId: input.moduleId,
+        groupObjectId: { $in: groupIds },
+      })
+        .populate("assignmentObjectId")
+        .populate("studentObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      console.log("Submit work from api : ", submitWork);
+      const typeResult: TSubmitWork[] = submitWork as unknown as TSubmitWork[];
+      return typeResult;
     }),
   getViewSubmitWork: privateProcedure
     .input(z.object({ id: z.string() }))

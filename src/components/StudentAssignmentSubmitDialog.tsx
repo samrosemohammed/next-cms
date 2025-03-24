@@ -39,6 +39,7 @@ interface StudentAssignmentSubmitDialogProps {
   openFromEdit?: boolean;
   setOpenFromEdit?: (open: boolean) => void;
   isPastDueDate?: boolean;
+  studentGroupId?: string;
 }
 const StudentAssignmentSubmitDialog = ({
   userId,
@@ -46,7 +47,10 @@ const StudentAssignmentSubmitDialog = ({
   openFromEdit,
   setOpenFromEdit,
   isPastDueDate,
+  studentGroupId,
 }: StudentAssignmentSubmitDialogProps) => {
+  console.log("group Id: ", studentGroupId);
+  console.log(typeof studentGroupId);
   const utils = trpc.useUtils();
   const { startUpload } = useUploadThing("imageUploader");
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
@@ -104,6 +108,7 @@ const StudentAssignmentSubmitDialog = ({
       studentId: userId!,
       assignmentId: clickAssignmentId!,
       moduleId: moduleId!,
+      groupId: studentGroupId!,
     },
   });
 
