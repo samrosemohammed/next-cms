@@ -242,6 +242,7 @@ export const appRouter = router({
         .populate("assignmentObjectId")
         .populate("studentObjectId")
         .populate("moduleObjectId")
+        .populate("groupObjectId")
         .lean();
       console.log("Submit work from api : ", submitWork);
       const typeResult: TSubmitWork[] = submitWork as unknown as TSubmitWork[];
