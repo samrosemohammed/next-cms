@@ -215,6 +215,46 @@ export const appRouter = router({
       await u.save();
       return { u, message: "Student created" };
     }),
+  getCountForTeacher: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    await dbConnect();
+
+    // Get total number of module assignments
+    const totalModuleAssignments = await AssignModule.countDocuments({
+      teacher: userId,
+    });
+
+    // Get total number of unique groups assigned
+    const uniqueGroups = await AssignModule.distinct("group", {
+      teacher: userId,
+    });
+    const totalGroupsAssigned = uniqueGroups.length;
+
+    // Get total number of students in the assigned groups
+    const totalStudents = await UserModel.countDocuments({
+      group: { $in: uniqueGroups },
+    });
+
+    return {
+      totalModuleAssignments,
+      totalGroupsAssigned,
+      totalStudents,
+    };
+  }),
+  getGroupStudentAssignToTeacher: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    await dbConnect();
+    const am = await AssignModule.find({ teacher: userId })
+      .populate("group")
+      .populate("teacher")
+      .lean();
+    const groupIds = am.map((am) => am?.group?._id);
+    const students = await UserModel.find({ group: { $in: groupIds } })
+      .populate("group")
+      .lean();
+    const typeResult: TUser[] = students as unknown as TUser[];
+    return typeResult;
+  }),
   getViewSubmitWorkForTeacher: privateProcedure
     .input(
       z.object({

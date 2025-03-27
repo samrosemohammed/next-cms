@@ -16,14 +16,17 @@ import { buttonVariants } from "./ui/button";
 import { File, Link2 } from "lucide-react";
 import { formatDate } from "@/lib/formatDate";
 import { NoDataFeedBack } from "./NoDataFeedBack";
+import { Loader } from "./Loader";
 export const GetSubmitWorkForTeacher = () => {
   const { moduleId } = useParams() as { moduleId: string };
-  const { data: submittedWorkByStudent } =
+  const { data: submittedWorkByStudent, isLoading } =
     trpc.getViewSubmitWorkForTeacher.useQuery({ moduleId });
   console.log(submittedWorkByStudent);
   return (
     <div>
-      {submittedWorkByStudent?.length! > 0 ? (
+      {isLoading ? (
+        <Loader />
+      ) : submittedWorkByStudent?.length! > 0 ? (
         <Table>
           <TableCaption>Submitted work by student</TableCaption>
           <TableHeader>
@@ -39,73 +42,75 @@ export const GetSubmitWorkForTeacher = () => {
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
-          {submittedWorkByStudent?.map((work) => (
-            <TableBody key={work._id}>
-              <TableCell>{work?.moduleObjectId?.name}</TableCell>
-              <TableCell>
-                <span className="p-1 text-xs rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
-                  Group {work?.groupObjectId?.groupName}
-                </span>
-              </TableCell>
-              <TableCell>{work?.studentObjectId?.name}</TableCell>
-              <TableCell>{work?.assignmentObjectId?.title}</TableCell>
-              <TableCell>
-                {work?.files
-                  ? work?.files?.map((f) => (
-                      <Link
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`p-2 ${buttonVariants({
-                          variant: "outline",
-                        })}`}
-                        href={f.url}
-                        key={f.key}
-                      >
-                        <File className="w-4 h-4" />
-                        {f.name}
-                      </Link>
-                    ))
-                  : null}
-              </TableCell>
-              <TableCell>
-                {work?.links
-                  ? work?.links?.map((link) => (
-                      <Link
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`truncate p-2 ${buttonVariants({
-                          variant: "outline",
-                        })}`}
-                        href={link}
-                        key={link}
-                      >
-                        <Link2 className="w-4 h-4" />
-                        {link}
-                      </Link>
-                    ))
-                  : null}
-              </TableCell>
-              <TableCell>
-                {work?.assignmentObjectId?.dueDate
-                  ? formatDate(work?.assignmentObjectId.dueDate)
-                  : null}
-              </TableCell>
-              <TableCell>
-                {work?.createdAt ? formatDate(work?.createdAt) : null}
-              </TableCell>
-              <TableCell>
-                <span
-                  className={`${
-                    work?.status === "Late"
-                      ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
-                  } shadow px-2 py-1 rounded`}
-                >
-                  {work?.status}
-                </span>
-              </TableCell>
-            </TableBody>
-          ))}
+          <TableBody>
+            {submittedWorkByStudent?.map((work) => (
+              <TableRow key={work._id}>
+                <TableCell>{work?.moduleObjectId?.name}</TableCell>
+                <TableCell>
+                  <span className="p-1 text-xs rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
+                    Group {work?.groupObjectId?.groupName}
+                  </span>
+                </TableCell>
+                <TableCell>{work?.studentObjectId?.name}</TableCell>
+                <TableCell>{work?.assignmentObjectId?.title}</TableCell>
+                <TableCell>
+                  {work?.files
+                    ? work?.files?.map((f) => (
+                        <Link
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`p-2 ${buttonVariants({
+                            variant: "outline",
+                          })}`}
+                          href={f.url}
+                          key={f.key}
+                        >
+                          <File className="w-4 h-4" />
+                          {f.name}
+                        </Link>
+                      ))
+                    : null}
+                </TableCell>
+                <TableCell>
+                  {work?.links
+                    ? work?.links?.map((link) => (
+                        <Link
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`truncate p-2 ${buttonVariants({
+                            variant: "outline",
+                          })}`}
+                          href={link}
+                          key={link}
+                        >
+                          <Link2 className="w-4 h-4" />
+                          {link}
+                        </Link>
+                      ))
+                    : null}
+                </TableCell>
+                <TableCell>
+                  {work?.assignmentObjectId?.dueDate
+                    ? formatDate(work?.assignmentObjectId.dueDate)
+                    : null}
+                </TableCell>
+                <TableCell>
+                  {work?.createdAt ? formatDate(work?.createdAt) : null}
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`${
+                      work?.status === "Late"
+                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    } shadow px-2 py-1 rounded`}
+                  >
+                    {work?.status}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       ) : (
         <NoDataFeedBack />
