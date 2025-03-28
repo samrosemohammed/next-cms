@@ -9,24 +9,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { format } from "date-fns";
+import Image from "next/image";
+import moduleBanner from "../../public/module-banner.jpg";
 const GetModuleForStudent = () => {
   const { data: studentGroupModule } =
     trpc.getAssignModuleForStudent.useQuery();
   const navigate = useRouter();
   console.log(studentGroupModule);
   return (
-    <div className="grid grid-cols-3 gap-2 mt-4">
+    <div className="grid grid-cols-3 gap-4 mt-4">
       {studentGroupModule?.map((m) => (
         <Card
-          className="cursor-pointer"
-          onClick={() => navigate.push(`/dashboard/module/${m?.moduleId?._id}`)}
+          className="cursor-pointer hover:shadow-lg hover:translate-y-0.5 transition-transform"
+          onClick={() =>
+            navigate.push(`/dashboard/module/${m?.moduleId?._id}/files`)
+          }
           key={m?.moduleId?._id}
         >
-          {/* <Image
-  className="rounded-t rounded-md"
-  src={moduleBanner}
-  alt="module random image"
-/> */}
+          <Image
+            className="rounded-t rounded-md"
+            src={moduleBanner}
+            alt="module random image"
+          />
           <div className="flex items-center justify-between pr-4">
             <CardHeader>
               <CardTitle>{m.moduleId?.name}</CardTitle>

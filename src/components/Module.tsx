@@ -64,14 +64,14 @@ export const Module = () => {
   };
   return (
     <div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-4">
         {data?.map((m) => (
           <Card key={m.code}>
-            {/* <Image
-            className="rounded-t rounded-md"
-            src={moduleBanner}
-            alt="module random image"
-          /> */}
+            <Image
+              className="rounded-t rounded-md"
+              src={moduleBanner}
+              alt="module random image"
+            />
             <div className="flex items-center justify-between pr-4">
               <CardHeader>
                 <CardTitle>{m.name}</CardTitle>
@@ -79,10 +79,13 @@ export const Module = () => {
               </CardHeader>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <EllipsisVertical />
+                  <div className="cursor-pointer hover:bg-gray-200/80 rounded-full p-2">
+                    <EllipsisVertical className="w-5 h-5" />
+                  </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="left">
                   <DropdownMenuItem
+                    className="cursor-pointer"
                     onClick={() => {
                       setIsAssignOpen(true);
                       setSelectedModuleId(m._id);
@@ -92,6 +95,7 @@ export const Module = () => {
                     Assign
                   </DropdownMenuItem>
                   <DropdownMenuItem
+                    className="cursor-pointer"
                     onClick={() => {
                       setIsEditOpen(true);
                       setSelectedModuleId(m._id);
@@ -106,6 +110,7 @@ export const Module = () => {
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem
+                    className="cursor-pointer"
                     onClick={(e) => {
                       setIsDeleteAleartOpen(true);
                       setSelectedModuleId(m._id);

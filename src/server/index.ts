@@ -225,20 +225,27 @@ export const appRouter = router({
     });
 
     // Get total number of unique groups assigned
-    const uniqueGroups = await AssignModule.distinct("group", {
+    const uniqueGroupIds = await AssignModule.distinct("group", {
       teacher: userId,
     });
-    const totalGroupsAssigned = uniqueGroups.length;
+
+    const totalGroupsAssigned = uniqueGroupIds.length;
 
     // Get total number of students in the assigned groups
     const totalStudents = await UserModel.countDocuments({
-      group: { $in: uniqueGroups },
+      group: { $in: uniqueGroupIds },
+    });
+
+    // Fetch and populate unique group data
+    const uniqueGroups: TGroup[] = await Group.find({
+      _id: { $in: uniqueGroupIds },
     });
 
     return {
       totalModuleAssignments,
       totalGroupsAssigned,
       totalStudents,
+      uniqueGroups,
     };
   }),
   getGroupStudentAssignToTeacher: privateProcedure.query(async ({ ctx }) => {
