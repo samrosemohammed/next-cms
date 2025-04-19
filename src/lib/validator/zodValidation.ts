@@ -61,6 +61,16 @@ export const resourceSchema = z.object({
 
 export type ResourceFormData = z.infer<typeof resourceSchema>;
 
+export const announcementSchema = z.object({
+  description: z.string().min(5, "Description is required"),
+  links: z.array(z.string().url("Invalid URL format")).optional(),
+  files: z.array(z.any()).optional(),
+  moduleId: z.string().min(1, "Module is required"),
+  teacherId: z.string().min(1, "Teacher is required"),
+  groupId: z.string().min(1, "Group is required"),
+});
+export type AnnouncementFormData = z.infer<typeof announcementSchema>;
+
 export const assignmentSchema = z.object({
   title: z.string().min(3, "Title is requried"),
   description: z.string().min(5, "Description is required").optional(),

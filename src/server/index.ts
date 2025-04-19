@@ -1,6 +1,7 @@
 import { z, ZodError } from "zod";
 import { privateProcedure, publicProcedure, router } from "./trpc";
 import {
+  announcementSchema,
   assignmentSchema,
   assignModuleSchema,
   moduleSchema,
@@ -22,6 +23,9 @@ import TeacherModuleResource, {
 } from "@/model/resource";
 import Assignment, { TAssignment } from "@/model/assignment";
 import SubmitWork, { TSubmitWork } from "@/model/submitWork";
+import TeacherModuleAnnouncement, {
+  TTeacherModuleAnnouncement,
+} from "@/model/announcement";
 
 const utapi = new UTApi();
 
@@ -98,6 +102,27 @@ export const appRouter = router({
       });
       await assignment.save();
       return { assignment, message: "Assignment created" };
+    }),
+  createModuleAnnouncement: privateProcedure
+    .input(announcementSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      console.log("create announcement", input);
+      await dbConnect();
+      const tma = await TeacherModuleAnnouncement.create({
+        ...input,
+        files: input.files?.map((file) => ({
+          name: file.name,
+          url: file.url,
+          key: file.key,
+        })),
+        moduleObjectId: input.moduleId,
+        teacherObjectId: input.teacherId,
+        groupObjectId: input.groupId,
+        createdBy: userId,
+      });
+      await tma.save();
+      return { tma, message: "Announcement created" };
     }),
   createModuleResource: privateProcedure
     .input(resourceSchema)
@@ -343,11 +368,29 @@ export const appRouter = router({
       const typeResult: TAssignment[] = assignment as unknown as TAssignment[];
       return typeResult;
     }),
+  getAnnouncement: privateProcedure
+    .input(z.object({ moduleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      console.log("getAnnouncement", input, userId);
+      const announcement = await TeacherModuleAnnouncement.find({
+        moduleObjectId: input.moduleId,
+        createdBy: userId,
+      })
+        .populate("groupObjectId")
+        .populate("teacherObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      const typeResult: TTeacherModuleAnnouncement[] =
+        announcement as unknown as TTeacherModuleAnnouncement[];
+      return typeResult;
+    }),
   getResourceFile: privateProcedure
     .input(z.object({ moduleId: z.string() }))
     .query(async ({ ctx, input }) => {
       const { user, userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const resource = await TeacherModuleResource.find({
         moduleObjectId: input.moduleId,
         createdBy: userId,
@@ -710,6 +753,64 @@ export const appRouter = router({
       }
       return { message: "Submit work updated", updatedSubmitWork };
     }),
+  editModuleAnnouncement: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        announcementSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      await dbConnect();
+      const existingAnnouncement = await TeacherModuleAnnouncement.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (!existingAnnouncement) {
+        throw new TRPCError({
+          message: "Announcement not found or not authorized",
+          code: "NOT_FOUND",
+        });
+      }
+      const existingFiles = existingAnnouncement.files || [];
+      const newFiles = input.announcementSchema.files || [];
+      const newFileKeys = newFiles.map((file) => file.key);
+      const filesToDelete = existingFiles.filter(
+        (file) => !newFileKeys.includes(file.key)
+      );
+      if (filesToDelete.length > 0) {
+        const keysToDelete = filesToDelete.map((file) => file.key);
+        const res = await deleteFilesByKeys(keysToDelete);
+        console.log("Deleted files:", res);
+      }
+      const updatedAnnouncement =
+        await TeacherModuleAnnouncement.findOneAndUpdate(
+          {
+            _id: input.id,
+            createdBy: userId,
+          },
+          {
+            ...input.announcementSchema,
+            files: newFiles.map((file) => ({
+              name: file.name,
+              url: file.url,
+              key: file.key,
+            })),
+          },
+          { new: true }
+        );
+      if (!updatedAnnouncement) {
+        throw new TRPCError({
+          message: "Announcement update failed",
+          code: "NOT_FOUND",
+        });
+      }
+      return {
+        message: "Announcement updated successfully",
+        updatedAnnouncement,
+      };
+    }),
   editModuleResource: privateProcedure
     .input(
       z.object({
@@ -866,11 +967,34 @@ export const appRouter = router({
         message: "Assignment and associated files deleted",
       };
     }),
+  deleteAnnouncement: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      await dbConnect();
+      const announcement = await TeacherModuleAnnouncement.findOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      if (announcement && announcement.files) {
+        const keys = announcement.files.map((file) => file.key);
+        const res = await deleteFilesByKeys(keys);
+        console.log("deleted files", res);
+      }
+      await TeacherModuleAnnouncement.deleteOne({
+        _id: input.id,
+        createdBy: userId,
+      });
+      return {
+        success: true,
+        message: "Announcement and associated files deleted",
+      };
+    }),
   deleteResource: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const resource = await TeacherModuleResource.findOne({
         _id: input.id,
         createdBy: userId,
