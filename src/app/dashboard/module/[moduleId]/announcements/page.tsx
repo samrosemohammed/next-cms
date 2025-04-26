@@ -1,5 +1,6 @@
 import { AnnouncementCreationDialog } from "@/components/AnnouncementCreationDialog";
 import { GetAnnouncement } from "@/components/GetAnnouncement";
+import { GetAnnouncementForStudent } from "@/components/GetAnnouncementForStudent";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import React from "react";
@@ -17,6 +18,13 @@ const Page = async () => {
           </div>
         </div>
         <GetAnnouncement />
+      </div>
+    );
+  }
+  if (user?.role === "student") {
+    return (
+      <div>
+        <GetAnnouncementForStudent userId={user?.id!} />
       </div>
     );
   }

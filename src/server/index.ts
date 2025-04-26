@@ -477,6 +477,34 @@ export const appRouter = router({
     const typeResult: TAssignModule[] = am as unknown as TAssignModule[];
     return typeResult;
   }),
+  getAnnounceForStudent: privateProcedure
+    .input(
+      z.object({
+        moduleId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { user, userId } = ctx;
+      await dbConnect();
+      const student = await UserModel.findOne({ _id: userId });
+      if (!student) {
+        throw new TRPCError({
+          message: "Student not found",
+          code: "NOT_FOUND",
+        });
+      }
+      const announcement = await TeacherModuleAnnouncement.find({
+        moduleObjectId: input.moduleId,
+        groupObjectId: student.group,
+      })
+        .populate("groupObjectId")
+        .populate("teacherObjectId")
+        .populate("moduleObjectId")
+        .lean();
+      const typeResult: TTeacherModuleAnnouncement[] =
+        announcement as unknown as TTeacherModuleAnnouncement[];
+      return typeResult;
+    }),
   getAssignmentForStudent: privateProcedure
     .input(
       z.object({

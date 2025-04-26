@@ -4,7 +4,14 @@ import { AnnouncementFormData } from "@/lib/validator/zodValidation";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { EllipsisVertical, File, Link2, Pencil, Trash } from "lucide-react";
+import {
+  EllipsisVertical,
+  File,
+  Link2,
+  MessageSquare,
+  Pencil,
+  Trash,
+} from "lucide-react";
 import { formatDate } from "@/lib/formatDate";
 import {
   DropdownMenu,
@@ -61,7 +68,7 @@ export const GetAnnouncement = () => {
             <CardTitle>
               <div className="flex justify-between">
                 <div className="flex items-center gap-2">
-                  <File className="w-4 h-4" />
+                  <MessageSquare className="w-4 h-4" />
                   {announcement.description}
                 </div>
                 <div className="flex items-center gap-2">
