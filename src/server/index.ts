@@ -273,6 +273,26 @@ export const appRouter = router({
       uniqueGroups,
     };
   }),
+  getCountForAdmin: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    await dbConnect();
+    const totalGroups = await Group.countDocuments({ createdBy: userId });
+    const totalModules = await Module.countDocuments({ createdBy: userId });
+    const totalTeachers = await UserModel.countDocuments({
+      role: "teacher",
+      createdBy: userId,
+    });
+    const totalStudents = await UserModel.countDocuments({
+      role: "student",
+      createdBy: userId,
+    });
+    return {
+      totalGroups,
+      totalModules,
+      totalTeachers,
+      totalStudents,
+    };
+  }),
   getGroupStudentAssignToTeacher: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
     await dbConnect();
