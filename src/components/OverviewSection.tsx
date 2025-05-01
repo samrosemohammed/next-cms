@@ -12,27 +12,11 @@ import {
 import { BookOpen, GraduationCap, Users } from "lucide-react";
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PieChartCompo } from "./PieChartCompo";
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "#2563eb",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "#60a5fa",
-  },
-} satisfies ChartConfig;
 export const OverviewSection = () => {
+  const { data: count } = trpc.getCountForAdmin.useQuery();
+  const { data: moduleStats, isLoading } = trpc.getModuleGroupStats.useQuery();
   const activities = [
     {
       id: 1,
@@ -90,8 +74,56 @@ export const OverviewSection = () => {
       time: "2 days ago",
     },
   ];
+  // const chartData = [
+  //   { month: "Math", A: 50, B: 20, C: 80 },
+  //   { month: "Science", A: 305, B: 200, C: 100 },
+  //   { month: "Biology", A: 237, B: 120, C: 90 },
+  //   { month: "Fyp", A: 73, B: 190, C: 102 },
+  //   { month: "ML", A: 209, B: 130 },
+  //   { month: "Distributed", A: 214, B: 140, C: 90 },
+  // ];
 
-  const { data: count } = trpc.getCountForAdmin.useQuery();
+  // const chartConfig = {
+  //   A: {
+  //     label: "Group A",
+  //     color: "#2563eb",
+  //   },
+  //   B: {
+  //     label: "Group B",
+  //     color: "#4ade80",
+  //   },
+  //   C: {
+  //     label: "Group C",
+  //     color: "#60a5fa",
+  //   },
+  // } satisfies ChartConfig;
+
+  // Transform data for the chart
+  const chartData = moduleStats?.map((module) => {
+    const data = { moduleName: module.name };
+    module.groups.forEach((group) => {
+      data[group.name] = group.studentCount;
+    });
+    return data;
+  });
+
+  // Generate dynamic chart config for groups
+  const chartConfig = moduleStats
+    ? moduleStats.reduce((config, module) => {
+        module.groups.forEach((group, index) => {
+          if (group.name && !config[group.name]) {
+            config[group.name] = {
+              label: group.name,
+              color: `hsl(var(--primary) / ${1 - index * 0.1})`, // Generate unique colors 240 10% 3.9%
+            };
+          }
+        });
+        return config;
+      }, {} as ChartConfig)
+    : {}; // Default to an empty object if moduleStats is undefined
+
+  console.log("moduleStats: ", moduleStats);
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4 my-3">
@@ -150,7 +182,7 @@ export const OverviewSection = () => {
           <CardHeader>
             <CardTitle>Performance Overview</CardTitle>
             <CardDescription>
-              Academic performance across departments
+              Total Students in each group per module
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
@@ -158,49 +190,27 @@ export const OverviewSection = () => {
               <BarChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="month"
+                  dataKey="moduleName"
                   tickLine={false}
                   tickMargin={10}
                   axisLine={false}
                   tickFormatter={(value) => value.slice(0, 3)}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-                <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                {Object.keys(chartConfig || {}).map((groupKey) => (
+                  <Bar
+                    key={groupKey}
+                    dataKey={groupKey}
+                    fill={chartConfig[groupKey].color}
+                    name={chartConfig[groupKey].label}
+                    radius={4}
+                  />
+                ))}
               </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className="">
-          <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
-            <CardDescription>Latest updates and activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {activities.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-4">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      src={activity.user.avatar || "/placeholder.svg"}
-                      alt={activity.user.name}
-                    />
-                    <AvatarFallback>{activity.user.initials}</AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {activity.user.name} {activity.action}{" "}
-                      <span className="font-semibold">{activity.target}</span>
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PieChartCompo />
       </div>
     </div>
   );

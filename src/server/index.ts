@@ -240,6 +240,61 @@ export const appRouter = router({
       await u.save();
       return { u, message: "Student created" };
     }),
+  getModuleGroupStats: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    await dbConnect();
+
+    // Fetch all modules created by the user
+    const modules = await Module.find({ createdBy: userId }).lean();
+
+    // Fetch all groups assigned to these modules
+    const assignModules = await AssignModule.find({
+      moduleId: { $in: modules.map((module) => module._id) },
+    })
+      .populate("group")
+      .lean();
+
+    // Fetch student counts for each group
+    const groupStudentCounts = await UserModel.aggregate([
+      {
+        $match: {
+          role: "student",
+          group: { $in: assignModules.map((am) => am?.group?._id) },
+        },
+      },
+      {
+        $group: {
+          _id: "$group",
+          studentCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Map group IDs to student counts
+    const groupCountsMap = groupStudentCounts.reduce((acc, group) => {
+      acc[group._id.toString()] = group.studentCount;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Build the response
+    const moduleStats = modules.map((modulee) => {
+      const groups = assignModules
+        .filter((am) => am?.moduleId?.toString() === modulee._id.toString())
+        .map((am) => ({
+          name: am?.group?.groupName,
+          studentCount: am?.group?._id
+            ? groupCountsMap[am.group._id.toString()] || 0
+            : 0,
+        }));
+
+      return {
+        name: modulee.name,
+        groups,
+      };
+    });
+
+    return moduleStats;
+  }),
   getCountForTeacher: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
     await dbConnect();
