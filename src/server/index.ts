@@ -27,6 +27,7 @@ import TeacherModuleAnnouncement, {
   TTeacherModuleAnnouncement,
 } from "@/model/announcement";
 import { resend } from "@/lib/resend";
+import { formatDate } from "@/lib/formatDate";
 
 const utapi = new UTApi();
 
@@ -45,6 +46,19 @@ const deleteFilesByKeys = async (keys: string[]) => {
     await utapi.deleteFiles(keys);
   } catch (err) {
     console.error("Error deleting files:", err);
+  }
+};
+
+const sendEmail = (from: string, to: string, subject: string, html: string) => {
+  try {
+    return resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+    });
+  } catch (err) {
+    console.error("Error sending email:", err);
   }
 };
 export const appRouter = router({
@@ -101,8 +115,47 @@ export const appRouter = router({
         groupObjectId: input.groupId,
         createdBy: userId,
       });
+
+      // fetch all students associated with the group
+      const students = await UserModel.find({
+        group: input.groupId,
+        role: "student",
+      });
+      // send email to each student
+      const emailPromises = students.map(async (student) => {
+        try {
+          const teacher = await UserModel.findById(input.teacherId);
+          const module = await Module.findById(input.moduleId);
+          const dueDate = input.dueDate
+            ? formatDate(input.dueDate.toISOString()) // Convert Date to string
+            : "No due date provided";
+          const html = ` 
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                  <h2 style="color: #4CAF50; text-align: center;">New Assignment Added</h2>
+                  <p>Dear <strong>${student.name}</strong>,</p>
+                  <p>A new assignment titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
+                  <p>Due Date: <strong>${dueDate}</strong></p>
+                  <p style="text-align: center; margin: 20px 0;">
+                    <a href="http://localhost:3000/dashboard/module/${input.moduleId}/assignments" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Assignment</a>
+                  </p>
+                  <p>If you have any questions, feel free to contact your teacher.</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #777; text-align: center;">Best regards,<br>Classroom Team</p>
+               </div>
+               `;
+          sendEmail(
+            "noreply@mohammedsamrose.com.np",
+            student.email,
+            "New Assignment Created",
+            html
+          );
+        } catch (err) {
+          console.error(`Error sending email to ${student.email}:`, err);
+        }
+      });
+      await Promise.all(emailPromises);
       await assignment.save();
-      return { assignment, message: "Assignment created" };
+      return { assignment, message: "Assignment created and emails sent" };
     }),
   createModuleAnnouncement: privateProcedure
     .input(announcementSchema)
@@ -122,6 +175,45 @@ export const appRouter = router({
         groupObjectId: input.groupId,
         createdBy: userId,
       });
+      // Fetch all students associated with the group
+      const students = await UserModel.find({
+        group: input.groupId,
+        role: "student",
+      });
+
+      // Send email to each student
+      const emailPromises = students.map(async (student) => {
+        try {
+          const teacher = await UserModel.findById(input.teacherId); // Fetch teacher details
+          const module = await Module.findById(input.moduleId); // Fetch module details
+
+          const html = `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+            <h2 style="color: #4CAF50; text-align: center;">New Announcement</h2>
+            <p>Dear <strong>${student.name}</strong>,</p>
+            <p>A new announcement has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
+            <p>Description: <strong>${input.description || "No description provided"}</strong></p>
+            <p style="text-align: center; margin: 20px 0;">
+              <a href="http://localhost:3000/dashboard/module/${input.moduleId}/announcements" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Announcement</a>
+            </p>
+            <p>If you have any questions, feel free to contact your teacher.</p>
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+            <p style="font-size: 12px; color: #777; text-align: center;">Best regards,<br>Classroom Team</p>
+          </div>
+        `;
+
+          sendEmail(
+            "noreply@mohammedsamrose.com.np",
+            student.email,
+            "New Announcement Created",
+            html
+          );
+        } catch (err) {
+          console.error(`Error sending email to ${student.email}:`, err);
+        }
+      });
+
+      await Promise.all(emailPromises);
       await tma.save();
       return { tma, message: "Announcement created" };
     }),
@@ -156,25 +248,26 @@ export const appRouter = router({
         try {
           const teacher = await UserModel.findById(input.teacherId); // Fetch teacher details
           const module = await Module.findById(input.moduleId); // Fetch module details
-          const response = await resend.emails.send({
-            from: "noreply@mohammedsamrose.com.np",
-            to: user.email,
-            subject: "New Resource Added",
-            html: `
-             <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-                <h2 style="color: #4CAF50; text-align: center;">New Resource Added</h2>
-                <p>Dear <strong>${user.name}</strong>,</p>
-                <p>A new resource titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
-                <p style="text-align: center; margin: 20px 0;">
-                  <a href="http://localhost:3000/dashboard/module/${input.moduleId}/files" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Resource</a>
-                </p>
-                <p>If you have any questions, feel free to contact your teacher.</p>
-                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-                <p style="font-size: 12px; color: #777; text-align: center;">Best regards,<br>Classroom Team</p>
-            </div>
-        `,
-          });
-          console.log(`Email sent to ${user.email}:`, response);
+          const html = `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                  <h2 style="color: #4CAF50; text-align: center;">New Resource Added</h2>
+                  <p>Dear <strong>${user.name}</strong>,</p>
+                  <p>A new resource titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
+                  <p style="text-align: center; margin: 20px 0;">
+                    <a href="http://localhost:3000/dashboard/module/${input.moduleId}/files" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Resource</a>
+                  </p>
+                  <p>If you have any questions, feel free to contact your teacher.</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #777; text-align: center;">Best regards,<br>Classroom Team</p>
+              </div>
+            `;
+          sendEmail(
+            "noreply@mohammedsamrose.com.np",
+            user.email,
+            "New Resource Created",
+            html
+          );
+          // console.log(`Email sent to ${user.email}:`, response);
         } catch (error) {
           console.error(`Error sending email to ${user.email}:`, error);
         }
