@@ -129,7 +129,7 @@ export const GetResourceFile = () => {
           </CardHeader>
           <CardContent className="space-y-2 space-x-2">
             {file.files &&
-              file.files.map((f) => (
+              file.files.map((f, index) => (
                 <Link
                   target="_blank"
                   rel="noopener noreferrer"
@@ -137,7 +137,7 @@ export const GetResourceFile = () => {
                     variant: "outline",
                   })}`}
                   href={f.url}
-                  key={f.key}
+                  key={`${f.key}-${index}`}
                 >
                   <File className="w-4 h-4" />
                   {f.name}
@@ -146,7 +146,7 @@ export const GetResourceFile = () => {
             {file.links &&
               file.links.map((l, i) => (
                 <Link
-                  key={i}
+                  key={`link-${file._id}-${i}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   href={l}
