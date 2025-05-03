@@ -15,8 +15,8 @@ import Link from "next/link";
 import { buttonVariants } from "./ui/button";
 import { File, Link2 } from "lucide-react";
 import { formatDate } from "@/lib/formatDate";
-import { NoDataFeedBack } from "./NoDataFeedBack";
 import { Loader } from "./Loader";
+import { Empty } from "./Empty";
 export const GetSubmitWorkForTeacher = () => {
   const { moduleId } = useParams() as { moduleId: string };
   const { data: submittedWorkByStudent, isLoading } =
@@ -113,7 +113,7 @@ export const GetSubmitWorkForTeacher = () => {
           </TableBody>
         </Table>
       ) : (
-        <NoDataFeedBack />
+        <Empty des="No submit work found. Please check back later." />
       )}
     </div>
   );

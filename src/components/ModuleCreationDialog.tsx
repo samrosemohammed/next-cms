@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -32,15 +32,19 @@ import { TRPCClientError } from "@trpc/client";
 interface ModuleCreationDialogProps {
   moduleId?: string;
   moduleInfo?: ModuleFormData;
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  openFromEdit?: boolean;
+  setOpenFromEdit?: (open: boolean) => void;
 }
 export const ModuleCreationDialog = ({
   moduleId,
-  open,
-  setOpen,
+  openFromEdit,
+  setOpenFromEdit,
   moduleInfo,
 }: ModuleCreationDialogProps) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const isOpen = openFromEdit !== undefined ? openFromEdit : open;
+  const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const utils = trpc.useUtils();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -69,7 +73,7 @@ export const ModuleCreationDialog = ({
   const editModule = trpc.editModule.useMutation({
     onSuccess: (data) => {
       utils.getModules.invalidate();
-      setOpen(false);
+      setIsOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
@@ -81,6 +85,7 @@ export const ModuleCreationDialog = ({
   });
   const onSubmit = async (data: ModuleFormData) => {
     try {
+      setIsLoading(true);
       if (!moduleInfo) {
         await createModule.mutateAsync(data);
       } else {
@@ -94,6 +99,7 @@ export const ModuleCreationDialog = ({
       }
       console.log("data: ", data);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating module:", error);
     }
   };
@@ -106,7 +112,7 @@ export const ModuleCreationDialog = ({
     }
   }, [moduleInfo]);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {!moduleInfo && (
         <DialogTrigger asChild>
           <Button>
@@ -248,7 +254,10 @@ export const ModuleCreationDialog = ({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">{moduleInfo ? "Save" : "Create"}</Button>
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : null}
+              {moduleInfo ? "Save" : "Create"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

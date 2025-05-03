@@ -24,7 +24,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Bookmark, EllipsisVertical, Pencil, Trash } from "lucide-react";
+import {
+  Bookmark,
+  EllipsisVertical,
+  FolderOpen,
+  Loader2,
+  Pencil,
+  Trash,
+} from "lucide-react";
 import moduleBanner from "../../public/module-banner.jpg";
 import Image from "next/image";
 import { Button, buttonVariants } from "./ui/button";
@@ -35,6 +42,8 @@ import { ModuleCreationDialog } from "./ModuleCreationDialog";
 import { ModuleFormData } from "@/lib/validator/zodValidation";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
+import { Loader } from "./Loader";
+import { Empty } from "./Empty";
 
 export const Module = () => {
   const utils = trpc.useUtils();
@@ -44,7 +53,7 @@ export const Module = () => {
   const [selectedModuleInfo, setSelectedModuleInfo] =
     useState<ModuleFormData>();
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
-  const { data } = trpc.getModules.useQuery();
+  const { data, isLoading: isModuleLoading } = trpc.getModules.useQuery();
   const deleteModule = trpc.deleteModule.useMutation({
     onSuccess: (data) => {
       utils.getModules.invalidate();
@@ -64,73 +73,80 @@ export const Module = () => {
   };
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4">
-        {data?.map((m) => (
-          <Card key={m.code}>
-            <Image
-              className="rounded-t rounded-md"
-              src={moduleBanner}
-              alt="module random image"
-            />
-            <div className="flex items-center justify-between pr-4">
-              <CardHeader>
-                <CardTitle>{m.name}</CardTitle>
-                <CardDescription>{m.code}</CardDescription>
-              </CardHeader>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="cursor-pointer hover:bg-gray-200/80 rounded-full p-2">
-                    <EllipsisVertical className="w-5 h-5" />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="left">
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsAssignOpen(true);
-                      setSelectedModuleId(m._id);
-                    }}
-                  >
-                    <Bookmark />
-                    Assign
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsEditOpen(true);
-                      setSelectedModuleId(m._id);
-                      setSelectedModuleInfo({
-                        ...m,
-                        startDate: new Date(m.startDate),
-                        endDate: new Date(m.endDate),
-                      });
-                    }}
-                  >
-                    <Pencil />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={(e) => {
-                      setIsDeleteAleartOpen(true);
-                      setSelectedModuleId(m._id);
-                    }}
-                  >
-                    <Trash />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+      {isModuleLoading ? (
+        <Loader />
+      ) : data?.length ? (
+        <div className="grid grid-cols-3 gap-4">
+          {data?.map((m) => (
+            <Card key={m.code}>
+              <Image
+                className="rounded-t rounded-md"
+                src={moduleBanner}
+                alt="module random image"
+              />
+              <div className="flex items-center justify-between pr-4">
+                <CardHeader>
+                  <CardTitle>{m.name}</CardTitle>
+                  <CardDescription>{m.code}</CardDescription>
+                </CardHeader>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="cursor-pointer hover:bg-gray-200/80 rounded-full p-2">
+                      <EllipsisVertical className="w-5 h-5" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="left">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setIsAssignOpen(true);
+                        setSelectedModuleId(m._id);
+                      }}
+                    >
+                      <Bookmark />
+                      Assign
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setIsEditOpen(true);
+                        setSelectedModuleId(m._id);
+                        setSelectedModuleInfo({
+                          ...m,
+                          startDate: new Date(m.startDate),
+                          endDate: new Date(m.endDate),
+                        });
+                      }}
+                    >
+                      <Pencil />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={(e) => {
+                        setIsDeleteAleartOpen(true);
+                        setSelectedModuleId(m._id);
+                      }}
+                    >
+                      <Trash />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-            {/* <CardContent></CardContent> */}
-            <CardFooter className="flex justify-between items-center">
-              <p>{format(m.startDate, "yyyy")}</p>
-              <p>{format(m.endDate, "yyyy")}</p>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              {/* <CardContent></CardContent> */}
+              <CardFooter className="flex justify-between items-center">
+                <p>{format(m.startDate, "yyyy")}</p>
+                <p>{format(m.endDate, "yyyy")}</p>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Empty des="No module found. Please create a new module." />
+      )}
+
       <ModuleAssignDialog
         moduleId={selectedModuleId}
         open={isAssignOpen}
@@ -140,8 +156,8 @@ export const Module = () => {
         <ModuleCreationDialog
           moduleInfo={selectedModuleInfo}
           moduleId={selectedModuleId}
-          open={isEditOpen}
-          setOpen={setIsEditOpen}
+          openFromEdit={isEditOpen}
+          setOpenFromEdit={setIsEditOpen}
         />
       )}
       {/* for module delete creation */}

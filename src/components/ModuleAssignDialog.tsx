@@ -25,9 +25,10 @@ import {
   assignModuleSchema,
 } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
+import { Loader2 } from "lucide-react";
 
 interface ModuleAssignDialogProps {
   open: boolean;
@@ -44,6 +45,7 @@ export const ModuleAssignDialog = ({
   assignModuleId,
 }: ModuleAssignDialogProps) => {
   const utils = trpc.useUtils();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: groupData } = trpc.getGroups.useQuery();
   const { data: teacherData } = trpc.getTeachers.useQuery();
   const createAssignModule = trpc.createAssignModule.useMutation({
@@ -82,6 +84,7 @@ export const ModuleAssignDialog = ({
   });
   console.log("hello");
   const onSubmit = async (data: AssignModuleFormData) => {
+    setIsLoading(true);
     try {
       if (assignModuleInfo) {
         await editAssignModule.mutateAsync({
@@ -92,6 +95,7 @@ export const ModuleAssignDialog = ({
         await createAssignModule.mutateAsync(data);
       }
     } catch (error) {
+      setIsLoading(false);
       console.log("error", error);
     }
   };
@@ -182,7 +186,8 @@ export const ModuleAssignDialog = ({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {assignModuleInfo ? "Save" : "Assign"}
             </Button>
           </DialogFooter>

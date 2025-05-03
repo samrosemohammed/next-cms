@@ -32,7 +32,7 @@ const UserSchema = new Schema<MongoUser>(
     password: { type: String, required: true },
     image: { type: String },
     role: { type: String, required: true },
-    rollNumber: { type: String, required: false, unique: true },
+    rollNumber: { type: String, required: false },
     group: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Group",
@@ -48,7 +48,6 @@ const UserSchema = new Schema<MongoUser>(
     timestamps: true,
   }
 );
-
 const UserModel: Model<MongoUser> =
   mongoose.models.User || mongoose.model<MongoUser>("User", UserSchema);
 export default UserModel;

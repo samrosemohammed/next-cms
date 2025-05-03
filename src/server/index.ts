@@ -297,6 +297,38 @@ export const appRouter = router({
         ...input,
         createdBy: userId,
       });
+
+      // fetch teacher and module details
+      const teacher = await UserModel.findById(input.teacher);
+      const module = await Module.findById(input.moduleId);
+      const group = await Group.findById(input.group);
+
+      // send email to the teacher
+      const html = `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+            <h2 style="color: #4CAF50; text-align: center;">Module Assigned</h2>
+            <p>Dear <strong>${teacher?.name}</strong>,</p>
+            <p>You have been assigned to the module <strong>${module?.name}</strong> for the group <strong>${group?.groupName}</strong>.</p>
+            <p>Please log in to your dashboard to view the details.</p>
+            <p style="text-align: center; margin: 20px 0;">
+              <a href="http://localhost:3000/dashboard/modules" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Modules</a>
+            </p>
+            <p>If you have any questions, feel free to contact the admin.</p>
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+            <p style="font-size: 12px; color: #777; text-align: center;">Best regards,<br>Admin Team</p>
+          </div>
+        `;
+      try {
+        await sendEmail(
+          "noreply@mohammedsamrose.com.np",
+          teacher?.email!,
+          "Module Assigned",
+          html
+        );
+        console.log(`Email sent to ${teacher?.email}`);
+      } catch (err) {
+        console.error(`Error sending email to ${teacher?.email}:`, err);
+      }
       await am.save();
       return { am, message: "Module assigned" };
     }),

@@ -14,13 +14,19 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { MaxWidthWrapper } from "@/components/MaxWidthWrapper";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Page = () => {
   const navigate = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const result = await signIn("credentials", {
       redirect: false,
       email,
@@ -28,10 +34,12 @@ const Page = () => {
     });
 
     if (!result?.ok) {
-      alert("Invalid credentials");
+      toast.error("Invalid credentials");
+      setLoading(false);
     }
     if (result?.ok) {
       navigate.push("/dashboard");
+      setLoading(false);
     }
   };
   return (
@@ -55,22 +63,31 @@ const Page = () => {
               required
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <Label htmlFor="Password">Password</Label>
             <Input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+              className="absolute right-3 top-8 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
         </CardContent>
         <CardFooter>
           <Button
             onClick={handleSubmit}
             className="w-full hover:bg-green-500 transition-colors"
+            disabled={loading}
           >
+            {loading ? <Loader2 className="w-5 h-5 ml-2 animate-spin" /> : null}{" "}
             Sign in
           </Button>
         </CardFooter>

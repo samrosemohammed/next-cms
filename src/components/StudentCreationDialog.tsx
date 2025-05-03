@@ -266,7 +266,7 @@ export const StudentCreationDialog = ({
           </div>
           <DialogFooter>
             <Button disabled={isLoading} type="submit">
-              {isLoading ? <Loader2 className="animate-spin" /> : null}
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {studentInfo ? "Save" : "Create"}
             </Button>
           </DialogFooter>

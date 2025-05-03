@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash } from "lucide-react";
+import { Loader2, Plus, Trash } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ResourceFormData,
@@ -48,6 +48,7 @@ export const FileCreationDialog = ({
   resourceInfo,
   resourceId,
 }: FileCreationDialogProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const isOpen = openFromEdit !== undefined ? openFromEdit : open;
   const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
@@ -130,6 +131,7 @@ export const FileCreationDialog = ({
   };
 
   const onSubmit = async (data: ResourceFormData) => {
+    setIsLoading(true);
     console.log("Form data", data);
     const allFiles = data.files as (
       | File
@@ -163,9 +165,12 @@ export const FileCreationDialog = ({
         id: resourceId!,
         resourceSchema: { ...data, files: finalFiles },
       });
+      setIsLoading(false);
     } else {
       await createResource.mutateAsync({ ...data, files: finalFiles });
+      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const uniqueGroups = data
@@ -320,7 +325,10 @@ export const FileCreationDialog = ({
           </div>
 
           <DialogFooter>
-            <Button type="submit">{resourceInfo ? "Save" : "Create"}</Button>
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {resourceInfo ? "Save" : "Create"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

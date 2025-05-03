@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { TrendingUp } from "lucide-react";
+import { Loader2, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
 import {
@@ -19,6 +19,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { trpc } from "@/app/_trpc/client";
+import { Loader } from "./Loader";
 
 export const PieChartCompo = () => {
   const { data: moduleStats, isLoading } = trpc.getModuleGroupStats.useQuery();
@@ -53,82 +54,92 @@ export const PieChartCompo = () => {
   }, [chartData]);
 
   // Ensure chartData is not undefined or null
-  if (!chartData || chartData.length === 0) {
-    return (
-      <Card className="flex flex-col">
-        <CardHeader className="items-center pb-0">
-          <CardTitle>Group Distribution</CardTitle>
-          <CardDescription>No data available</CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
+  // if (!chartData || chartData.length === 0) {
+  //   return (
+  //     <Card className="flex flex-col">
+  //       <CardHeader className="items-center pb-0">
+  //         <CardTitle>Group Distribution</CardTitle>
+  //         <CardDescription>No data available</CardDescription>
+  //       </CardHeader>
+  //     </Card>
+  //   );
+  // }
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
+      <CardHeader className="items-center pb-2">
         <CardTitle>Group Distribution</CardTitle>
         <CardDescription>Total Students by Group</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          className="mx-auto aspect-square max-h-[250px]"
-          config={{}}
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="students"
-              nameKey="group"
-              innerRadius={60}
-              outerRadius={100}
-              strokeWidth={5}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
+        {isLoading ? (
+          <Loader />
+        ) : moduleStats?.length ? (
+          <ChartContainer
+            className="mx-auto aspect-square max-h-[250px]"
+            config={{}}
+          >
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={chartData}
+                dataKey="students"
+                nameKey="group"
+                innerRadius={60}
+                outerRadius={100}
+                strokeWidth={5}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
                         >
-                          {totalStudents.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Students
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-3xl font-bold"
+                          >
+                            {totalStudents.toLocaleString()}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            Students
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        ) : (
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            No data available for the chart.
+          </p>
+        )}
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total students grouped by their respective groups
-        </div>
-      </CardFooter>
+      {moduleStats?.length ? (
+        <CardFooter className="flex-col gap-2 text-sm">
+          <div className="flex items-center gap-2 font-medium leading-none">
+            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Showing total students grouped by their respective groups
+          </div>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 };

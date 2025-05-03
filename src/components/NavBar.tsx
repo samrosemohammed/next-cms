@@ -9,8 +9,8 @@ export const NavBar = () => {
         <div className="flex h-14 items-center justify-between border-b">
           <Link href={"/"}>Classroom.</Link>
           <div className="hidden items-center space-x-4 sm:flex">
-            <Link href="/home">Home</Link>
-            <Link href="/home">Home</Link>
+            <Link href="/">About</Link>
+            <Link href="/">Features</Link>
             <Link
               className={buttonVariants({
                 size: "lg",

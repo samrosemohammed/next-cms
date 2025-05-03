@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +35,7 @@ const TeacherCreationDialog = ({
   teacherInfo,
 }: TeacherCreationDialogProps) => {
   const utils = trpc.useUtils();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const isOpen = openFromEdit !== undefined ? openFromEdit : open;
   const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
@@ -87,6 +88,7 @@ const TeacherCreationDialog = ({
   }, [teacherData, teacherInfo, setValue]);
 
   const onSubmit = async (data: TeacherFormData) => {
+    setIsLoading(true);
     try {
       let uploadImageUrl = teacherInfo?.teacherImage || null;
       const file =
@@ -112,6 +114,7 @@ const TeacherCreationDialog = ({
         await createTeacher.mutateAsync(updatedTeacher);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating group:", error);
     }
   };
@@ -219,7 +222,10 @@ const TeacherCreationDialog = ({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">{teacherInfo ? "Save" : "Create"}</Button>
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {teacherInfo ? "Save" : "Create"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

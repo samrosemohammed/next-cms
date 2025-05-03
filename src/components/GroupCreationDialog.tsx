@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
@@ -22,19 +22,23 @@ import { toast } from "sonner";
 import { TRPCClientError } from "@trpc/client";
 
 interface GroupCreationDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  openFromEdit?: boolean;
+  setOpenFromEdit?: (open: boolean) => void;
   groupInfo?: GroupFormData;
   groupId?: string;
 }
 const GroupCreationDialog = ({
-  open,
-  setOpen,
+  openFromEdit,
+  setOpenFromEdit,
   groupInfo,
   groupId,
 }: GroupCreationDialogProps) => {
   // const [open, setOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: groupData } = trpc.getGroups.useQuery();
+  const [open, setOpen] = useState<boolean>(false);
+  const isOpen = openFromEdit !== undefined ? openFromEdit : open;
+  const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const utils = trpc.useUtils();
   const {
     register,
@@ -87,6 +91,7 @@ const GroupCreationDialog = ({
   }, [groupData, groupInfo, setValue]);
 
   const onSubmit = async (data: GroupFormData) => {
+    setIsLoading(true);
     try {
       if (!groupInfo) {
         await createGroup.mutateAsync(data);
@@ -98,11 +103,12 @@ const GroupCreationDialog = ({
         }
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating group:", error);
     }
   };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {!groupInfo && (
         <DialogTrigger asChild>
           <Button>
@@ -161,7 +167,10 @@ const GroupCreationDialog = ({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">{groupInfo ? "Save" : "Create"}</Button>
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {groupInfo ? "Save" : "Create"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -28,6 +28,9 @@ import { TRPCClientError } from "@trpc/client";
 import { useState } from "react";
 import TeacherCreationDialog from "./TeacherCreationDialog";
 import { TeacherFormData } from "@/lib/validator/zodValidation";
+import { Database, Loader2 } from "lucide-react";
+import { Empty } from "./Empty";
+import { Loader } from "./Loader";
 
 export const TeacherTable = () => {
   const utils = trpc.useUtils();
@@ -35,7 +38,7 @@ export const TeacherTable = () => {
   const [selectedTeacherInfo, setSelectedTeacherInfo] =
     useState<TeacherFormData>();
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
-  const { data } = trpc.getTeachers.useQuery();
+  const { data, isLoading: isTeacherLoading } = trpc.getTeachers.useQuery();
   const deleteTeacher = trpc.deleteTeacher.useMutation({
     onSuccess: (data) => {
       utils.getTeachers.invalidate();
@@ -58,101 +61,108 @@ export const TeacherTable = () => {
   console.log(data);
   return (
     <div>
-      <Table>
-        <TableCaption>A list of your recent group created.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[150px]">Teacher ID</TableHead>
-            <TableHead>Teacher Name</TableHead>
-            <TableHead>Teacher Email</TableHead>
-            <TableHead>Teacher Password</TableHead>
-            <TableHead>Teacher Image</TableHead>
-            <TableHead className="text-right">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data?.map((t) => (
-            <TableRow key={t._id}>
-              <TableCell className="font-medium">{t.rollNumber}</TableCell>
-              <TableCell>{t.name}</TableCell>
-              <TableCell>{t.email}</TableCell>
-              <TableCell>{t.password}</TableCell>
-              <TableCell>
-                <Avatar className="w-8 h-8">
-                  <AvatarImage
-                    src={t.image}
-                    alt={`${t.name} profile picture`}
-                  />
-                  <AvatarFallback>{t.name.slice(0, 2)}</AvatarFallback>
-                </Avatar>
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button
-                  onClick={() => {
-                    setSelectedTeacherId(t._id);
-                    setSelectedTeacherInfo({
-                      teacherEmail: t.email,
-                      teacherId: t.rollNumber!,
-                      teacherImage: t.image,
-                      teacherName: t.name,
-                      teacherPassword: t.password,
-                    });
-                    setIsEditTeacherOpen(true);
-                  }}
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "edit",
-                  })}
-                >
-                  Edit
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      size={"sm"}
-                      variant={"destructive"}
-                      className="outline-none"
-                    >
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your teacher information and remove your data
-                        from our servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        className={buttonVariants({
-                          size: "sm",
-                          variant: "ghost",
-                        })}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        className={buttonVariants({
-                          size: "sm",
-                          variant: "destructive",
-                        })}
-                        onClick={() => handleDelete(t._id)}
+      {isTeacherLoading ? (
+        <Loader />
+      ) : data?.length ? (
+        <Table>
+          <TableCaption>A list of your recent group created.</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[150px]">Teacher ID</TableHead>
+              <TableHead>Teacher Name</TableHead>
+              <TableHead>Teacher Email</TableHead>
+              <TableHead>Teacher Password</TableHead>
+              <TableHead>Teacher Image</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data?.map((t) => (
+              <TableRow key={t._id}>
+                <TableCell className="font-medium">{t.rollNumber}</TableCell>
+                <TableCell>{t.name}</TableCell>
+                <TableCell>{t.email}</TableCell>
+                <TableCell>{t.password}</TableCell>
+                <TableCell>
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage
+                      src={t.image}
+                      alt={`${t.name} profile picture`}
+                    />
+                    <AvatarFallback>{t.name.slice(0, 2)}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button
+                    onClick={() => {
+                      setSelectedTeacherId(t._id);
+                      setSelectedTeacherInfo({
+                        teacherEmail: t.email,
+                        teacherId: t.rollNumber!,
+                        teacherImage: t.image,
+                        teacherName: t.name,
+                        teacherPassword: t.password,
+                      });
+                      setIsEditTeacherOpen(true);
+                    }}
+                    className={buttonVariants({
+                      size: "sm",
+                      variant: "edit",
+                    })}
+                  >
+                    Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        className="outline-none"
                       >
                         Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your teacher information and remove your data
+                          from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel
+                          className={buttonVariants({
+                            size: "sm",
+                            variant: "ghost",
+                          })}
+                        >
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className={buttonVariants({
+                            size: "sm",
+                            variant: "destructive",
+                          })}
+                          onClick={() => handleDelete(t._id)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <Empty des="No teacher found. Please enroll a teacher." />
+      )}
+
       {isEditTeacherOpen && (
         <TeacherCreationDialog
           teacherInfo={selectedTeacherInfo}

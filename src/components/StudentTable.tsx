@@ -27,6 +27,9 @@ import { TRPCClientError } from "@trpc/client";
 import { useState } from "react";
 import { StudentFormData } from "@/lib/validator/zodValidation";
 import { StudentCreationDialog } from "./StudentCreationDialog";
+import { Database, Loader2 } from "lucide-react";
+import { Loader } from "./Loader";
+import { Empty } from "./Empty";
 
 export const StudentTable = () => {
   const utils = trpc.useUtils();
@@ -34,7 +37,7 @@ export const StudentTable = () => {
   const [selectedStudentInfo, setSelectedStudentInfo] =
     useState<StudentFormData>();
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
-  const { data } = trpc.getStudents.useQuery();
+  const { data, isLoading: isStudentLoading } = trpc.getStudents.useQuery();
   console.log(data);
   const deleteStudent = trpc.deleteStudent.useMutation({
     onSuccess: (data) => {
@@ -57,104 +60,111 @@ export const StudentTable = () => {
   };
   return (
     <div>
-      <Table>
-        <TableCaption>A list of your recent student created.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[150px]">Student ID</TableHead>
-            <TableHead>Student Name</TableHead>
-            <TableHead>Student Email</TableHead>
-            <TableHead>Student Password</TableHead>
-            <TableHead>Student Group</TableHead>
-            <TableHead>Student Image</TableHead>
-            <TableHead className="text-right">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data?.map((s) => (
-            <TableRow key={s._id}>
-              <TableCell className="font-medium">{s.rollNumber}</TableCell>
-              <TableCell>{s.name}</TableCell>
-              <TableCell>{s.email}</TableCell>
-              <TableCell>{s.password}</TableCell>
-              <TableCell>{s.group?.groupName ?? "N/A"}</TableCell>
-              <TableCell>
-                <Avatar className="w-8 h-8">
-                  <AvatarImage
-                    src={s.image}
-                    alt={`${s.name} profile picture`}
-                  />
-                  <AvatarFallback>{s.name.slice(0, 2)}</AvatarFallback>
-                </Avatar>
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "edit",
-                  })}
-                  onClick={() => {
-                    setSelectedStudentId(s._id);
-                    setSelectedStudentInfo({
-                      studentEmail: s.email,
-                      studentName: s.name,
-                      studentGroup: s.group?.groupName ?? "N/A",
-                      studentImage: s.image,
-                      studentId: s.rollNumber!,
-                      studentPassword: s.password,
-                    });
-                    setIsEditStudentOpen(true);
-                  }}
-                >
-                  Edit
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      size={"sm"}
-                      variant={"destructive"}
-                      className="outline-none"
-                    >
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your teacher information and remove your data
-                        from our servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        className={buttonVariants({
-                          size: "sm",
-                          variant: "ghost",
-                        })}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        className={buttonVariants({
-                          size: "sm",
-                          variant: "destructive",
-                        })}
-                        onClick={() => handleDelete(s._id)}
+      {isStudentLoading ? (
+        <Loader />
+      ) : data?.length ? (
+        <Table>
+          <TableCaption>A list of your recent student created.</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[150px]">Student ID</TableHead>
+              <TableHead>Student Name</TableHead>
+              <TableHead>Student Email</TableHead>
+              <TableHead>Student Password</TableHead>
+              <TableHead>Student Group</TableHead>
+              <TableHead>Student Image</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data?.map((s) => (
+              <TableRow key={s._id}>
+                <TableCell className="font-medium">{s.rollNumber}</TableCell>
+                <TableCell>{s.name}</TableCell>
+                <TableCell>{s.email}</TableCell>
+                <TableCell>{s.password}</TableCell>
+                <TableCell>{s.group?.groupName ?? "N/A"}</TableCell>
+                <TableCell>
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage
+                      src={s.image}
+                      alt={`${s.name} profile picture`}
+                    />
+                    <AvatarFallback>{s.name.slice(0, 2)}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button
+                    className={buttonVariants({
+                      size: "sm",
+                      variant: "edit",
+                    })}
+                    onClick={() => {
+                      setSelectedStudentId(s._id);
+                      setSelectedStudentInfo({
+                        studentEmail: s.email,
+                        studentName: s.name,
+                        studentGroup: s.group?.groupName ?? "N/A",
+                        studentImage: s.image,
+                        studentId: s.rollNumber!,
+                        studentPassword: s.password,
+                      });
+                      setIsEditStudentOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        className="outline-none"
                       >
                         Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your teacher information and remove your data
+                          from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel
+                          className={buttonVariants({
+                            size: "sm",
+                            variant: "ghost",
+                          })}
+                        >
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className={buttonVariants({
+                            size: "sm",
+                            variant: "destructive",
+                          })}
+                          onClick={() => handleDelete(s._id)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <Empty des="No student found. Please enroll a student." />
+      )}
+
       {isEditStudentOpen && (
         <StudentCreationDialog
           studentInfo={selectedStudentInfo}

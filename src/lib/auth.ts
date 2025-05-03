@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
           password: string;
         };
         const randomName = Math.random().toString(36).substring(7);
-        let user = await UserModel.findOne({ email });
+        let user = await UserModel.findOne({ email, password });
         // if (!user) {
         //   user = new UserModel({
         //     name: randomName,

@@ -21,7 +21,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Search, Users } from "lucide-react";
+import { Database, Loader2, Search, Users } from "lucide-react";
 import { ChangeEvent, useState } from "react";
 import {
   Select,
@@ -32,12 +32,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Empty } from "./Empty";
+import { Loader } from "./Loader";
 
 export const GroupStudent = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const { data: student } = trpc.getGroupStudentAssignToTeacher.useQuery();
-  const { data: count } = trpc.getCountForTeacher.useQuery();
+  const { data: student, isLoading: isStudentLoading } =
+    trpc.getGroupStudentAssignToTeacher.useQuery();
+  const { data: count, isLoading: isCountLoading } =
+    trpc.getCountForTeacher.useQuery();
   console.log(count);
   const filteredStudents = student?.filter((s) => {
     const query = searchQuery.toLowerCase();
@@ -68,10 +72,19 @@ export const GroupStudent = () => {
             <Users size={18} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {count?.totalModuleAssignments}
-            </div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
+            {isCountLoading ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              <>
+                {" "}
+                <div className="text-2xl font-bold">
+                  {count?.totalModuleAssignments}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  +2 from last month
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -82,10 +95,19 @@ export const GroupStudent = () => {
             <Users size={18} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {count?.totalGroupsAssigned}
-            </div>
-            <p className="text-xs text-muted-foreground">+1 from last month</p>
+            {isCountLoading ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              <>
+                {" "}
+                <div className="text-2xl font-bold">
+                  {count?.totalGroupsAssigned}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  +1 from last month
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -96,8 +118,17 @@ export const GroupStudent = () => {
             <Users size={18} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{count?.totalStudents}</div>
-            <p className="text-xs text-muted-foreground">+8 from last month</p>
+            {isCountLoading ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              <>
+                {" "}
+                <div className="text-2xl font-bold">{count?.totalStudents}</div>
+                <p className="text-xs text-muted-foreground">
+                  +8 from last month
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -148,33 +179,42 @@ export const GroupStudent = () => {
             </form>
           </div>
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student ID</TableHead>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Group</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Image</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents?.map((s) => (
-                  <TableRow key={s._id}>
-                    <TableCell>{s?.rollNumber}</TableCell>
-                    <TableCell>{s?.name}</TableCell>
-                    <TableCell>Group {s?.group?.groupName}</TableCell>
-                    <TableCell>{s?.email}</TableCell>
-                    <TableCell>
-                      <Avatar>
-                        <AvatarImage src={s?.image} alt={`${s?.name} image`} />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                    </TableCell>
+            {isStudentLoading ? (
+              <Loader />
+            ) : student?.length ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student ID</TableHead>
+                    <TableHead>Student</TableHead>
+                    <TableHead>Group</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Image</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents?.map((s) => (
+                    <TableRow key={s._id}>
+                      <TableCell>{s?.rollNumber}</TableCell>
+                      <TableCell>{s?.name}</TableCell>
+                      <TableCell>Group {s?.group?.groupName}</TableCell>
+                      <TableCell>{s?.email}</TableCell>
+                      <TableCell>
+                        <Avatar>
+                          <AvatarImage
+                            src={s?.image}
+                            alt={`${s?.name} image`}
+                          />
+                          <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Empty des="No student data found." />
+            )}
           </div>
         </CardContent>
       </Card>
