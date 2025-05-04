@@ -50,10 +50,12 @@ export const ModuleAssignDialog = ({
   const { data: teacherData } = trpc.getTeachers.useQuery();
   const createAssignModule = trpc.createAssignModule.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       setOpen(false);
       toast.success(data.message);
     },
     onError: (error) => {
+      setIsLoading(false);
       console.log("error", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
@@ -62,11 +64,13 @@ export const ModuleAssignDialog = ({
   });
   const editAssignModule = trpc.editAssignModule.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getAssignModules.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (error) => {
+      setIsLoading(false);
       console.log("error", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);

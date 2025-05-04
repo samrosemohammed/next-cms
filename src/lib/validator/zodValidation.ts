@@ -38,7 +38,10 @@ export const groupSchema = z.object({
   groupName: z
     .string()
     .min(1, "Group Name is required")
-    .regex(/^[A-Z]+$/, "Group Name must contain only capital letters"),
+    .regex(
+      /^[A-Z0-9]+$/,
+      "Group Name must contain only capital letters and numbers"
+    ),
 });
 export type GroupFormData = z.infer<typeof groupSchema>;
 

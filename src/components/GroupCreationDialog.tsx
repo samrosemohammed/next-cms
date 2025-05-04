@@ -50,12 +50,14 @@ const GroupCreationDialog = ({
   });
   const createGroup = trpc.createGroup.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       console.log("data", data);
       utils.getGroups.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (error) => {
+      setIsLoading(false);
       console.log("error", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
@@ -65,11 +67,13 @@ const GroupCreationDialog = ({
 
   const editGroup = trpc.editGroup.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getGroups.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (error) => {
+      setIsLoading(false);
       console.log("error", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);

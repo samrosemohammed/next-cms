@@ -20,7 +20,18 @@ export const OverviewSection = () => {
     trpc.getCountForAdmin.useQuery();
   const { data: moduleStats, isLoading: isModuleStatsLoading } =
     trpc.getModuleGroupStats.useQuery();
-
+  const brandColors = [
+    "#4CAF50", // Green
+    "#2196F3", // Blue
+    "#FF9800", // Orange
+    "#9C27B0", // Purple
+    "#F44336", // Red
+    "#00BCD4", // Cyan
+    "#FFC107", // Amber
+    "#8BC34A", // Light Green
+    "#E91E63", // Pink
+    "#607D8B", // Blue Grey
+  ];
   // Transform data for the chart
   const chartData = moduleStats?.map((module) => {
     const data = { moduleName: module.name };
@@ -37,7 +48,7 @@ export const OverviewSection = () => {
           if (group.name && !config[group.name]) {
             config[group.name] = {
               label: group.name,
-              color: `hsl(var(--primary) / ${1 - index * 0.1})`, // Generate unique colors 240 10% 3.9%
+              color: brandColors[index % brandColors.length], // Cycle through brand colors
             };
           }
         });

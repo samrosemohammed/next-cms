@@ -54,6 +54,7 @@ export const StudentCreationDialog = ({
   const { data: studentData } = trpc.getStudents.useQuery();
   const createStudent = trpc.createUserWithStudent.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getStudents.invalidate();
       setOpen(false);
       setIsLoading(false);
@@ -62,6 +63,7 @@ export const StudentCreationDialog = ({
 
   const editStudent = trpc.editStudent.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getStudents.invalidate();
       setOpen(false);
       setOpenFromEdit && setOpenFromEdit(false);
@@ -69,6 +71,7 @@ export const StudentCreationDialog = ({
       setIsLoading(false);
     },
     onError: (err) => {
+      setIsLoading(false);
       console.error("Error editing student:", err);
       if (err instanceof TRPCClientError) {
         toast.error(err.message);
@@ -134,11 +137,13 @@ export const StudentCreationDialog = ({
   };
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          {studentInfo ? "Edit Student" : "Enroll Student"} <Plus />
-        </Button>
-      </DialogTrigger>
+      {!studentInfo && (
+        <DialogTrigger asChild>
+          <Button>
+            {studentInfo ? "Edit Student" : "Enroll Student"} <Plus />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

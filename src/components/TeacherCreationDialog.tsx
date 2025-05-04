@@ -43,6 +43,7 @@ const TeacherCreationDialog = ({
   const { data: teacherData } = trpc.getTeachers.useQuery();
   const createTeacher = trpc.createUserWithTeacher.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getTeachers.invalidate();
       setOpen(false);
       toast.success(data.message);
@@ -50,12 +51,14 @@ const TeacherCreationDialog = ({
   });
   const editTeacher = trpc.editTeacher.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getTeachers.invalidate();
       setOpen(false);
       setOpenFromEdit && setOpenFromEdit(false);
       toast.success(data.message);
     },
     onError: (error) => {
+      setIsLoading(false);
       console.error("Error editing teacher:", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
