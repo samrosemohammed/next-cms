@@ -1,5 +1,13 @@
 import z from "zod";
 
+export const profileSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format"),
+  bio: z.string().optional(),
+  username: z.string().optional(),
+  image: z.any().optional(),
+});
+export type ProfileFormData = z.infer<typeof profileSchema>;
 export const studentSchema = z.object({
   studentId: z.string().min(1, "Student ID is required"),
   studentName: z.string().min(1, "Student Name is required"),

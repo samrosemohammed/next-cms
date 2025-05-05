@@ -5,6 +5,7 @@ import {
   assignmentSchema,
   assignModuleSchema,
   moduleSchema,
+  profileSchema,
   resourceSchema,
   studentSchema,
   submitAssignmentSchema,
@@ -62,6 +63,40 @@ const sendEmail = (from: string, to: string, subject: string, html: string) => {
   }
 };
 export const appRouter = router({
+  getUserData: privateProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    await dbConnect();
+    const findUser: TUser | null = await UserModel.findById(user.id).select(
+      "-password"
+    );
+    return findUser;
+  }),
+  updateProfile: privateProcedure
+    .input(profileSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      console.log("input for update profie : ", input);
+      await dbConnect();
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        throw new TRPCError({
+          message: "User not found",
+          code: "NOT_FOUND",
+        });
+      }
+      if (input.image) {
+        if (user.image) {
+          await deleteFile(user.image);
+        }
+        user.image = input.image;
+      }
+      user.name = input.name;
+      user.email = input.email;
+      user.username = input.username;
+      user.bio = input.bio;
+      await user.save();
+      return { user, message: "Profile updated" };
+    }),
   createSumbitAssignment: privateProcedure
     .input(submitAssignmentSchema)
     .mutation(async ({ input, ctx }) => {

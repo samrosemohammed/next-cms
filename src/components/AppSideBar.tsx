@@ -106,11 +106,13 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
       : []),
   ];
   const filteredItems =
-    user?.role === "teacher" || user?.role === "student"
+    user?.role === "teacher"
       ? items.filter(
           (item) => item.title === "Dashboard" || item.title === "Module"
         )
-      : items;
+      : user?.role === "student"
+        ? items.filter((item) => item.title === "Module") // Exclude "Dashboard" for students
+        : items;
 
   const handleLogOut = () => {
     signOut({
@@ -162,17 +164,15 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
                 className="w-[--radix-popper-anchor-width]"
               >
                 <DropdownMenuItem className="cursor-pointer">
-                  <Link href={"#"} className="flex items-center gap-2">
+                  <Link
+                    href={"/dashboard/settings"}
+                    className="flex items-center gap-2"
+                  >
                     <User2 size={16} />
                     <span>Account</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  <Link href={"#"} className="flex items-center gap-2">
-                    <Wallet size={16} />
-                    <span>Billing</span>
-                  </Link>
-                </DropdownMenuItem>
+
                 <DropdownMenuItem className="cursor-pointer">
                   <div
                     onClick={handleLogOut}

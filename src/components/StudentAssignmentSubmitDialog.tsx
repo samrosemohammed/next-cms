@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Plus, Trash } from "lucide-react";
+import { Loader2, Plus, Trash } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -49,8 +49,7 @@ const StudentAssignmentSubmitDialog = ({
   isPastDueDate,
   studentGroupId,
 }: StudentAssignmentSubmitDialogProps) => {
-  console.log("group Id: ", studentGroupId);
-  console.log(typeof studentGroupId);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const utils = trpc.useUtils();
   const { startUpload } = useUploadThing("imageUploader");
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
@@ -60,24 +59,28 @@ const StudentAssignmentSubmitDialog = ({
   const setIsOpen = setOpenFromEdit !== undefined ? setOpenFromEdit : setOpen;
   const createSubmitWork = trpc.createSumbitAssignment.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       setOpen(false);
       utils.getSumbitWork.invalidate();
       utils.getViewSubmitWork.invalidate();
       toast.success(data.message);
     },
     onError: (error) => {
+      setIsLoading(false);
       toast.error(error.message);
     },
   });
 
   const reSubmitWork = trpc.editSubmitWork.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       setOpen(false);
       utils.getSumbitWork.invalidate();
       utils.getViewSubmitWork.invalidate();
       toast.success(data.message);
     },
     onError: (err) => {
+      setIsLoading(false);
       toast.error(err.message);
     },
   });
@@ -142,7 +145,7 @@ const StudentAssignmentSubmitDialog = ({
   };
 
   const onSubmit = async (data: SubmitAssignmentFormData) => {
-    console.log("form data: ", data);
+    setIsLoading(true);
     const allFiles = data.files as (
       | File
       | { key: string; name: string; url: string }
@@ -183,6 +186,7 @@ const StudentAssignmentSubmitDialog = ({
   });
 
   const handleDelete = (assignmnetId: string) => {
+    setIsLoading(true);
     deleteSubmitWork.mutateAsync({ assignmnetId: assignmnetId });
   };
 
@@ -319,6 +323,7 @@ const StudentAssignmentSubmitDialog = ({
 
             <DialogFooter>
               <Button
+                disabled={isLoading}
                 type="submit"
                 className={`${
                   hasSubmittedWork
@@ -328,6 +333,9 @@ const StudentAssignmentSubmitDialog = ({
                     : ""
                 }`}
               >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : null}
                 {hasSubmittedWork ? "Re-submit" : "Submit Work"}
               </Button>
               {hasSubmittedWork && (

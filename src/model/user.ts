@@ -9,8 +9,10 @@ enum Role {
 interface IUser {
   name: string;
   email: string;
+  username?: string;
   password: string;
   image: string;
+  bio?: string;
   role: Role;
   rollNumber?: string;
   group: TGroup | null;
@@ -27,6 +29,8 @@ export type TUser = IUser & {
 
 const UserSchema = new Schema<MongoUser>(
   {
+    username: { type: String },
+    bio: { type: String },
     name: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
