@@ -4,6 +4,7 @@ import {
   announcementSchema,
   assignmentSchema,
   assignModuleSchema,
+  changePasswordSchema,
   moduleSchema,
   profileSchema,
   resourceSchema,
@@ -63,6 +64,40 @@ const sendEmail = (from: string, to: string, subject: string, html: string) => {
   }
 };
 export const appRouter = router({
+  changePassword: privateProcedure
+    .input(changePasswordSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = ctx;
+      await dbConnect();
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+      // verify current password
+      const isPasswordValid = input.currentPassword === user.password;
+      if (!isPasswordValid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Current password is incorrect",
+        });
+      }
+      // new password confirm password check
+      const isConfirmPasswordValid =
+        input.newPassword === input.confirmPassword;
+      if (!isConfirmPasswordValid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "New password and confirm password doesn't matched",
+        });
+      }
+      // user the password
+      user.password = input.newPassword;
+      await user.save();
+      return { message: "Password updated successfully" };
+    }),
   getUserData: privateProcedure.query(async ({ ctx }) => {
     const { user } = ctx;
     await dbConnect();

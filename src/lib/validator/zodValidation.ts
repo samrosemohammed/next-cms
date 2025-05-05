@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(1, "New password is required"),
+  confirmPassword: z.string().min(1, "Confirm password is required"),
+});
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 export const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email format"),

@@ -1,20 +1,11 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lock, User } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ProfileInformationTabs } from "@/components/ProfileInformationTabs";
+import { SecurityTabs } from "@/components/SecurityTabs";
 
 const Pages = async () => {
   const session = await getServerSession(authOptions);
@@ -40,37 +31,7 @@ const Pages = async () => {
           </TabsTrigger>
         </TabsList>
         <ProfileInformationTabs user={user!} />
-
-        <TabsContent value="security" className="space-y-6 mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-              <CardDescription>
-                Change your password and manage your account security.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current-password">Current password</Label>
-                <Input id="current-password" type="password" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="new-password">New password</Label>
-                <Input id="new-password" type="password" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm password</Label>
-                <Input id="confirm-password" type="password" />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              <Button variant="outline">Cancel</Button>
-              <Button>Update Password</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
+        <SecurityTabs />
       </Tabs>
     </div>
   );
