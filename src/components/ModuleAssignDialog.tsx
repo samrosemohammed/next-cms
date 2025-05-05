@@ -140,7 +140,10 @@ export const ModuleAssignDialog = ({
               <Label htmlFor="teacher-name-assign" className="w-full">
                 Teacher
               </Label>
-              <Select onValueChange={(value) => setValue("teacher", value)}>
+              <Select
+                defaultValue={assignModuleInfo?.teacher}
+                onValueChange={(value) => setValue("teacher", value)}
+              >
                 <SelectTrigger className="">
                   <SelectValue placeholder="Select a Teacher" />
                 </SelectTrigger>
@@ -167,7 +170,10 @@ export const ModuleAssignDialog = ({
               <Label htmlFor="student-group" className="w-full">
                 Group
               </Label>
-              <Select onValueChange={(value) => setValue("group", value)}>
+              <Select
+                defaultValue={assignModuleInfo?.group}
+                onValueChange={(value) => setValue("group", value)}
+              >
                 <SelectTrigger className="">
                   <SelectValue placeholder="Select a Group" />
                 </SelectTrigger>

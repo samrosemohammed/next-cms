@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { Plus, Trash } from "lucide-react";
+import { Loader2, Plus, Trash } from "lucide-react";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import {
@@ -55,25 +55,30 @@ export const AnnouncementCreationDialog = ({
   const { data } = trpc.getAssignModuleForTeacher.useQuery();
   const { moduleId } = useParams() as { moduleId: string };
   const { startUpload } = useUploadThing("imageUploader");
+  const [isLoading, setIsLoading] = useState(false);
 
   const createAnnouncement = trpc.createModuleAnnouncement.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getAnnouncement.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
+      setIsLoading(false);
       toast.error(err.message);
     },
   });
 
   const editAnnouncement = trpc.editModuleAnnouncement.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       utils.getAnnouncement.invalidate();
       setIsOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
+      setIsLoading(false);
       toast.error(err.message);
     },
   });
@@ -123,6 +128,7 @@ export const AnnouncementCreationDialog = ({
     }
   };
   const onSubmit = async (data: AnnouncementFormData) => {
+    setIsLoading(true);
     console.log("data: ", data);
     const allFiles = data.files as (
       | File
@@ -168,7 +174,7 @@ export const AnnouncementCreationDialog = ({
       setValue("description", announcementInfo.description);
       setValue("links", announcementInfo.links);
       setValue("files", announcementInfo.files);
-      //   setValue("groupId", announcementInfo.groupId);
+      setValue("groupId", announcementInfo.groupId);
     }
   }, [announcementInfo, setValue]);
   return (
@@ -209,7 +215,10 @@ export const AnnouncementCreationDialog = ({
           {/* group selection */}
           <div className="space-y-2">
             <Label htmlFor="group">Group</Label>
-            <Select onValueChange={(value) => setValue("groupId", value)}>
+            <Select
+              defaultValue={announcementInfo?.groupId}
+              onValueChange={(value) => setValue("groupId", value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a Group" />
               </SelectTrigger>
@@ -298,7 +307,8 @@ export const AnnouncementCreationDialog = ({
             )}
           </div>
           <DialogFooter>
-            <Button type="submit">
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {announcementInfo ? "Save " : "Create"}
             </Button>
           </DialogFooter>

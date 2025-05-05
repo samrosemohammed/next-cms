@@ -1,5 +1,5 @@
 "use client";
-import { Plus, Trash } from "lucide-react";
+import { Loader2, Plus, Trash } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -49,6 +49,7 @@ export const AssignmentCreationDialog = ({
   assignmentInfo,
   assignmentId,
 }: AssignmentCreationDialogProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const utils = trpc.useUtils();
   const [open, setOpen] = useState<boolean>(false);
   const isOpen = openFromEdit !== undefined ? openFromEdit : open;
@@ -59,24 +60,28 @@ export const AssignmentCreationDialog = ({
   const { moduleId } = useParams() as { moduleId: string };
   const createAssignment = trpc.createAssignments.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       console.log("Assignment created successfully", data);
       utils.getAssignment.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
+      setIsLoading(false);
       console.log("Error creating assignment", err);
       toast.error(err.message);
     },
   });
   const editAssignment = trpc.editModuleAssignment.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       console.log("Assignment edited successfully", data);
       utils.getAssignment.invalidate();
       setIsOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
+      setIsLoading(false);
       console.log("Error editing assignment", err);
       toast.error(err.message);
     },
@@ -139,6 +144,7 @@ export const AssignmentCreationDialog = ({
     : [];
 
   const onSubmit = async (data: AssignmentFormData) => {
+    setIsLoading(true);
     console.log("Form data", data);
     const allFiles = data.files as (
       | File
@@ -162,13 +168,20 @@ export const AssignmentCreationDialog = ({
       }));
     }
     const finalFiles = [...existingFiles, ...uploadedFiles];
+
+    // Ensure links and files are passed as arrays
+    const payload = {
+      ...data,
+      links: data.links || [], // Default to an empty array if not provided
+      files: finalFiles || [], // Default to an empty array if no files
+    };
     if (assignmentInfo) {
       await editAssignment.mutateAsync({
         id: assignmentId!,
-        assignmentSchema: { ...data, files: finalFiles },
+        assignmentSchema: payload,
       });
     } else {
-      await createAssignment.mutateAsync({ ...data, files: finalFiles });
+      await createAssignment.mutateAsync(payload);
     }
   };
 
@@ -179,6 +192,7 @@ export const AssignmentCreationDialog = ({
       setValue("groupId", assignmentInfo.groupId);
       setValue("links", assignmentInfo.links);
       setValue("files", assignmentInfo.files);
+      setValue("dueDate", assignmentInfo.dueDate); // Ensure dueDate is set
       setDate(assignmentInfo.dueDate);
     }
   }, [assignmentInfo, setValue]);
@@ -230,7 +244,10 @@ export const AssignmentCreationDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="group">Group</Label>
-            <Select onValueChange={(value) => setValue("groupId", value)}>
+            <Select
+              defaultValue={assignmentInfo?.groupId}
+              onValueChange={(value) => setValue("groupId", value)}
+            >
               <SelectTrigger className="">
                 <SelectValue placeholder="Select a Group" />
               </SelectTrigger>
@@ -246,9 +263,7 @@ export const AssignmentCreationDialog = ({
               </SelectContent>
             </Select>
             {errors.groupId && (
-              <p className="text-red-500 text-sm">
-                {errors.groupId.message?.toString()}
-              </p>
+              <p className="text-red-500 text-sm">{errors.groupId.message}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -269,6 +284,9 @@ export const AssignmentCreationDialog = ({
                   })}
                 </p>
               </div>
+            )}
+            {errors.dueDate && (
+              <p className="text-red-500 text-sm">{errors.dueDate.message}</p>
             )}
           </div>
 
@@ -342,7 +360,10 @@ export const AssignmentCreationDialog = ({
           </div>
 
           <DialogFooter>
-            <Button type="submit">{assignmentInfo ? "Save" : "Create"}</Button>
+            <Button disabled={isLoading} type="submit">
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {assignmentInfo ? "Save" : "Create"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

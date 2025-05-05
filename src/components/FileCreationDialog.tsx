@@ -163,7 +163,7 @@ export const FileCreationDialog = ({
     if (resourceInfo) {
       await editResource.mutateAsync({
         id: resourceId!,
-        resourceSchema: { ...data, files: finalFiles },
+        resourceSchema: { ...data, files: finalFiles, groupId: data.groupId },
       });
       setIsLoading(false);
     } else {
@@ -183,6 +183,7 @@ export const FileCreationDialog = ({
       setValue("description", resourceInfo.description);
       setValue("links", resourceInfo.links);
       setValue("files", resourceInfo.files);
+      setValue("groupId", resourceInfo.groupId);
     }
   }, [resourceInfo, setValue]);
 
@@ -233,7 +234,12 @@ export const FileCreationDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="group">Group</Label>
-            <Select onValueChange={(value) => setValue("groupId", value)}>
+            <Select
+              onValueChange={(value) => {
+                setValue("groupId", value);
+              }}
+              defaultValue={resourceInfo?.groupId}
+            >
               <SelectTrigger className="">
                 <SelectValue placeholder="Select a Group" />
               </SelectTrigger>

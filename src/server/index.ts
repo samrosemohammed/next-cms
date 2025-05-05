@@ -940,6 +940,20 @@ export const appRouter = router({
           code: "NOT_FOUND",
         });
       }
+
+      // Check if the teacher is already assigned to the group
+      const duplicateAssignModule = await AssignModule.findOne({
+        _id: { $ne: input.id }, // Exclude the current assignment being edited
+        teacher: input.assignModuleSchema.teacher,
+        group: input.assignModuleSchema.group,
+        createdBy: userId,
+      });
+      if (duplicateAssignModule) {
+        throw new TRPCError({
+          message: "Teacher is already assigned to this group",
+          code: "BAD_REQUEST",
+        });
+      }
       const updatedAssignModule = await AssignModule.findOneAndUpdate(
         { _id: input.id, createdBy: userId },
         {
@@ -1061,6 +1075,7 @@ export const appRouter = router({
           },
           {
             ...input.announcementSchema,
+            groupObjectId: input.announcementSchema.groupId,
             files: newFiles.map((file) => ({
               name: file.name,
               url: file.url,
@@ -1121,6 +1136,7 @@ export const appRouter = router({
         },
         {
           ...input.resourceSchema,
+          groupObjectId: input.resourceSchema.groupId,
           files: newFiles.map((file) => ({
             name: file.name,
             url: file.url,
@@ -1179,6 +1195,7 @@ export const appRouter = router({
         },
         {
           ...input.assignmentSchema,
+          groupObjectId: input.assignmentSchema.groupId,
           files: newFiles.map((file) => ({
             name: file.name,
             url: file.url,
