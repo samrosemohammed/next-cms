@@ -111,7 +111,9 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
           (item) => item.title === "Dashboard" || item.title === "Module"
         )
       : user?.role === "student"
-        ? items.filter((item) => item.title === "Module") // Exclude "Dashboard" for students
+        ? items.filter(
+            (item) => item.title === "Dashboard" || item.title === "Module"
+          ) // Exclude "Dashboard" for students
         : items;
 
   const handleLogOut = () => {

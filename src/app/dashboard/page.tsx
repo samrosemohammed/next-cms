@@ -1,4 +1,5 @@
 import { Dashboard } from "@/components/Dashboard";
+import { StudentDashboard } from "@/components/StudentDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
@@ -11,6 +12,9 @@ const Page = async () => {
   }
   if (session?.user.role === "teacher") {
     return <TeacherDashboard />;
+  }
+  if (session?.user.role === "student") {
+    return <StudentDashboard />;
   }
   return <div>Hello from the dashboard</div>;
 };

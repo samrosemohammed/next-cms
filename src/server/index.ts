@@ -64,6 +64,42 @@ const sendEmail = (from: string, to: string, subject: string, html: string) => {
   }
 };
 export const appRouter = router({
+  summaryOfStudent: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    await dbConnect();
+    const student = await UserModel.findOne({
+      _id: userId,
+      role: "student",
+    });
+    if (!student) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Student not found",
+      });
+    }
+    const groupId = student.group;
+    // total number of modules assigned to the group
+    const totalModules = await AssignModule.countDocuments({ group: groupId });
+    const uniqueTeacherIds = await AssignModule.distinct("teacher", {
+      group: groupId,
+    });
+    const totalTeachers = uniqueTeacherIds.length;
+    const totalStudents = await UserModel.countDocuments({
+      group: groupId,
+      role: "student",
+    });
+
+    const studentInGroup: TUser[] = await UserModel.find({
+      group: groupId,
+      role: "student",
+    }).select("-password");
+    return {
+      totalModules,
+      totalTeachers,
+      studentInGroup,
+      totalStudents,
+    };
+  }),
   changePassword: privateProcedure
     .input(changePasswordSchema)
     .mutation(async ({ input, ctx }) => {
