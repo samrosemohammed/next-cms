@@ -152,6 +152,7 @@ const TeacherCreationDialog = ({
                   "border-input focus-visible:ring-ring": !errors.teacherId,
                 })}
                 readOnly
+                disabled
               />
               {errors.teacherId && (
                 <p className="text-red-500 text-sm">
@@ -165,6 +166,7 @@ const TeacherCreationDialog = ({
               </Label>
               <Input
                 id="teacher-name"
+                autoFocus
                 {...register("teacherName")}
                 className="w-full"
                 onChange={(e) => setValue("teacherName", e.target.value)}

@@ -43,7 +43,10 @@ import { AssignmentCreationDialog } from "./AssignmentCreationDialog";
 import { AssignmentFormData } from "@/lib/validator/zodValidation";
 import { Loader } from "./Loader";
 import { Empty } from "./Empty";
-export const GetAssignment = () => {
+interface GetAssignmentProps {
+  selectedGroupId?: string | null;
+}
+export const GetAssignment = ({ selectedGroupId }: GetAssignmentProps) => {
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);
   const [isEditAssignmentOpen, setIsEditAssignmentOpen] =
@@ -70,13 +73,19 @@ export const GetAssignment = () => {
   const handleDelete = (assignmentId: string) => {
     deleteAssignment.mutate({ id: assignmentId });
   };
+
+  // Filter data by groupId if selected
+  const filteredData = selectedGroupId
+    ? data?.filter((file) => file.groupObjectId?._id === selectedGroupId)
+    : data;
+
   return (
     <div>
       {isAssignmentLoading ? (
         <Loader />
-      ) : data?.length ? (
+      ) : filteredData?.length ? (
         <div className="p-4">
-          {data?.map((assignment) => (
+          {filteredData?.map((assignment) => (
             <Card className="mb-4" key={assignment._id}>
               <CardHeader>
                 <CardTitle>

@@ -170,6 +170,7 @@ export const StudentCreationDialog = ({
                   "border-input focus-visible:ring-ring": !errors.studentId,
                 })}
                 readOnly
+                disabled
               />
               {errors.studentId && (
                 <p className="text-red-500 text-sm">
@@ -185,6 +186,7 @@ export const StudentCreationDialog = ({
                 id="student-name"
                 {...register("studentName")}
                 className="w-full"
+                autoFocus
                 onChange={(e) => setValue("studentName", e.target.value)}
               />
               {errors.studentName && (

@@ -16,9 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { trpc } from "@/app/_trpc/client";
 interface DropDownForProfileNavProps {
   name: string;
-  image: string;
+  image?: string;
   email: string;
 }
 export const DropDownForProfileNav = ({
@@ -27,6 +28,7 @@ export const DropDownForProfileNav = ({
   email,
 }: DropDownForProfileNavProps) => {
   const [open, setOpen] = useState(false);
+  const { data: getUserData } = trpc.getUserData.useQuery();
   const router = useRouter();
   const handleLogOut = () => {
     signOut({
@@ -36,6 +38,7 @@ export const DropDownForProfileNav = ({
   const navigateTo = (path: string) => {
     router.push(path);
   };
+  console.log("getUserData", getUserData);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -45,7 +48,7 @@ export const DropDownForProfileNav = ({
         >
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={image || "/placeholder.svg?height=32&width=32"}
+              src={getUserData?.image || "/placeholder.svg?height=32&width=32"}
               alt={`${name} profile picture`}
             />
             <AvatarFallback>UN</AvatarFallback>

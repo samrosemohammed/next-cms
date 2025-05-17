@@ -146,6 +146,7 @@ const GroupCreationDialog = ({
                   "border-input focus-visible:ring-ring": !errors.groupId,
                 })}
                 readOnly
+                disabled
               />
               {errors.groupId && (
                 <p className="text-red-500 text-sm">
@@ -161,6 +162,7 @@ const GroupCreationDialog = ({
                 id="group-name"
                 {...register("groupName")}
                 className="w-full"
+                autoFocus
                 onChange={(e) => setValue("groupName", e.target.value)}
               />
               {errors.groupName && (

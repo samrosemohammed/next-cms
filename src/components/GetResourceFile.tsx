@@ -46,7 +46,10 @@ import { FileCreationDialog } from "./FileCreationDialog";
 import { Empty } from "./Empty";
 import { Loader } from "./Loader";
 
-export const GetResourceFile = () => {
+interface GetResourceFileProps {
+  selectedGroupId?: string | null;
+}
+export const GetResourceFile = ({ selectedGroupId }: GetResourceFileProps) => {
   const utils = trpc.useUtils();
   const { moduleId } = useParams() as { moduleId: string };
   const { data, isLoading: isResourceLoading } = trpc.getResourceFile.useQuery({
@@ -74,13 +77,18 @@ export const GetResourceFile = () => {
     deleteResource.mutateAsync({ id: fileId });
   };
 
+  // Filter data by groupId if selected
+  const filteredData = selectedGroupId
+    ? data?.filter((file) => file.groupObjectId?._id === selectedGroupId)
+    : data;
+
   return (
     <div>
       {isResourceLoading ? (
         <Loader />
-      ) : data?.length ? (
+      ) : filteredData?.length ? (
         <div className="p-4">
-          {data?.map((file) => (
+          {filteredData?.map((file) => (
             <Card className="mb-4" key={file._id}>
               <CardHeader>
                 <CardTitle>
