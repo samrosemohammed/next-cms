@@ -67,7 +67,7 @@ export const StudentTable = () => {
           <TableCaption>A list of your recent student created.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[150px]">Student ID</TableHead>
+              <TableHead className="w-[150px]">SN</TableHead>
               <TableHead>Student Name</TableHead>
               <TableHead>Student Email</TableHead>
               <TableHead>Student Password</TableHead>
@@ -77,9 +77,10 @@ export const StudentTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.map((s) => (
+            {data?.map((s, i) => (
               <TableRow key={s._id}>
-                <TableCell className="font-medium">{s.rollNumber}</TableCell>
+                <TableCell className="font-medium">{i + 1}</TableCell>
+                {/* <TableCell className="font-medium">{s.rollNumber}</TableCell> */}
                 <TableCell>{s.name}</TableCell>
                 <TableCell>{s.email}</TableCell>
                 <TableCell>{s.password}</TableCell>

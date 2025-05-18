@@ -139,7 +139,7 @@ const TeacherCreationDialog = ({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <Label htmlFor="teacher-id" className="w-full">
                 ID
               </Label>
@@ -159,7 +159,7 @@ const TeacherCreationDialog = ({
                   {errors.teacherId.message?.toString()}
                 </p>
               )}
-            </div>
+            </div> */}
             <div className="space-y-1">
               <Label htmlFor="teacher-name" className="w-full">
                 Name

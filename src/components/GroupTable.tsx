@@ -61,15 +61,17 @@ export const GroupTable = () => {
           <TableCaption>A list of your recent group created.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Group ID</TableHead>
+              <TableHead className="w-[100px]">SN</TableHead>
+              {/* <TableHead className="w-[100px]">Group ID</TableHead> */}
               <TableHead>Group Name</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.map((g) => (
+            {data?.map((g, i) => (
               <TableRow key={g._id}>
-                <TableCell className="font-medium">{g.groupId}</TableCell>
+                <TableCell className="font-medium">{i + 1}</TableCell>
+                {/* <TableCell className="font-medium">{g.groupId}</TableCell> */}
                 <TableCell>{g.groupName}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button

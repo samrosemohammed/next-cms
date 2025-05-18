@@ -133,7 +133,7 @@ const GroupCreationDialog = ({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4 py-4">
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <Label htmlFor="group-id" className="w-full">
                 ID
               </Label>
@@ -153,7 +153,7 @@ const GroupCreationDialog = ({
                   {errors.groupId.message?.toString()}
                 </p>
               )}
-            </div>
+            </div> */}
             <div className="space-y-1">
               <Label htmlFor="group-name" className="w-full">
                 Name

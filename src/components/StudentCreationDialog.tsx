@@ -157,7 +157,7 @@ export const StudentCreationDialog = ({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <Label htmlFor="student-id" className="w-full">
                 ID
               </Label>
@@ -177,7 +177,7 @@ export const StudentCreationDialog = ({
                   {errors.studentId.message?.toString()}
                 </p>
               )}
-            </div>
+            </div> */}
             <div className="space-y-1">
               <Label htmlFor="student-name" className="w-full">
                 Name
