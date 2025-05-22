@@ -4,7 +4,6 @@ import { trpc } from "@/app/_trpc/client";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -21,7 +20,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Database, Loader2, Search, Users } from "lucide-react";
+import { Loader2, Search, Users } from "lucide-react";
 import { ChangeEvent, useState } from "react";
 import {
   Select,
@@ -151,7 +150,7 @@ export const GroupStudent = () => {
                 <SelectGroup>
                   <SelectLabel>Group</SelectLabel>
                   {count?.uniqueGroups?.map((group) => (
-                    <SelectItem key={group?._id} value={group?._id!}>
+                    <SelectItem key={group?._id} value={group?._id ?? ""}>
                       {group?.groupName}
                     </SelectItem>
                   ))}

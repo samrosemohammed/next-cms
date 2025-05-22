@@ -31,7 +31,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 interface StudentAssignmentSubmitDialogProps {
   userId?: string;
@@ -87,6 +86,7 @@ const StudentAssignmentSubmitDialog = ({
 
   const deleteSubmitWork = trpc.deleteSubmitWork.useMutation({
     onSuccess: (data) => {
+      setIsLoading(false);
       setOpen(false);
       setIsDeleteAleartOpen(false);
       utils.getSumbitWork.invalidate();
@@ -379,7 +379,9 @@ const StudentAssignmentSubmitDialog = ({
                 size: "sm",
                 variant: "destructive",
               })}
-              onClick={() => handleDelete(clickAssignmentId)}
+              onClick={() => {
+                if (clickAssignmentId) handleDelete(clickAssignmentId);
+              }}
             >
               Delete
             </AlertDialogAction>

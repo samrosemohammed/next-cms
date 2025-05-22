@@ -1,4 +1,4 @@
-import { NextAuthOptions, User as NextAuthUser } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { dbConnect } from "./db";
 import UserModel from "@/model/user";
@@ -22,15 +22,15 @@ export const authOptions: NextAuthOptions = {
         },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         await dbConnect();
 
         const { email, password } = credentials as {
           email: string;
           password: string;
         };
-        const randomName = Math.random().toString(36).substring(7);
-        let user = await UserModel.findOne({ email, password });
+        // const randomName = Math.random().toString(36).substring(7);
+        const user = await UserModel.findOne({ email, password });
         // if (!user) {
         //   user = new UserModel({
         //     name: randomName,
@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user._id.toString(),
             email: user.email,
-            role: user.role,
+            role: user.role as "admin" | "teacher" | "student",
             name: user.name,
             image: user.image,
           };

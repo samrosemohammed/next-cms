@@ -28,7 +28,6 @@ import { TRPCClientError } from "@trpc/client";
 import { useState } from "react";
 import TeacherCreationDialog from "./TeacherCreationDialog";
 import { TeacherFormData } from "@/lib/validator/zodValidation";
-import { Database, Loader2 } from "lucide-react";
 import { Empty } from "./Empty";
 import { Loader } from "./Loader";
 
@@ -69,7 +68,6 @@ export const TeacherTable = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[150px]">SN</TableHead>
-              {/* <TableHead className="w-[150px]">Teacher ID</TableHead> */}
               <TableHead>Teacher Name</TableHead>
               <TableHead>Teacher Email</TableHead>
               <TableHead>Teacher Password</TableHead>
@@ -81,7 +79,6 @@ export const TeacherTable = () => {
             {data?.map((t, i) => (
               <TableRow key={t._id}>
                 <TableCell className="font-medium">{i + 1}</TableCell>
-                {/* <TableCell className="font-medium">{t.rollNumber}</TableCell> */}
                 <TableCell>{t.name}</TableCell>
                 <TableCell>{t.email}</TableCell>
                 <TableCell>{t.password}</TableCell>

@@ -110,7 +110,7 @@ export const ModuleCreationDialog = ({
       setValue("startDate", moduleInfo.startDate);
       setValue("endDate", moduleInfo.endDate);
     }
-  }, [moduleInfo]);
+  }, [moduleInfo, setValue]);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {!moduleInfo && (

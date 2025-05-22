@@ -16,7 +16,7 @@ export const ParentAssignment = ({ user }: ParentAssignmentProps) => {
         <div></div>
         <div className="flex gap-2 items-center">
           <SelectForSort onValueChange={setSelectedGroupId} />
-          <AssignmentCreationDialog userId={user?.id!} />
+          <AssignmentCreationDialog userId={user?.id ?? ""} />
         </div>
       </div>
       <GetAssignment selectedGroupId={selectedGroupId} />

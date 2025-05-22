@@ -11,7 +11,6 @@ import {
 } from "./ui/card";
 import { BookOpen, GraduationCap, Loader2, Users } from "lucide-react";
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PieChartCompo } from "./PieChartCompo";
 import { Loader } from "./Loader";
 
@@ -34,9 +33,12 @@ export const OverviewSection = () => {
   ];
   // Transform data for the chart
   const chartData = moduleStats?.map((module) => {
-    const data = { moduleName: module.name };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: Record<string, any> = { moduleName: module.name };
     module.groups.forEach((group) => {
-      data[group.name] = group.studentCount;
+      if (group.name) {
+        data[group.name] = group.studentCount;
+      }
     });
     return data;
   });
@@ -173,7 +175,7 @@ export const OverviewSection = () => {
                       key={groupKey}
                       dataKey={groupKey}
                       fill={chartConfig[groupKey].color}
-                      name={chartConfig[groupKey].label}
+                      name={String(chartConfig[groupKey].label ?? groupKey)} // Ensure string
                       radius={4}
                     />
                   ))}

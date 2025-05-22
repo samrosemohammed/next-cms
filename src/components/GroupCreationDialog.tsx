@@ -15,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
 import { GroupFormData, groupSchema } from "@/lib/validator/zodValidation";
 import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";

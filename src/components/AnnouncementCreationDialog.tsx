@@ -158,7 +158,7 @@ export const AnnouncementCreationDialog = ({
     const finalFiles = [...existingFiles, ...uploadedFiles]; // Merge old & new files
     if (announcementInfo) {
       await editAnnouncement.mutateAsync({
-        id: announcementId,
+        id: announcementId ?? "",
         announcementSchema: { ...data, files: finalFiles },
       });
     } else {
@@ -226,7 +226,7 @@ export const AnnouncementCreationDialog = ({
                 <SelectGroup>
                   <SelectLabel>Group</SelectLabel>
                   {uniqueGroups?.map((d) => (
-                    <SelectItem key={d?.group?._id} value={d.group?._id!}>
+                    <SelectItem key={d?.group?._id} value={d.group?._id ?? ""}>
                       {d.group?.groupName}
                     </SelectItem>
                   ))}

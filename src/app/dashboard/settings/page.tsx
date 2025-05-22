@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lock, User } from "lucide-react";
 
 import { getServerSession } from "next-auth";

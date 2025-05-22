@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { trpc } from "@/app/_trpc/client";
-import { useParams } from "next/navigation";
 
 interface SelectForSortProps {
   onValueChange?: (value: string | null) => void;
@@ -33,7 +32,7 @@ const SelectForSort = ({ onValueChange }: SelectForSortProps) => {
           <SelectLabel>Group</SelectLabel>
           <SelectItem value="all">Default</SelectItem>
           {uniqueGroups?.map((d) => (
-            <SelectItem key={d?.group?._id} value={d.group?._id!}>
+            <SelectItem key={d?.group?._id} value={d.group?._id ?? ""}>
               {d.group?.groupName}
             </SelectItem>
           ))}

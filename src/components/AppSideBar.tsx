@@ -11,7 +11,6 @@ import {
   MessageSquare,
   User2,
   UserRound,
-  Wallet,
 } from "lucide-react";
 
 import {

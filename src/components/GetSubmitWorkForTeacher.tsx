@@ -26,7 +26,7 @@ export const GetSubmitWorkForTeacher = () => {
     <div>
       {isLoading ? (
         <Loader />
-      ) : submittedWorkByStudent?.length! > 0 ? (
+      ) : submittedWorkByStudent && submittedWorkByStudent.length > 0 ? (
         <Table>
           <TableCaption>Submitted work by student</TableCaption>
           <TableHeader>

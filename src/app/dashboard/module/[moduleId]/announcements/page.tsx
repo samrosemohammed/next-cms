@@ -14,7 +14,7 @@ const Page = async () => {
         <div className="flex justify-between px-2 py-4">
           <div></div>
           <div className="flex gap-2 items-center">
-            <AnnouncementCreationDialog userId={user?.id!} />
+            <AnnouncementCreationDialog userId={user?.id ?? ""} />
           </div>
         </div>
         <GetAnnouncement />
@@ -24,7 +24,7 @@ const Page = async () => {
   if (user?.role === "student") {
     return (
       <div>
-        <GetAnnouncementForStudent userId={user?.id!} />
+        <GetAnnouncementForStudent userId={user?.id ?? ""} />
       </div>
     );
   }

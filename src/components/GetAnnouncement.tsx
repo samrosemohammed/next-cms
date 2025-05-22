@@ -29,7 +29,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -96,9 +95,11 @@ export const GetAnnouncement = () => {
                                 description: announcement?.description,
                                 files: announcement.files,
                                 links: announcement.links,
-                                groupId: announcement.groupObjectId?._id!,
-                                moduleId: announcement.moduleObjectId?._id!,
-                                teacherId: announcement.teacherObjectId?._id!,
+                                groupId: announcement.groupObjectId?._id ?? "",
+                                moduleId:
+                                  announcement.moduleObjectId?._id ?? "",
+                                teacherId:
+                                  announcement.teacherObjectId?._id ?? "",
                               });
                               setIsEditAnnouncementOpen(true);
                               setSelectedAnnouncementId(announcement._id);

@@ -69,7 +69,7 @@ export type AssignModuleFormData = z.infer<typeof assignModuleSchema>;
 export const resourceSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().min(5, "Description is required").optional(),
-  links: z.array(z.string().url("Invalid URL format")).optional(),
+  links: z.array(z.any()).optional(),
   files: z.array(z.any()).optional(),
   moduleId: z.string().min(1, "Module is required"),
   teacherId: z.string().min(1, "Teacher is required"),
@@ -80,7 +80,7 @@ export type ResourceFormData = z.infer<typeof resourceSchema>;
 
 export const announcementSchema = z.object({
   description: z.string().min(5, "Description is required"),
-  links: z.array(z.string().url("Invalid URL format")).optional(),
+  links: z.array(z.any()).optional(),
   files: z.array(z.any()).optional(),
   moduleId: z.string().min(1, "Module is required"),
   teacherId: z.string().min(1, "Teacher is required"),
@@ -98,7 +98,7 @@ export const assignmentSchema = z.object({
   moduleId: z.string().min(1, "Module is required"),
   teacherId: z.string().min(1, "Teacher is required"),
   groupId: z.string().min(1, "Group is required"),
-  links: z.array(z.string().url("Invalid URL format")).optional(),
+  links: z.array(z.any()).optional(),
   files: z.array(z.any()).optional(),
 });
 
@@ -110,6 +110,6 @@ export const submitAssignmentSchema = z.object({
   moduleId: z.string().min(1, "Module ID is required"),
   groupId: z.string().min(1, "Group ID is required"),
   files: z.array(z.any()).min(1, "Files are required"),
-  links: z.array(z.string().url("Invalid URL format")).optional(),
+  links: z.array(z.any()).optional(),
 });
 export type SubmitAssignmentFormData = z.infer<typeof submitAssignmentSchema>;

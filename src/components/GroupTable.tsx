@@ -25,7 +25,6 @@ import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
 import GroupCreationDialog from "./GroupCreationDialog";
 import { GroupFormData } from "@/lib/validator/zodValidation";
-import { Database, Loader2 } from "lucide-react";
 import { Loader } from "./Loader";
 import { Empty } from "./Empty";
 
@@ -144,8 +143,8 @@ export const GroupTable = () => {
       {isEditGroupOpen && (
         <GroupCreationDialog
           groupId={selectedGroupId}
-          open={isEditGroupOpen}
-          setOpen={setIsEditGroupOpen}
+          openFromEdit={isEditGroupOpen}
+          setOpenFromEdit={setIsEditGroupOpen}
           groupInfo={selectedGroupInfo}
         />
       )}

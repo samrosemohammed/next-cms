@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/card";
 import { format } from "date-fns";
 import Image from "next/image";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { FolderOpen, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Empty } from "./Empty";
 import { Loader } from "./Loader";
 
@@ -51,8 +50,8 @@ const GetTeacherModule = () => {
 
               {/* <CardContent></CardContent> */}
               <CardFooter className="flex justify-between items-center">
-                <p>{format(m.moduleId?.startDate!, "yyyy")}</p>
-                <p>{format(m.moduleId?.endDate!, "yyyy")}</p>
+                <p>{format(m.moduleId?.startDate ?? "", "yyyy")}</p>
+                <p>{format(m.moduleId?.endDate ?? "", "yyyy")}</p>
               </CardFooter>
             </Card>
           ))}

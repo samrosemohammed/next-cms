@@ -1,5 +1,5 @@
-import { z, ZodError } from "zod";
-import { privateProcedure, publicProcedure, router } from "./trpc";
+import { z } from "zod";
+import { privateProcedure, router } from "./trpc";
 import {
   announcementSchema,
   assignmentSchema,
@@ -37,7 +37,6 @@ const deleteFile = async (imageUrl: string) => {
   try {
     const keyFromTheImageUrl = imageUrl.split("/").pop();
     await utapi.deleteFiles(keyFromTheImageUrl!);
-    // console.log("image deleted: ", keyFromTheImageUrl);
   } catch (err) {
     console.error("Error deleting file:", err);
   }
@@ -170,8 +169,7 @@ export const appRouter = router({
     }),
   createSumbitAssignment: privateProcedure
     .input(submitAssignmentSchema)
-    .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+    .mutation(async ({ input }) => {
       await dbConnect();
       const assignment = await Assignment.findOne({ _id: input.assignmentId });
       if (!assignment) {
@@ -206,7 +204,7 @@ export const appRouter = router({
   createAssignments: privateProcedure
     .input(assignmentSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       console.log("createAssignments", input);
       await dbConnect();
       const assignment = await Assignment.create({
@@ -231,7 +229,7 @@ export const appRouter = router({
       const emailPromises = students.map(async (student) => {
         try {
           const teacher = await UserModel.findById(input.teacherId);
-          const module = await Module.findById(input.moduleId);
+          const modulee = await Module.findById(input.moduleId);
           const dueDate = input.dueDate
             ? formatDate(input.dueDate.toISOString()) // Convert Date to string
             : "No due date provided";
@@ -239,7 +237,7 @@ export const appRouter = router({
                 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
                   <h2 style="color: #4CAF50; text-align: center;">New Assignment Added</h2>
                   <p>Dear <strong>${student.name}</strong>,</p>
-                  <p>A new assignment titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
+                  <p>A new assignment titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${modulee?.name}</strong>.</p>
                   <p>Due Date: <strong>${dueDate}</strong></p>
                   <p style="text-align: center; margin: 20px 0;">
                     <a href="http://localhost:3000/dashboard/module/${input.moduleId}/assignments" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Assignment</a>
@@ -266,7 +264,7 @@ export const appRouter = router({
   createModuleAnnouncement: privateProcedure
     .input(announcementSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       console.log("create announcement", input);
       await dbConnect();
       const tma = await TeacherModuleAnnouncement.create({
@@ -291,13 +289,13 @@ export const appRouter = router({
       const emailPromises = students.map(async (student) => {
         try {
           const teacher = await UserModel.findById(input.teacherId); // Fetch teacher details
-          const module = await Module.findById(input.moduleId); // Fetch module details
+          const modulee = await Module.findById(input.moduleId); // Fetch module details
 
           const html = `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
             <h2 style="color: #4CAF50; text-align: center;">New Announcement</h2>
             <p>Dear <strong>${student.name}</strong>,</p>
-            <p>A new announcement has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
+            <p>A new announcement has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${modulee?.name}</strong>.</p>
             <p>Description: <strong>${input.description || "No description provided"}</strong></p>
             <p style="text-align: center; margin: 20px 0;">
               <a href="http://localhost:3000/dashboard/module/${input.moduleId}/announcements" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Announcement</a>
@@ -326,7 +324,7 @@ export const appRouter = router({
   createModuleResource: privateProcedure
     .input(resourceSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       console.log("create resource input : ", input);
       dbConnect();
       const tmr = await TeacherModuleResource.create({
@@ -353,12 +351,12 @@ export const appRouter = router({
       const emailPromises = users.map(async (user) => {
         try {
           const teacher = await UserModel.findById(input.teacherId); // Fetch teacher details
-          const module = await Module.findById(input.moduleId); // Fetch module details
+          const modulee = await Module.findById(input.moduleId); // Fetch module details
           const html = `
               <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
                   <h2 style="color: #4CAF50; text-align: center;">New Resource Added</h2>
                   <p>Dear <strong>${user.name}</strong>,</p>
-                  <p>A new resource titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${module?.name}</strong>.</p>
+                  <p>A new resource titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${modulee?.name}</strong>.</p>
                   <p style="text-align: center; margin: 20px 0;">
                     <a href="http://localhost:3000/dashboard/module/${input.moduleId}/files" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Resource</a>
                   </p>
@@ -385,7 +383,7 @@ export const appRouter = router({
   createAssignModule: privateProcedure
     .input(assignModuleSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const existAssignModule = await AssignModule.findOne({
         moduleId: input.moduleId,
@@ -406,7 +404,7 @@ export const appRouter = router({
 
       // fetch teacher and module details
       const teacher = await UserModel.findById(input.teacher);
-      const module = await Module.findById(input.moduleId);
+      const modulee = await Module.findById(input.moduleId);
       const group = await Group.findById(input.group);
 
       // send email to the teacher
@@ -414,7 +412,7 @@ export const appRouter = router({
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
             <h2 style="color: #4CAF50; text-align: center;">Module Assigned</h2>
             <p>Dear <strong>${teacher?.name}</strong>,</p>
-            <p>You have been assigned to the module <strong>${module?.name}</strong> for the group <strong>${group?.groupName}</strong>.</p>
+            <p>You have been assigned to the module <strong>${modulee?.name}</strong> for the group <strong>${group?.groupName}</strong>.</p>
             <p>Please log in to your dashboard to view the details.</p>
             <p style="text-align: center; margin: 20px 0;">
               <a href="http://localhost:3000/dashboard/modules" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Modules</a>
@@ -427,7 +425,7 @@ export const appRouter = router({
       try {
         await sendEmail(
           "noreply@mohammedsamrose.com.np",
-          teacher?.email!,
+          teacher?.email ?? "",
           "Module Assigned",
           html
         );
@@ -441,7 +439,7 @@ export const appRouter = router({
   createModule: privateProcedure
     .input(moduleSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       // console.log(user, userId);
       dbConnect();
       const m = await Module.create({
@@ -454,7 +452,7 @@ export const appRouter = router({
   createGroup: privateProcedure
     .input(groupSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const existGroupName = await Group.findOne({
         groupName: input.groupName,
@@ -476,8 +474,7 @@ export const appRouter = router({
   createUserWithTeacher: privateProcedure
     .input(teacherSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
-      // console.log("create : ", userId);
+      const { userId } = ctx;
       dbConnect();
       const u = await UserModel.create({
         name: input.teacherName,
@@ -494,7 +491,7 @@ export const appRouter = router({
   createUserWithStudent: privateProcedure
     .input(studentSchema)
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const u = await UserModel.create({
         name: input.studentName,
@@ -641,7 +638,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const assignModule = await AssignModule.find({
         teacher: userId,
@@ -670,7 +667,7 @@ export const appRouter = router({
   getViewSubmitWork: privateProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const submitWork = await SubmitWork.findOne({
         assignmentObjectId: input.id,
@@ -702,7 +699,7 @@ export const appRouter = router({
   getAssignment: privateProcedure
     .input(z.object({ moduleId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const assignment = await Assignment.find({
         moduleObjectId: input.moduleId,
@@ -718,7 +715,7 @@ export const appRouter = router({
   getAnnouncement: privateProcedure
     .input(z.object({ moduleId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       console.log("getAnnouncement", input, userId);
       const announcement = await TeacherModuleAnnouncement.find({
@@ -736,7 +733,7 @@ export const appRouter = router({
   getResourceFile: privateProcedure
     .input(z.object({ moduleId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const resource = await TeacherModuleResource.find({
         moduleObjectId: input.moduleId,
@@ -751,8 +748,7 @@ export const appRouter = router({
       return typeResult;
     }),
   getTeachers: privateProcedure.query(async ({ ctx }) => {
-    const { userId, user } = ctx;
-    // console.log("getTeacher", user, ctx);
+    const { userId } = ctx;
     dbConnect();
     const t: TUser[] = await UserModel.find({
       role: "teacher",
@@ -761,7 +757,7 @@ export const appRouter = router({
     return t;
   }),
   getStudents: privateProcedure.query(async ({ ctx }) => {
-    const { userId, user } = ctx;
+    const { userId } = ctx;
     dbConnect();
     const s = await UserModel.find({
       role: "student",
@@ -773,7 +769,7 @@ export const appRouter = router({
     return typeResult;
   }),
   getAssignModules: privateProcedure.query(async ({ ctx }) => {
-    const { userId, user } = ctx;
+    const { userId } = ctx;
     dbConnect();
     const am = await AssignModule.find({ createdBy: userId })
       .populate("moduleId")
@@ -796,7 +792,7 @@ export const appRouter = router({
     return g;
   }),
   getAssignModuleForTeacher: privateProcedure.query(async ({ ctx }) => {
-    const { user, userId } = ctx;
+    const { userId } = ctx;
     await dbConnect();
     const am = await AssignModule.find({ teacher: userId })
       .populate("moduleId")
@@ -807,7 +803,7 @@ export const appRouter = router({
     return typeResult;
   }),
   getAssignModuleForStudent: privateProcedure.query(async ({ ctx }) => {
-    const { user, userId } = ctx;
+    const { userId } = ctx;
     await dbConnect();
     const student = await UserModel.findOne({ _id: userId });
     if (!student) {
@@ -831,7 +827,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const student = await UserModel.findOne({ _id: userId });
       if (!student) {
@@ -859,7 +855,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const student = await UserModel.findOne({ _id: userId });
       if (!student) {
@@ -886,7 +882,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const student = await UserModel.findOne({ _id: userId });
       if (!student) {
@@ -915,7 +911,7 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       dbConnect();
       await Module.updateOne(
         { _id: input.id, createdBy: userId },
@@ -926,7 +922,7 @@ export const appRouter = router({
   editGroup: privateProcedure
     .input(z.object({ id: z.string(), groupSchema }))
     .mutation(async ({ input, ctx }) => {
-      const { userId, user } = ctx;
+      const { userId } = ctx;
       dbConnect();
       await Group.updateOne(
         { _id: input.id, createdBy: userId },
@@ -942,8 +938,7 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // console.log("editTeacher", input);
-      const { userId, user } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const existingTeacher = await UserModel.findOne({
         _id: input.id,
@@ -988,7 +983,7 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { userId, user } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const existingStudent = await UserModel.findOne({
         _id: input.id,
@@ -1034,7 +1029,7 @@ export const appRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       console.log("editAssignModule", input);
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       dbConnect();
       const existingAssignModule = await AssignModule.findOne({
         _id: input.id,
@@ -1080,7 +1075,7 @@ export const appRouter = router({
   editSubmitWork: privateProcedure
     .input(z.object({ id: z.string(), submitAssignmentSchema }))
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const assignment = await Assignment.findOne({ _id: input.id });
       if (!assignment) {
@@ -1321,7 +1316,7 @@ export const appRouter = router({
   deleteSubmitWork: privateProcedure
     .input(z.object({ assignmnetId: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const { user, userId } = ctx;
+      const { userId } = ctx;
       await dbConnect();
       const submitWork = await SubmitWork.findOne({
         assignmentObjectId: input.assignmnetId,
@@ -1454,7 +1449,7 @@ export const appRouter = router({
   deleteGroup: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const { userId, user } = ctx;
+      const { userId } = ctx;
       dbConnect();
       await Group.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Group deleted" };

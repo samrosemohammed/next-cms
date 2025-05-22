@@ -27,7 +27,6 @@ import { TRPCClientError } from "@trpc/client";
 import { useState } from "react";
 import { StudentFormData } from "@/lib/validator/zodValidation";
 import { StudentCreationDialog } from "./StudentCreationDialog";
-import { Database, Loader2 } from "lucide-react";
 import { Loader } from "./Loader";
 import { Empty } from "./Empty";
 

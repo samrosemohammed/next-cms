@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,6 @@ import { Loader2, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
 import { TeacherFormData, teacherSchema } from "@/lib/validator/zodValidation";
 import { useUploadThing } from "@/lib/uploadthing";
 import { trpc } from "@/app/_trpc/client";
@@ -54,7 +53,7 @@ const TeacherCreationDialog = ({
       setIsLoading(false);
       utils.getTeachers.invalidate();
       setOpen(false);
-      setOpenFromEdit && setOpenFromEdit(false);
+      if (setOpenFromEdit) setOpenFromEdit(false);
       toast.success(data.message);
     },
     onError: (error) => {
@@ -134,7 +133,7 @@ const TeacherCreationDialog = ({
         <DialogHeader>
           <DialogTitle>Enroll Teacher</DialogTitle>
           <DialogDescription>
-            Enroll a teacher. Click create when you're done.
+            Enroll a teacher. Click create when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>

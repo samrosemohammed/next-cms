@@ -46,8 +46,8 @@ const GetModuleForStudent = () => {
 
               {/* <CardContent></CardContent> */}
               <CardFooter className="flex justify-between items-center">
-                <p>{format(m.moduleId?.startDate!, "yyyy")}</p>
-                <p>{format(m.moduleId?.endDate!, "yyyy")}</p>
+                <p>{format(m.moduleId?.startDate ?? "", "yyyy")}</p>
+                <p>{format(m.moduleId?.endDate ?? "", "yyyy")}</p>
               </CardFooter>
             </Card>
           ))}

@@ -1,6 +1,5 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
-import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -11,7 +10,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,

@@ -8,16 +8,7 @@ import {
   CardTitle,
 } from "./ui/card";
 import { useParams } from "next/navigation";
-import {
-  Bookmark,
-  Database,
-  EllipsisVertical,
-  File,
-  Link2,
-  Loader2,
-  Pencil,
-  Trash,
-} from "lucide-react";
+import { EllipsisVertical, File, Link2, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/formatDate";
 import { buttonVariants } from "./ui/button";
@@ -36,7 +27,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -114,9 +104,9 @@ export const GetResourceFile = ({ selectedGroupId }: GetResourceFileProps) => {
                               setIseditResourceOpen(true);
                               setSelectedResourceInfo({
                                 title: file.title,
-                                moduleId: file?.moduleObjectId?._id!,
-                                teacherId: file?.teacherObjectId?._id!,
-                                groupId: file?.groupObjectId?._id!,
+                                moduleId: file?.moduleObjectId?._id ?? "",
+                                teacherId: file?.teacherObjectId?._id ?? "",
+                                groupId: file?.groupObjectId?._id ?? "",
                                 description: file.description,
                                 links: file.links,
                                 files: file.files,

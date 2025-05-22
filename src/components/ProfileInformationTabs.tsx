@@ -1,5 +1,5 @@
 "use client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -59,7 +59,6 @@ export const ProfileInformationTabs = ({
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
   });
-  const MAX_IMAGE_SIZE = 4 * 1024 * 1024; // 4MB
 
   // dropzone
   const onDrop = (acceptedFiles: File[]) => {

@@ -1,8 +1,5 @@
-import { FileCreationDialog } from "@/components/FileCreationDialog";
-import { GetResourceFile } from "@/components/GetResourceFile";
 import GetResourceForStudent from "@/components/GetResourceForStudent";
 import { ParentTeacherFile } from "@/components/ParentTeacherFile";
-import SelectForSort from "@/components/SelectForSort";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 

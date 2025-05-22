@@ -136,7 +136,9 @@ export const AssignmentCreationDialog = ({
 
   const handleDateChange = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
-    setValue("dueDate", selectedDate);
+    if (selectedDate) {
+      setValue("dueDate", selectedDate);
+    }
   };
 
   const uniqueGroups = data
@@ -255,7 +257,7 @@ export const AssignmentCreationDialog = ({
                 <SelectGroup>
                   <SelectLabel>Group</SelectLabel>
                   {uniqueGroups?.map((d) => (
-                    <SelectItem key={d?.group?._id} value={d.group?._id!}>
+                    <SelectItem key={d?.group?._id} value={d.group?._id ?? ""}>
                       {d.group?.groupName}
                     </SelectItem>
                   ))}

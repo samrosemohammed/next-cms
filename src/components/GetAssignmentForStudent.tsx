@@ -12,9 +12,8 @@ import {
 import { File, Link2 } from "lucide-react";
 import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
-import { Button, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 import StudentAssignmentSubmitDialog from "./StudentAssignmentSubmitDialog";
-import { useState } from "react";
 import ViewSubmitWork from "./ViewSubmitWork";
 import { Loader } from "./Loader";
 import { Empty } from "./Empty";
@@ -111,7 +110,7 @@ const GetAssignmentForStudent = ({ userId }: GetAssignmentForStudentProps) => {
                     clickAssignmentId={assignment._id}
                     userId={userId}
                     isPastDueDate={isPastDueDate}
-                    studentGroupId={assignment.groupObjectId?._id!}
+                    studentGroupId={assignment.groupObjectId?._id ?? ""}
                   />
                 </CardFooter>
               </Card>

@@ -15,17 +15,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { trpc } from "@/app/_trpc/client";
-import {
-  Database,
-  EllipsisVertical,
-  File,
-  Link2,
-  Pencil,
-  Trash,
-} from "lucide-react";
+import { EllipsisVertical, File, Link2, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "./ui/button";
 import { useParams } from "next/navigation";
@@ -119,9 +111,10 @@ export const GetAssignment = ({ selectedGroupId }: GetAssignmentProps) => {
                                 description: assignment.description,
                                 links: assignment.links,
                                 files: assignment.files,
-                                groupId: assignment.groupObjectId?._id!,
-                                teacherId: assignment.teacherObjectId?._id!,
-                                moduleId: assignment.moduleObjectId?._id!,
+                                groupId: assignment.groupObjectId?._id ?? "",
+                                teacherId:
+                                  assignment.teacherObjectId?._id ?? "",
+                                moduleId: assignment.moduleObjectId?._id ?? "",
                                 dueDate: new Date(assignment.dueDate),
                               });
                               setSelectedAssignmentId(assignment._id);

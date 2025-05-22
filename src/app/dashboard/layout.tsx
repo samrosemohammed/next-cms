@@ -1,16 +1,17 @@
 import AppSidebar from "@/components/AppSideBar";
 import { DropDownForProfileNav } from "@/components/DropDownForProfileNav";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authOptions } from "@/lib/auth";
-import { Bell, Moon, Sun, Github } from "lucide-react";
+import { Bell, Github } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { PropsWithChildren } from "react";
-
 const Layout = async ({ children }: PropsWithChildren) => {
   const session = await getServerSession(authOptions);
   const user = session?.user;
+  if (!user) {
+    throw new Error("User must be authenticated to access this layout.");
+  }
   return (
     <SidebarProvider>
       <AppSidebar user={user!} />
@@ -26,17 +27,10 @@ const Layout = async ({ children }: PropsWithChildren) => {
             >
               <Github size={20} />
             </Link>
-            {/* <Avatar className="w-8 h-8">
-              <AvatarImage
-                src={user?.image!}
-                alt={`${user?.name} profile picture`}
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar> */}
             <DropDownForProfileNav
-              name={user?.name!}
-              image={user?.image!}
-              email={user?.email!}
+              name={user.name ?? "Guest"}
+              image={user.image ?? ""}
+              email={user?.email ?? "guest@gmail.com"}
             />
           </div>
         </div>

@@ -24,7 +24,6 @@ import { trpc } from "@/app/_trpc/client";
 import { useState } from "react";
 import { ModuleAssignDialog } from "./ModuleAssignDialog";
 import { AssignModuleFormData } from "@/lib/validator/zodValidation";
-import { Database, Loader2 } from "lucide-react";
 import { Loader } from "./Loader";
 import { Empty } from "./Empty";
 export const AssignTable = () => {
@@ -84,11 +83,11 @@ export const AssignTable = () => {
                     })}
                     onClick={() => {
                       setSelectedAssignModule({
-                        teacher: am.teacher?._id!,
-                        group: am.group?._id!,
-                        moduleId: am.moduleId?._id!,
+                        teacher: am.teacher?._id ?? "",
+                        group: am.group?._id ?? "",
+                        moduleId: am.moduleId?._id ?? "",
                       });
-                      setSelectedAssignModuleId(am._id!);
+                      setSelectedAssignModuleId(am._id ?? "");
                       setIsAssignOpen(true);
                     }}
                   >

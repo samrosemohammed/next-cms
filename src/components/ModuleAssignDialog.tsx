@@ -78,7 +78,6 @@ export const ModuleAssignDialog = ({
     },
   });
   const {
-    register,
     handleSubmit,
     reset,
     formState: { errors },

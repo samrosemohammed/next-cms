@@ -22,19 +22,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Bookmark,
-  EllipsisVertical,
-  FolderOpen,
-  Loader2,
-  Pencil,
-  Trash,
-} from "lucide-react";
+import { Bookmark, EllipsisVertical, Pencil, Trash } from "lucide-react";
 import moduleBanner from "../../public/module-banner.jpg";
 import Image from "next/image";
-import { Button, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 import { useState } from "react";
 import { ModuleAssignDialog } from "./ModuleAssignDialog";
 import { format } from "date-fns";
@@ -123,7 +115,7 @@ export const Module = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="cursor-pointer"
-                      onClick={(e) => {
+                      onClick={() => {
                         setIsDeleteAleartOpen(true);
                         setSelectedModuleId(m._id);
                       }}

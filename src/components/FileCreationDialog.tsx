@@ -247,7 +247,7 @@ export const FileCreationDialog = ({
                 <SelectGroup>
                   <SelectLabel>Group</SelectLabel>
                   {uniqueGroups?.map((d) => (
-                    <SelectItem key={d?.group?._id} value={d.group?._id!}>
+                    <SelectItem key={d?.group?._id} value={d.group?._id ?? ""}>
                       {d.group?.groupName}
                     </SelectItem>
                   ))}

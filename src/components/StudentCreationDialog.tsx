@@ -25,7 +25,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StudentFormData, studentSchema } from "@/lib/validator/zodValidation";
-import { cn } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
 import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
@@ -53,7 +52,7 @@ export const StudentCreationDialog = ({
   const { data: groupData } = trpc.getGroups.useQuery();
   const { data: studentData } = trpc.getStudents.useQuery();
   const createStudent = trpc.createUserWithStudent.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       setIsLoading(false);
       utils.getStudents.invalidate();
       setOpen(false);
@@ -66,7 +65,7 @@ export const StudentCreationDialog = ({
       setIsLoading(false);
       utils.getStudents.invalidate();
       setOpen(false);
-      setOpenFromEdit && setOpenFromEdit(false);
+      if (setOpenFromEdit) setOpenFromEdit(false);
       toast.success(data.message);
       setIsLoading(false);
     },

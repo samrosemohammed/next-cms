@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Settings, LogOut, HelpCircle, CreditCard } from "lucide-react";
+import { User, Settings, LogOut, HelpCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -48,7 +48,7 @@ export const DropDownForProfileNav = ({
         >
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={getUserData?.image || "/placeholder.svg?height=32&width=32"}
+              src={getUserData?.image || image}
               alt={`${name} profile picture`}
             />
             <AvatarFallback>UN</AvatarFallback>
