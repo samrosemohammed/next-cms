@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Course Management System (CMS)
 
-## Getting Started
+A full-stack web application built to manage course creation, enrollment, and learning workflows for both instructors and students. This project demonstrates modern web development practices using a powerful tech stack including Next.js, TypeScript, MongoDB, tRPC, and more.
 
-First, run the development server:
+## 🚀 Features
+
+- 🔐 Authentication and Authorization (NextAuth.js)
+- 👨‍🏫 Instructor Dashboard to Create and Manage Courses
+- 🎓 Student Interface to Browse, Enroll, and Track Courses
+- 📁 File Uploads for Course Materials via UploadThing
+- ✅ Form Handling and Validation using React Hook Form + Zod
+- 🔄 End-to-End Type Safety with tRPC and Zod
+- 🎨 Clean, Responsive UI using TailwindCSS and shadcn/ui
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js, TypeScript, React, TailwindCSS, shadcn/ui
+- **Backend**: Node.js (via Next.js API routes), tRPC, MongoDB
+- **Auth**: NextAuth.js
+- **Validation**: Zod, React Hook Form
+- **File Uploads**: UploadThing
+- **Styling & Components**: TailwindCSS, shadcn/ui
+
+  ## 📦 Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/samrosemohammed/next-cms.git
+cd next-cms
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⚙️ Setup
+1. Create a .env.local file in the root directory and add the following variables:
+```bash
+MONGODB_URI='your_mongodb_connection_string'
+NEXTAUTH_SECRET=`your_nextauth_secret'
+NEXTAUTH_URL='your_nextauth_url'
+RESEND_API_KEY='your_resend_api_key'
+UPLOADTHING_TOKEN='your_uploadthing_token'
+```
+2. Run the development server:
+```bash
+npm run dev
+```
