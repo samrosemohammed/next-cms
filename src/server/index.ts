@@ -1089,6 +1089,7 @@ export const appRouter = router({
       );
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keysToDelete);
       }
 
@@ -1151,6 +1152,7 @@ export const appRouter = router({
       );
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keysToDelete);
       }
       const updatedAnnouncement =
@@ -1210,6 +1212,7 @@ export const appRouter = router({
       );
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keysToDelete);
       }
       // Step 2: Update the resource with the new file list
@@ -1268,6 +1271,7 @@ export const appRouter = router({
       );
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keysToDelete);
       }
       const updatedAssignment = await Assignment.findOneAndUpdate(
@@ -1305,6 +1309,7 @@ export const appRouter = router({
       });
       if (submitWork && submitWork.files) {
         const keys = submitWork.files.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keys);
       }
 
@@ -1325,6 +1330,7 @@ export const appRouter = router({
       });
       if (assignment && assignment.files) {
         const keys = assignment.files.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keys);
       }
       await Assignment.deleteOne({ _id: input.id, createdBy: userId });
@@ -1344,6 +1350,7 @@ export const appRouter = router({
       });
       if (announcement && announcement.files) {
         const keys = announcement.files.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keys);
       }
       await TeacherModuleAnnouncement.deleteOne({
@@ -1366,6 +1373,7 @@ export const appRouter = router({
       });
       if (resource && resource.files) {
         const keys = resource.files.map((file) => file.key);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const res = await deleteFilesByKeys(keys);
       }
       await TeacherModuleResource.deleteOne({

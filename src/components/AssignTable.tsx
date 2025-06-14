@@ -37,7 +37,7 @@ export const AssignTable = () => {
   const [selectedAssignModule, setSelectedAssignModule] =
     useState<AssignModuleFormData>();
   const deleteAssignModule = trpc.deleteAssignModule.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       utils.getAssignModules.invalidate();
     },
     onError: (error) => {
