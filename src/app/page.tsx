@@ -14,7 +14,7 @@ export default function Home() {
         <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
           <p>Classroom is now public !</p>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
           Empowering Classrooms, <br /> Enhancing{" "}
           <span className="text-green-600">Learning.</span>
         </h1>

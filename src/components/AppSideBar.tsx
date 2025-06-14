@@ -24,6 +24,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import {
@@ -37,12 +38,16 @@ import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { signOut } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 interface AppSidebarProps {
   user: User;
 }
 const AppSidebar = ({ user }: AppSidebarProps) => {
   const pathname = usePathname();
+  const previousPathname = useRef(pathname);
+  const { setOpenMobile, isMobile } = useSidebar();
+
   const isModulePage = /^\/dashboard\/module\/[^/]+(\/.*)?$/.test(
     pathname ?? ""
   );
@@ -113,6 +118,13 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
             (item) => item.title === "Dashboard" || item.title === "Module"
           ) // Exclude "Dashboard" for students
         : items;
+
+  useEffect(() => {
+    if (pathname !== previousPathname.current && isMobile) {
+      setOpenMobile(false);
+    }
+    previousPathname.current = pathname;
+  }, [pathname, isMobile, setOpenMobile]);
 
   const handleLogOut = () => {
     signOut({

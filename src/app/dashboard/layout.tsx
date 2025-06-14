@@ -15,7 +15,7 @@ const Layout = async ({ children }: PropsWithChildren) => {
   return (
     <SidebarProvider>
       <AppSidebar user={user!} />
-      <main className="ml-4 flex-1">
+      <main className="md:ml-4 flex-1">
         <div className="flex items-center justify-between p-2 border-b">
           <SidebarTrigger />
           <div className="flex items-center justify-center gap-6">
