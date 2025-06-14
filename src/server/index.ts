@@ -415,7 +415,7 @@ export const appRouter = router({
             <p>You have been assigned to the module <strong>${modulee?.name}</strong> for the group <strong>${group?.groupName}</strong>.</p>
             <p>Please log in to your dashboard to view the details.</p>
             <p style="text-align: center; margin: 20px 0;">
-              <a href="${process.env.NEXTAUTH_URL}/dashboard/modules" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Modules</a>
+              <a href="${process.env.NEXTAUTH_URL}/dashboard/module" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Modules</a>
             </p>
             <p>If you have any questions, feel free to contact the admin.</p>
             <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
