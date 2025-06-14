@@ -240,7 +240,7 @@ export const appRouter = router({
                   <p>A new assignment titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${modulee?.name}</strong>.</p>
                   <p>Due Date: <strong>${dueDate}</strong></p>
                   <p style="text-align: center; margin: 20px 0;">
-                    <a href="http://localhost:3000/dashboard/module/${input.moduleId}/assignments" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Assignment</a>
+                    <a href="${process.env.NEXTAUTH_URL}/dashboard/module/${input.moduleId}/assignments" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Assignment</a>
                   </p>
                   <p>If you have any questions, feel free to contact your teacher.</p>
                   <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
@@ -298,7 +298,7 @@ export const appRouter = router({
             <p>A new announcement has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${modulee?.name}</strong>.</p>
             <p>Description: <strong>${input.description || "No description provided"}</strong></p>
             <p style="text-align: center; margin: 20px 0;">
-              <a href="http://localhost:3000/dashboard/module/${input.moduleId}/announcements" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Announcement</a>
+              <a href="${process.env.NEXTAUTH_URL}/dashboard/module/${input.moduleId}/announcements" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Announcement</a>
             </p>
             <p>If you have any questions, feel free to contact your teacher.</p>
             <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
@@ -358,7 +358,7 @@ export const appRouter = router({
                   <p>Dear <strong>${user.name}</strong>,</p>
                   <p>A new resource titled <strong>${input.title}</strong> has been added to your group by <strong>${teacher?.name}</strong> in the module <strong>${modulee?.name}</strong>.</p>
                   <p style="text-align: center; margin: 20px 0;">
-                    <a href="http://localhost:3000/dashboard/module/${input.moduleId}/files" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Resource</a>
+                    <a href="${process.env.NEXTAUTH_URL}/dashboard/module/${input.moduleId}/files" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Resource</a>
                   </p>
                   <p>If you have any questions, feel free to contact your teacher.</p>
                   <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
@@ -415,7 +415,7 @@ export const appRouter = router({
             <p>You have been assigned to the module <strong>${modulee?.name}</strong> for the group <strong>${group?.groupName}</strong>.</p>
             <p>Please log in to your dashboard to view the details.</p>
             <p style="text-align: center; margin: 20px 0;">
-              <a href="http://localhost:3000/dashboard/modules" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Modules</a>
+              <a href="${process.env.NEXTAUTH_URL}/dashboard/modules" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">View Modules</a>
             </p>
             <p>If you have any questions, feel free to contact the admin.</p>
             <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
