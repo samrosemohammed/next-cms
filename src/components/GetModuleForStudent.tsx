@@ -23,7 +23,7 @@ const GetModuleForStudent = () => {
       {isModuleLoading ? (
         <Loader />
       ) : studentGroupModule?.length ? (
-        <div className="grid grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {studentGroupModule?.map((m) => (
             <Card
               className="cursor-pointer hover:shadow-lg hover:translate-y-0.5 transition-transform"

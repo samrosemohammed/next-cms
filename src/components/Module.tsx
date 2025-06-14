@@ -68,7 +68,7 @@ export const Module = () => {
       {isModuleLoading ? (
         <Loader />
       ) : data?.length ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {data?.map((m) => (
             <Card key={m.code}>
               <Image
