@@ -326,7 +326,7 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
       console.log("create resource input : ", input);
-      dbConnect();
+      await dbConnect();
       const tmr = await TeacherModuleResource.create({
         ...input,
         files: input.files?.map((file) => ({
@@ -384,7 +384,7 @@ export const appRouter = router({
     .input(assignModuleSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const existAssignModule = await AssignModule.findOne({
         moduleId: input.moduleId,
         teacher: input.teacher,
@@ -441,7 +441,7 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
       // console.log(user, userId);
-      dbConnect();
+      await dbConnect();
       const m = await Module.create({
         ...input,
         createdBy: userId,
@@ -453,7 +453,7 @@ export const appRouter = router({
     .input(groupSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const existGroupName = await Group.findOne({
         groupName: input.groupName,
         createdBy: userId,
@@ -475,7 +475,7 @@ export const appRouter = router({
     .input(teacherSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const u = await UserModel.create({
         name: input.teacherName,
         email: input.teacherEmail,
@@ -492,7 +492,7 @@ export const appRouter = router({
     .input(studentSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const u = await UserModel.create({
         name: input.studentName,
         email: input.studentEmail,
@@ -700,7 +700,7 @@ export const appRouter = router({
     .input(z.object({ moduleId: z.string() }))
     .query(async ({ ctx, input }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const assignment = await Assignment.find({
         moduleObjectId: input.moduleId,
         createdBy: userId,
@@ -749,7 +749,7 @@ export const appRouter = router({
     }),
   getTeachers: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    dbConnect();
+    await dbConnect();
     const t: TUser[] = await UserModel.find({
       role: "teacher",
       createdBy: userId,
@@ -758,7 +758,7 @@ export const appRouter = router({
   }),
   getStudents: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    dbConnect();
+    await dbConnect();
     const s = await UserModel.find({
       role: "student",
       createdBy: userId,
@@ -770,7 +770,7 @@ export const appRouter = router({
   }),
   getAssignModules: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    dbConnect();
+    await dbConnect();
     const am = await AssignModule.find({ createdBy: userId })
       .populate("moduleId")
       .populate("group")
@@ -781,13 +781,13 @@ export const appRouter = router({
   }),
   getModules: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    dbConnect();
+    await dbConnect();
     const m: TModule[] = await Module.find({ createdBy: userId });
     return m;
   }),
   getGroups: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    dbConnect();
+    await dbConnect();
     const g: TGroup[] = await Group.find({ createdBy: userId });
     return g;
   }),
@@ -912,7 +912,7 @@ export const appRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       await Module.updateOne(
         { _id: input.id, createdBy: userId },
         input.moduleSchema
@@ -923,7 +923,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string(), groupSchema }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       await Group.updateOne(
         { _id: input.id, createdBy: userId },
         input.groupSchema
@@ -939,7 +939,7 @@ export const appRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const existingTeacher = await UserModel.findOne({
         _id: input.id,
         createdBy: userId,
@@ -984,7 +984,7 @@ export const appRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const existingStudent = await UserModel.findOne({
         _id: input.id,
         createdBy: userId,
@@ -1030,7 +1030,7 @@ export const appRouter = router({
     .mutation(async ({ input, ctx }) => {
       console.log("editAssignModule", input);
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const existingAssignModule = await AssignModule.findOne({
         _id: input.id,
         createdBy: userId,
@@ -1338,7 +1338,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const assignment = await Assignment.findOne({
         _id: input.id,
         createdBy: userId,
@@ -1404,7 +1404,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const teacher = await UserModel.findOne({
         _id: input.id,
         createdBy: userId,
@@ -1419,7 +1419,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       const student = await UserModel.findOne({
         _id: input.id,
         createdBy: userId,
@@ -1434,7 +1434,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       await Module.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Module deleted" };
     }),
@@ -1442,7 +1442,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       await AssignModule.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Assign Module deleted" };
     }),
@@ -1450,7 +1450,7 @@ export const appRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      dbConnect();
+      await dbConnect();
       await Group.deleteOne({ _id: input.id, createdBy: userId });
       return { success: true, message: "Group deleted" };
     }),
