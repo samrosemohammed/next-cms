@@ -53,7 +53,6 @@ export const Module = () => {
       toast.success(data.message);
     },
     onError: (error) => {
-      console.log("error: ", error.message);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
       }

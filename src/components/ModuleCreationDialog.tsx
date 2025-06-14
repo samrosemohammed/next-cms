@@ -58,13 +58,11 @@ export const ModuleCreationDialog = ({
   });
   const createModule = trpc.createModule.useMutation({
     onSuccess: (data) => {
-      console.log("data: ", data);
       utils.getModules.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (error) => {
-      console.log("error: ", error.message);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
       }
@@ -94,10 +92,7 @@ export const ModuleCreationDialog = ({
         } else {
           console.error("Module ID is undefined");
         }
-        console.log("edit module");
-        console.log("selected module id : ", moduleId);
       }
-      console.log("data: ", data);
     } catch (error) {
       setIsLoading(false);
       console.error("Error creating module:", error);

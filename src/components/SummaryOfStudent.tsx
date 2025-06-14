@@ -23,7 +23,6 @@ import { Loader } from "./Loader";
 export const SummaryOfStudent = () => {
   const { data: summary, isLoading: isSummaryLoading } =
     trpc.summaryOfStudent.useQuery();
-  console.log(summary);
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 my-4">

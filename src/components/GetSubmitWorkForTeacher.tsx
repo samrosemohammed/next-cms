@@ -21,7 +21,6 @@ export const GetSubmitWorkForTeacher = () => {
   const { moduleId } = useParams() as { moduleId: string };
   const { data: submittedWorkByStudent, isLoading } =
     trpc.getViewSubmitWorkForTeacher.useQuery({ moduleId });
-  console.log(submittedWorkByStudent);
   return (
     <div>
       {isLoading ? (

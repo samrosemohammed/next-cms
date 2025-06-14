@@ -41,7 +41,6 @@ export const GroupStudent = () => {
     trpc.getGroupStudentAssignToTeacher.useQuery();
   const { data: count, isLoading: isCountLoading } =
     trpc.getCountForTeacher.useQuery();
-  console.log(count);
   const filteredStudents = student?.filter((s) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch =
@@ -59,7 +58,6 @@ export const GroupStudent = () => {
   const handleGroupChange = (value: string) => {
     setSelectedGroup(value);
   };
-  console.log(student);
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 my-4">

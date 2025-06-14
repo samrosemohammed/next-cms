@@ -26,6 +26,7 @@ import { ModuleAssignDialog } from "./ModuleAssignDialog";
 import { AssignModuleFormData } from "@/lib/validator/zodValidation";
 import { Loader } from "./Loader";
 import { Empty } from "./Empty";
+import { toast } from "sonner";
 export const AssignTable = () => {
   const utils = trpc.useUtils();
   const { data, isLoading: isAssignModuleLoading } =
@@ -37,18 +38,21 @@ export const AssignTable = () => {
     useState<AssignModuleFormData>();
   const deleteAssignModule = trpc.deleteAssignModule.useMutation({
     onSuccess: (data) => {
-      console.log("data", data);
       utils.getAssignModules.invalidate();
     },
     onError: (error) => {
-      console.log("error", error);
+      toast.error(error.message);
     },
   });
   const handleDelete = (assignId: string) => {
     try {
       deleteAssignModule.mutate({ id: assignId });
     } catch (err) {
-      console.log(err);
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("An unknown error occurred.");
+      }
     }
   };
   return (

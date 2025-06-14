@@ -56,7 +56,6 @@ export const ModuleAssignDialog = ({
     },
     onError: (error) => {
       setIsLoading(false);
-      console.log("error", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
       }
@@ -71,7 +70,6 @@ export const ModuleAssignDialog = ({
     },
     onError: (error) => {
       setIsLoading(false);
-      console.log("error", error);
       if (error instanceof TRPCClientError) {
         toast.error(error.message);
       }
@@ -85,7 +83,6 @@ export const ModuleAssignDialog = ({
   } = useForm<AssignModuleFormData>({
     resolver: zodResolver(assignModuleSchema),
   });
-  console.log("hello");
   const onSubmit = async (data: AssignModuleFormData) => {
     setIsLoading(true);
     try {

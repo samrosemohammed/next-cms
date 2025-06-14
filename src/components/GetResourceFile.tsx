@@ -57,7 +57,6 @@ export const GetResourceFile = ({ selectedGroupId }: GetResourceFileProps) => {
       toast.success(data.message);
     },
     onError: (err) => {
-      console.log("Error deleting resource", err);
       if (err instanceof TRPCClientError) {
         toast.error(err.message);
       }

@@ -61,28 +61,24 @@ export const AssignmentCreationDialog = ({
   const createAssignment = trpc.createAssignments.useMutation({
     onSuccess: (data) => {
       setIsLoading(false);
-      console.log("Assignment created successfully", data);
       utils.getAssignment.invalidate();
       setOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
       setIsLoading(false);
-      console.log("Error creating assignment", err);
       toast.error(err.message);
     },
   });
   const editAssignment = trpc.editModuleAssignment.useMutation({
     onSuccess: (data) => {
       setIsLoading(false);
-      console.log("Assignment edited successfully", data);
       utils.getAssignment.invalidate();
       setIsOpen(false);
       toast.success(data.message);
     },
     onError: (err) => {
       setIsLoading(false);
-      console.log("Error editing assignment", err);
       toast.error(err.message);
     },
   });
@@ -147,7 +143,6 @@ export const AssignmentCreationDialog = ({
 
   const onSubmit = async (data: AssignmentFormData) => {
     setIsLoading(true);
-    console.log("Form data", data);
     const allFiles = data.files as (
       | File
       | { key: string; name: string; url: string }
@@ -198,8 +193,6 @@ export const AssignmentCreationDialog = ({
       setDate(assignmentInfo.dueDate);
     }
   }, [assignmentInfo, setValue]);
-
-  console.log("Assignment Info", assignmentInfo);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

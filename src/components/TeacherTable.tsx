@@ -57,7 +57,6 @@ export const TeacherTable = () => {
       console.log(err);
     }
   };
-  console.log(data);
   return (
     <div>
       {isTeacherLoading ? (

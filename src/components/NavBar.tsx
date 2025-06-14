@@ -8,9 +8,7 @@ export const NavBar = () => {
       <MaxWidthWrapper>
         <div className="flex h-14 items-center justify-between border-b">
           <Link href={"/"}>Classroom.</Link>
-          <div className="hidden items-center space-x-4 sm:flex">
-            <Link href="/">About</Link>
-            <Link href="/">Features</Link>
+          <div className="items-center space-x-4 sm:flex">
             <Link
               className={buttonVariants({
                 size: "lg",

@@ -38,7 +38,6 @@ export const DropDownForProfileNav = ({
   const navigateTo = (path: string) => {
     router.push(path);
   };
-  console.log("getUserData", getUserData);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>

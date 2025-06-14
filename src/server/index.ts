@@ -145,7 +145,6 @@ export const appRouter = router({
     .input(profileSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      console.log("input for update profie : ", input);
       await dbConnect();
       const user = await UserModel.findById(userId);
       if (!user) {
@@ -205,7 +204,6 @@ export const appRouter = router({
     .input(assignmentSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      console.log("createAssignments", input);
       await dbConnect();
       const assignment = await Assignment.create({
         ...input,
@@ -265,7 +263,6 @@ export const appRouter = router({
     .input(announcementSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      console.log("create announcement", input);
       await dbConnect();
       const tma = await TeacherModuleAnnouncement.create({
         ...input,
@@ -325,7 +322,6 @@ export const appRouter = router({
     .input(resourceSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      console.log("create resource input : ", input);
       await dbConnect();
       const tmr = await TeacherModuleResource.create({
         ...input,
@@ -346,7 +342,6 @@ export const appRouter = router({
         group: input.groupId,
         role: "student",
       });
-      console.log(users);
       // send email to each user
       const emailPromises = users.map(async (user) => {
         try {
@@ -371,7 +366,6 @@ export const appRouter = router({
             "New Resource Created",
             html
           );
-          // console.log(`Email sent to ${user.email}:`, response);
         } catch (error) {
           console.error(`Error sending email to ${user.email}:`, error);
         }
@@ -429,7 +423,6 @@ export const appRouter = router({
           "Module Assigned",
           html
         );
-        console.log(`Email sent to ${teacher?.email}`);
       } catch (err) {
         console.error(`Error sending email to ${teacher?.email}:`, err);
       }
@@ -440,7 +433,6 @@ export const appRouter = router({
     .input(moduleSchema)
     .mutation(async ({ input, ctx }) => {
       const { userId } = ctx;
-      // console.log(user, userId);
       await dbConnect();
       const m = await Module.create({
         ...input,
@@ -646,7 +638,6 @@ export const appRouter = router({
       })
         .populate("group")
         .lean();
-      console.log("Assign module: ", assignModule);
 
       // extract group id
       const groupIds = assignModule.map((am) => am?.group?._id);
@@ -660,7 +651,6 @@ export const appRouter = router({
         .populate("moduleObjectId")
         .populate("groupObjectId")
         .lean();
-      console.log("Submit work from api : ", submitWork);
       const typeResult: TSubmitWork[] = submitWork as unknown as TSubmitWork[];
       return typeResult;
     }),
@@ -677,7 +667,6 @@ export const appRouter = router({
         .populate("studentObjectId")
         .populate("moduleObjectId")
         .lean();
-      console.log("Submit work from api : ", submitWork);
       const typeResult: TSubmitWork = submitWork as unknown as TSubmitWork;
       return typeResult;
     }),
@@ -717,7 +706,6 @@ export const appRouter = router({
     .query(async ({ ctx, input }) => {
       const { userId } = ctx;
       await dbConnect();
-      console.log("getAnnouncement", input, userId);
       const announcement = await TeacherModuleAnnouncement.find({
         moduleObjectId: input.moduleId,
         createdBy: userId,
@@ -1028,7 +1016,6 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("editAssignModule", input);
       const { userId } = ctx;
       await dbConnect();
       const existingAssignModule = await AssignModule.findOne({
@@ -1103,7 +1090,6 @@ export const appRouter = router({
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
         const res = await deleteFilesByKeys(keysToDelete);
-        console.log("Deleted files:", res);
       }
 
       const currentDate = new Date();
@@ -1166,7 +1152,6 @@ export const appRouter = router({
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
         const res = await deleteFilesByKeys(keysToDelete);
-        console.log("Deleted files:", res);
       }
       const updatedAnnouncement =
         await TeacherModuleAnnouncement.findOneAndUpdate(
@@ -1204,7 +1189,6 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("editModuleResource: ", input);
       const { userId } = ctx;
       await dbConnect();
       const existingResource = await TeacherModuleResource.findOne({
@@ -1227,7 +1211,6 @@ export const appRouter = router({
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
         const res = await deleteFilesByKeys(keysToDelete);
-        console.log("Deleted files:", res);
       }
       // Step 2: Update the resource with the new file list
       const updatedResource = await TeacherModuleResource.findOneAndUpdate(
@@ -1264,7 +1247,6 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("editModuleAssignment: ", input);
       const { userId } = ctx;
       await dbConnect();
       const existingAssignment = await Assignment.findOne({
@@ -1287,7 +1269,6 @@ export const appRouter = router({
       if (filesToDelete.length > 0) {
         const keysToDelete = filesToDelete.map((file) => file.key);
         const res = await deleteFilesByKeys(keysToDelete);
-        console.log("Deleted files:", res);
       }
       const updatedAssignment = await Assignment.findOneAndUpdate(
         {
@@ -1325,7 +1306,6 @@ export const appRouter = router({
       if (submitWork && submitWork.files) {
         const keys = submitWork.files.map((file) => file.key);
         const res = await deleteFilesByKeys(keys);
-        console.log("deleted files", res);
       }
 
       await SubmitWork.deleteOne({
@@ -1346,7 +1326,6 @@ export const appRouter = router({
       if (assignment && assignment.files) {
         const keys = assignment.files.map((file) => file.key);
         const res = await deleteFilesByKeys(keys);
-        console.log("deleted files", res);
       }
       await Assignment.deleteOne({ _id: input.id, createdBy: userId });
       return {
@@ -1366,7 +1345,6 @@ export const appRouter = router({
       if (announcement && announcement.files) {
         const keys = announcement.files.map((file) => file.key);
         const res = await deleteFilesByKeys(keys);
-        console.log("deleted files", res);
       }
       await TeacherModuleAnnouncement.deleteOne({
         _id: input.id,
@@ -1389,7 +1367,6 @@ export const appRouter = router({
       if (resource && resource.files) {
         const keys = resource.files.map((file) => file.key);
         const res = await deleteFilesByKeys(keys);
-        console.log("deleted files", res);
       }
       await TeacherModuleResource.deleteOne({
         _id: input.id,

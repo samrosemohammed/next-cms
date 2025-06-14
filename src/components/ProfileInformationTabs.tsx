@@ -76,14 +76,12 @@ export const ProfileInformationTabs = ({
   });
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
-    console.log("Form data", data);
     let uploadedImage = null;
     // Check if an image file is provided and upload it
     if (imageFile) {
       const fileUploads = await startUpload([imageFile]);
       if (!fileUploads) {
         setIsLoading(false);
-        console.log(fileUploads);
         toast.error("Image upload failed");
         return;
       }

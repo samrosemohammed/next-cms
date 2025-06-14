@@ -37,7 +37,6 @@ export const StudentTable = () => {
     useState<StudentFormData>();
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { data, isLoading: isStudentLoading } = trpc.getStudents.useQuery();
-  console.log(data);
   const deleteStudent = trpc.deleteStudent.useMutation({
     onSuccess: (data) => {
       utils.getStudents.invalidate();

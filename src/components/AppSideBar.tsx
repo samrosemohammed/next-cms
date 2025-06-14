@@ -42,7 +42,6 @@ interface AppSidebarProps {
   user: User;
 }
 const AppSidebar = ({ user }: AppSidebarProps) => {
-  console.log("user from app side bar: ", user);
   const pathname = usePathname();
   const isModulePage = /^\/dashboard\/module\/[^/]+(\/.*)?$/.test(
     pathname ?? ""

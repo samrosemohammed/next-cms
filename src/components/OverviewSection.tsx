@@ -58,8 +58,6 @@ export const OverviewSection = () => {
       }, {} as ChartConfig)
     : {}; // Default to an empty object if moduleStats is undefined
 
-  console.log("moduleStats: ", moduleStats);
-
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4 my-3">

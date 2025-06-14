@@ -12,19 +12,16 @@ const cached = (global as any).mongoose || { conn: null, promise: null };
 
 export const dbConnect = async () => {
   if (cached.conn) {
-    console.log("✅ Using existing MongoDB connection");
     return cached.conn;
   }
 
   if (!cached.promise) {
-    console.log("🔄 Connecting to MongoDB...");
     cached.promise = mongoose
       .connect(MONGODB_URI, {
         dbName: "next-cms", // Change to your database name
         bufferCommands: false,
       })
       .then((mongoose) => {
-        console.log("✅ MongoDB Connected Successfully!");
         return mongoose;
       })
       .catch((err) => {

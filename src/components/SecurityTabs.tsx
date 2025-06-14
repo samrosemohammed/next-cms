@@ -44,7 +44,6 @@ export const SecurityTabs = () => {
   });
   const onSumbit = async (data: ChangePasswordFormData) => {
     setIsLoading(true);
-    console.log(data);
     changePassword.mutateAsync(data);
   };
   return (

@@ -21,7 +21,6 @@ const GetResourceForStudent = () => {
     trpc.getModuleResourceForStudent.useQuery({
       moduleId,
     });
-  console.log("resource", resource);
   return (
     <div>
       {isResourceLoading ? (

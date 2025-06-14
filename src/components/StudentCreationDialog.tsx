@@ -129,7 +129,6 @@ export const StudentCreationDialog = ({
           studentSchema: updatedStudent,
         });
       }
-      console.log("data: ", data);
     } catch (err) {
       console.error("Error creating student:", err);
     }

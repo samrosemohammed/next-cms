@@ -41,7 +41,6 @@ export const GetAnnouncement = () => {
   const { moduleId } = useParams() as { moduleId: string };
   const { data, isLoading: isAnnouncementLoading } =
     trpc.getAnnouncement.useQuery({ moduleId });
-  console.log("announcement data: ", data);
   const [selectedAnnouncementId, setSelectedAnnouncementId] =
     useState<string>("");
   const [isDeleteAleartOpen, setIsDeleteAleartOpen] = useState<boolean>(false);

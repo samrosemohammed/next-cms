@@ -18,7 +18,6 @@ const GetTeacherModule = () => {
   const { data, isLoading: isModuleLoading } =
     trpc.getAssignModuleForTeacher.useQuery();
   const navigate = useRouter();
-  console.log(data);
   const uniqueModules = data
     ? Array.from(new Map(data.map((m) => [m?.moduleId?._id, m])).values())
     : [];

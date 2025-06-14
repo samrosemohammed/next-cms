@@ -129,7 +129,6 @@ export const AnnouncementCreationDialog = ({
   };
   const onSubmit = async (data: AnnouncementFormData) => {
     setIsLoading(true);
-    console.log("data: ", data);
     const allFiles = data.files as (
       | File
       | { key: string; name: string; url: string }

@@ -63,7 +63,6 @@ export const FileCreationDialog = ({
       toast.success(data.message);
     },
     onError: (err) => {
-      console.log("Error creating resource", err);
       toast.error(err.message);
     },
   });
@@ -74,7 +73,6 @@ export const FileCreationDialog = ({
       toast.success(data.message);
     },
     onError: (err) => {
-      console.log("Error editing resource", err);
       toast.error(err.message);
     },
   });
@@ -132,7 +130,6 @@ export const FileCreationDialog = ({
 
   const onSubmit = async (data: ResourceFormData) => {
     setIsLoading(true);
-    console.log("Form data", data);
     const allFiles = data.files as (
       | File
       | { key: string; name: string; url: string }

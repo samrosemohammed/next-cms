@@ -17,7 +17,6 @@ const GetModuleForStudent = () => {
   const { data: studentGroupModule, isLoading: isModuleLoading } =
     trpc.getAssignModuleForStudent.useQuery();
   const navigate = useRouter();
-  console.log(studentGroupModule);
   return (
     <div>
       {isModuleLoading ? (
