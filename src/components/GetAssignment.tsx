@@ -76,28 +76,20 @@ export const GetAssignment = ({ selectedGroupId }: GetAssignmentProps) => {
       {isAssignmentLoading ? (
         <Loader />
       ) : filteredData?.length ? (
-        <div className="p-4">
+        <div className="px-2 sm:px-4 py-2">
           {filteredData?.map((assignment) => (
             <Card className="mb-4" key={assignment._id}>
               <CardHeader>
                 <CardTitle>
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-2">
-                      <File className="w-4 h-4" />
+                  <div className="flex justify-between items-start flex-wrap gap-y-2">
+                    {/* Title Section */}
+                    <div className="flex items-center gap-2 text-sm sm:text-base">
+                      <File className="w-4 h-4 sm:w-5 sm:h-5" />
                       {assignment.title}
                     </div>
-                    <div className="flex items-center gap-2">
-                      {assignment.dueDate && (
-                        <span className="text-sm text-zinc-600">
-                          Due: {formatDate(assignment.dueDate)}
-                        </span>
-                      )}
-                      <span className="p-1 text-xs rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
-                        Group {assignment.groupObjectId?.groupName}
-                      </span>
-                      <p className="text-sm text-zinc-600">
-                        {formatDate(assignment.createdAt)}
-                      </p>
+
+                    {/* Three Dot Menu */}
+                    <div className="ml-auto">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <EllipsisVertical className="cursor-pointer" />
@@ -136,12 +128,25 @@ export const GetAssignment = ({ selectedGroupId }: GetAssignmentProps) => {
                       </DropdownMenu>
                     </div>
                   </div>
+
+                  {/* Meta Info Below Title */}
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs sm:text-sm text-zinc-600">
+                    {assignment.dueDate && (
+                      <span>Due: {formatDate(assignment.dueDate)}</span>
+                    )}
+                    <span className="p-1 rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
+                      Group {assignment.groupObjectId?.groupName}
+                    </span>
+                    <p>Posted: {formatDate(assignment.createdAt)}</p>
+                  </div>
+
+                  {/* Description */}
                   <CardDescription className="mt-2">
                     {assignment.description}
                   </CardDescription>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 space-x-2">
+              <CardContent>
                 {assignment.files &&
                   assignment.files.map((f) => (
                     <Link
@@ -180,7 +185,7 @@ export const GetAssignment = ({ selectedGroupId }: GetAssignmentProps) => {
             open={isDeleteAleartOpen}
             onOpenChange={setIsDeleteAleartOpen}
           >
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[450px]">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>

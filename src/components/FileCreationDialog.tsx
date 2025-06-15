@@ -194,7 +194,7 @@ export const FileCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[450px] sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {resourceInfo ? "Edit Resource" : "Create Resource"}
@@ -327,7 +327,7 @@ export const FileCreationDialog = ({
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button disabled={isLoading} type="submit">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {resourceInfo ? "Save" : "Create"}

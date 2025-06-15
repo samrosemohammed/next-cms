@@ -101,7 +101,7 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
     ...(user?.role === "teacher"
       ? [
           {
-            title: "Submit Work",
+            title: "Submitted Work",
             url: `/dashboard/module/${moduleId}/submit-works`,
             icon: File,
           },

@@ -11,7 +11,7 @@ const Pages = async () => {
   const session = await getServerSession(authOptions);
   const user = session?.user;
   return (
-    <div className="container mx-auto py-4 space-y-8">
+    <div className="container mx-auto py-4 space-y-8 sm:pl-0 pl-4">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
         <p className="text-muted-foreground">

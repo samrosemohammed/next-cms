@@ -76,7 +76,7 @@ export const GetResourceFile = ({ selectedGroupId }: GetResourceFileProps) => {
       {isResourceLoading ? (
         <Loader />
       ) : filteredData?.length ? (
-        <div className="p-4">
+        <div className="px-2 sm:px-4 py-2">
           {filteredData?.map((file) => (
             <Card className="mb-4" key={file._id}>
               <CardHeader>
@@ -134,7 +134,7 @@ export const GetResourceFile = ({ selectedGroupId }: GetResourceFileProps) => {
                   </CardDescription>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 space-x-2">
+              <CardContent className="flex flex-wrap gap-2">
                 {file.files &&
                   file.files.map((f, index) => (
                     <Link
@@ -174,7 +174,7 @@ export const GetResourceFile = ({ selectedGroupId }: GetResourceFileProps) => {
             open={isDeleteAleartOpen}
             onOpenChange={setIsDeleteAleartOpen}
           >
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[450px]">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>

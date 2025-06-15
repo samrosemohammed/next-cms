@@ -230,7 +230,7 @@ const StudentAssignmentSubmitDialog = ({
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-[450px]">
           <DialogHeader>
             <DialogTitle>
               {hasSubmittedWork ? "Re-submit Assignment" : "Submit Assignment"}

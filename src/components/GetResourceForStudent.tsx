@@ -26,7 +26,7 @@ const GetResourceForStudent = () => {
       {isResourceLoading ? (
         <Loader />
       ) : resource?.length ? (
-        <div className="p-4">
+        <div className="px-2 sm:px-4 py-2">
           {resource?.map((file) => (
             <Card className="mb-4" key={file._id}>
               <CardHeader>
@@ -50,7 +50,7 @@ const GetResourceForStudent = () => {
                   </CardDescription>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 space-x-2">
+              <CardContent className="flex flex-wrap gap-2">
                 {file.files &&
                   file.files.map((f) => (
                     <Link

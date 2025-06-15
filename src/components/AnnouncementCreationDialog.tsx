@@ -186,7 +186,7 @@ export const AnnouncementCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[450px] sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {announcementInfo ? "Edit Announcement" : "Create Announcement"}
@@ -305,7 +305,7 @@ export const AnnouncementCreationDialog = ({
               <p className="text-red-500 text-sm">{errors.files.message}</p>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button disabled={isLoading} type="submit">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {announcementInfo ? "Save " : "Create"}

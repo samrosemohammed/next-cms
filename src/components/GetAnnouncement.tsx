@@ -3,7 +3,13 @@ import { trpc } from "@/app/_trpc/client";
 import { AnnouncementFormData } from "@/lib/validator/zodValidation";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 import {
   EllipsisVertical,
   File,
@@ -66,16 +72,13 @@ export const GetAnnouncement = () => {
       {isAnnouncementLoading ? (
         <Loader />
       ) : data?.length ? (
-        <div className="p-4">
+        <div className="px-2 sm:px-4 py-2">
           {data?.map((announcement) => (
             <Card className="mb-4" key={announcement._id}>
               <CardHeader>
-                <CardTitle>
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      {announcement.description}
-                    </div>
+                <CardTitle className="mb-4">
+                  <div className="flex items-center justify-between">
+                    <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                     <div className="flex items-center gap-2">
                       <span className="p-1 text-xs rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
                         Group {announcement.groupObjectId?.groupName}
@@ -119,8 +122,9 @@ export const GetAnnouncement = () => {
                     </div>
                   </div>
                 </CardTitle>
+                <CardDescription>{announcement.description}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2 space-x-2">
+              <CardContent className="flex flex-wrap gap-2">
                 {announcement.files &&
                   announcement.files.map((f) => (
                     <Link

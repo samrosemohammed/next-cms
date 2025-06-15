@@ -1,7 +1,13 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
 import { useParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 import { File, Link2, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "./ui/button";
@@ -29,12 +35,9 @@ export const GetAnnouncementForStudent =
               return (
                 <Card className="mb-4" key={announcement._id}>
                   <CardHeader>
-                    <CardTitle>
-                      <div className="flex justify-between">
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4" />
-                          {announcement.description}
-                        </div>
+                    <CardTitle className="mb-4">
+                      <div className="flex justify-between items-center gap-2">
+                        <MessageSquare className="w-4 h-4" />
                         <div className="flex items-center gap-2">
                           <span className="p-1 text-xs rounded bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80">
                             Group {announcement.groupObjectId?.groupName}
@@ -45,6 +48,9 @@ export const GetAnnouncementForStudent =
                         </div>
                       </div>
                     </CardTitle>
+                    <CardDescription>
+                      {announcement.description}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2 space-x-2">
                     {announcement.files &&
