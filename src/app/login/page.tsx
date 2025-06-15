@@ -43,8 +43,8 @@ const Page = () => {
     }
   };
   return (
-    <MaxWidthWrapper className="flex items-center justify-center min-h-screen p-4">
-      <Card className="max-w-lg w-full ">
+    <MaxWidthWrapper className="flex items-center h-[90vh] justify-center p-4">
+      <Card className="max-w-lg w-full">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Classroom Login</CardTitle>
           <CardDescription>

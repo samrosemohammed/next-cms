@@ -186,7 +186,7 @@ export const AnnouncementCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="max-w-[450px] sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[350px] sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {announcementInfo ? "Edit Announcement" : "Create Announcement"}

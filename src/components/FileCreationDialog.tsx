@@ -194,7 +194,7 @@ export const FileCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="max-w-[450px] sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[350px] sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {resourceInfo ? "Edit Resource" : "Create Resource"}

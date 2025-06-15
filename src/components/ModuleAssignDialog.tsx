@@ -119,7 +119,7 @@ export const ModuleAssignDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-[350px] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {assignModuleInfo ? "Edit Module Assign" : "Assign Module"}

@@ -175,7 +175,7 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link
                     href={"/dashboard/settings"}
                     className="flex items-center gap-2"
@@ -185,7 +185,7 @@ const AppSidebar = ({ user }: AppSidebarProps) => {
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <div
                     onClick={handleLogOut}
                     className="flex items-center gap-2"

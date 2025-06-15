@@ -230,7 +230,7 @@ const StudentAssignmentSubmitDialog = ({
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="max-w-[450px]">
+        <DialogContent className="max-w-[350px] sm:max-w-[450px]">
           <DialogHeader>
             <DialogTitle>
               {hasSubmittedWork ? "Re-submit Assignment" : "Submit Assignment"}
@@ -345,6 +345,7 @@ const StudentAssignmentSubmitDialog = ({
                   onClick={() => {
                     setIsDeleteAleartOpen(true);
                   }}
+                  className="sm:mb-0 mb-2"
                 >
                   Unsubmit
                 </Button>

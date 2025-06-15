@@ -65,7 +65,7 @@ export const TeacherTable = () => {
       ) : data?.length ? (
         <>
           {/* 🚀 Mobile: Card Layout */}
-          <div className="md:hidden space-y-4 py-2 px-4">
+          <div className="md:hidden space-y-4 py-2 px-2 sm:px-4">
             {data.map((t) => (
               <Card key={t._id} className="p-4">
                 <CardHeader>
@@ -105,7 +105,7 @@ export const TeacherTable = () => {
                         Delete
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="max-w-[350px] sm:max-w-[425px]">
                       <AlertDialogHeader>
                         <AlertDialogTitle>
                           Are you absolutely sure?

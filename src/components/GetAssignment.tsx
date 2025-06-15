@@ -185,7 +185,7 @@ export const GetAssignment = ({ selectedGroupId }: GetAssignmentProps) => {
             open={isDeleteAleartOpen}
             onOpenChange={setIsDeleteAleartOpen}
           >
-            <AlertDialogContent className="max-w-[450px]">
+            <AlertDialogContent className="max-w-[350px] sm:max-w-[450px]">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>

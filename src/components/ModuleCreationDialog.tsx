@@ -115,7 +115,7 @@ export const ModuleCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[350px] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Module Creation</DialogTitle>
           <DialogDescription>

@@ -62,7 +62,7 @@ export const AssignTable = () => {
         <Loader />
       ) : data?.length ? (
         <>
-          <div className="md:hidden space-y-4 py-2 px-4">
+          <div className="md:hidden space-y-4 py-2 px-2 sm:px-4">
             {data.map((am) => (
               <Card key={am._id} className="p-4">
                 <CardHeader>

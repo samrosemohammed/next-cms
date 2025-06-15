@@ -60,9 +60,9 @@ export const GroupStudent = () => {
   };
 
   return (
-    <div>
+    <div className="w-full max-w-full overflow-x-hidden px-2 sm:px-6 lg:px-8">
       {/* Stats Cards - Responsive Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 my-4">
+      <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 my-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -129,144 +129,189 @@ export const GroupStudent = () => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0">
-          <div className="flex-1">
+      <Card className="w-full max-w-full">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 px-4 sm:px-6">
+          <div className="flex-1 min-w-0">
             <CardTitle className="text-xl sm:text-2xl">Students</CardTitle>
             <CardDescription>
               Manage your students across different groups.
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           {/* Search and Filter - Mobile Responsive */}
-          <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center mb-4 sm:max-w-lg sm:ml-auto">
-            <Select onValueChange={handleGroupChange}>
-              <SelectTrigger className="w-full sm:w-auto min-w-[180px]">
-                <SelectValue placeholder="Sort with Group" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Group</SelectLabel>
-                  {count?.uniqueGroups?.map((group) => (
-                    <SelectItem key={group?._id} value={group?._id ?? ""}>
-                      {group?.groupName}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="relative w-full sm:max-w-sm"
-            >
-              <Input
-                value={searchQuery}
-                onChange={handleSearchChange}
-                placeholder="Search for anything..."
-              />
-              <Button
-                type="submit"
-                size="icon"
-                variant="ghost"
-                className="absolute right-0 top-0 h-full px-3"
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 items-stretch sm:items-center mb-6 w-full">
+            <div className="w-full sm:w-auto sm:min-w-[180px] sm:max-w-[220px]">
+              <Select onValueChange={handleGroupChange}>
+                <SelectTrigger className="w-full h-10">
+                  <SelectValue placeholder="Filter by Group" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Groups</SelectLabel>
+                    <SelectItem value="all">All Groups</SelectItem>
+                    {count?.uniqueGroups?.map((group) => (
+                      <SelectItem key={group?._id} value={group?._id ?? ""}>
+                        {group?.groupName}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1 w-full sm:max-w-sm">
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="relative w-full"
               >
-                <Search className="h-4 w-4" />
-                <span className="sr-only">Search</span>
-              </Button>
-            </form>
+                <Input
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search students..."
+                  className="w-full h-10 pr-10"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant="ghost"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                >
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                  <span className="sr-only">Search</span>
+                </Button>
+              </form>
+            </div>
           </div>
 
           {/* Content Area */}
-          <div className="rounded-md border">
+          <div className="w-full max-w-full overflow-hidden">
             {isStudentLoading ? (
-              <Loader />
+              <div className="flex justify-center items-center py-8">
+                <Loader />
+              </div>
             ) : student?.length ? (
               <>
                 {/* Desktop Table View */}
-                <div className="hidden md:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Student ID</TableHead>
-                        <TableHead>Student</TableHead>
-                        <TableHead>Group</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Image</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredStudents?.map((s) => (
-                        <TableRow key={s._id}>
-                          <TableCell>{s?.rollNumber}</TableCell>
-                          <TableCell>{s?.name}</TableCell>
-                          <TableCell>Group {s?.group?.groupName}</TableCell>
-                          <TableCell>{s?.email}</TableCell>
-                          <TableCell>
-                            <Avatar>
-                              <AvatarImage
-                                src={s?.image}
-                                alt={`${s?.name} image`}
-                              />
-                              <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="hidden lg:block">
+                  <div className="rounded-md border overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="min-w-[120px] font-semibold">
+                              Student ID
+                            </TableHead>
+                            <TableHead className="min-w-[160px] font-semibold">
+                              Student
+                            </TableHead>
+                            <TableHead className="min-w-[140px] font-semibold">
+                              Group
+                            </TableHead>
+                            <TableHead className="min-w-[200px] font-semibold">
+                              Email
+                            </TableHead>
+                            <TableHead className="min-w-[80px] font-semibold">
+                              Avatar
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredStudents?.map((s) => (
+                            <TableRow key={s._id} className="hover:bg-muted/50">
+                              <TableCell className="font-medium">
+                                {s?.rollNumber}
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {s?.name}
+                              </TableCell>
+                              <TableCell>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {s?.group?.groupName}
+                                </span>
+                              </TableCell>
+                              <TableCell className="max-w-[200px] truncate text-muted-foreground">
+                                {s?.email}
+                              </TableCell>
+                              <TableCell>
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage
+                                    src={s?.image}
+                                    alt={`${s?.name} avatar`}
+                                  />
+                                  <AvatarFallback className="text-xs">
+                                    {s?.name?.slice(0, 2)?.toUpperCase() ||
+                                      "CN"}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="md:hidden p-4 space-y-4">
-                  {filteredStudents?.map((s) => (
-                    <div
-                      key={s._id}
-                      className="bg-card border rounded-lg p-4 shadow-sm"
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* Avatar */}
-                        <Avatar className="flex-shrink-0">
-                          <AvatarImage
-                            src={s?.image}
-                            alt={`${s?.name} image`}
-                          />
-                          <AvatarFallback>
-                            {s?.name?.slice(0, 2)?.toUpperCase() || "CN"}
-                          </AvatarFallback>
-                        </Avatar>
+                <div className="lg:hidden">
+                  <div className="space-y-4">
+                    {filteredStudents?.map((s) => (
+                      <div
+                        key={s._id}
+                        className="bg-card border rounded-lg shadow-sm overflow-hidden"
+                      >
+                        <div className="p-4">
+                          <div className="flex items-start gap-3">
+                            {/* Avatar */}
+                            <Avatar className="h-12 w-12 flex-shrink-0">
+                              <AvatarImage
+                                src={s?.image}
+                                alt={`${s?.name} avatar`}
+                              />
+                              <AvatarFallback className="text-sm font-medium">
+                                {s?.name?.slice(0, 2)?.toUpperCase() || "CN"}
+                              </AvatarFallback>
+                            </Avatar>
 
-                        {/* Student Info */}
-                        <div className="flex-1 min-w-0">
-                          {/* Name and Group */}
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                            <h3 className="font-semibold text-base truncate">
-                              {s?.name}
-                            </h3>
-                            <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded mt-1 sm:mt-0 self-start">
-                              Group {s?.group?.groupName}
-                            </span>
-                          </div>
+                            {/* Student Info */}
+                            <div className="flex-1 min-w-0 space-y-3">
+                              {/* Name and Group */}
+                              <div className="space-y-2">
+                                <h3 className="font-semibold text-base leading-tight">
+                                  {s?.name}
+                                </h3>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {s?.group?.groupName}
+                                </span>
+                              </div>
 
-                          {/* Student Details */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Hash className="w-3 h-3 flex-shrink-0" />
-                              <span className="truncate">{s?.rollNumber}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Mail className="w-3 h-3 flex-shrink-0" />
-                              <span className="truncate">{s?.email}</span>
+                              {/* Student Details */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Hash className="w-4 h-4 flex-shrink-0" />
+                                  <span className="font-medium">
+                                    {s?.rollNumber}
+                                  </span>
+                                </div>
+                                <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                                  <Mail className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                  <span className="break-all leading-tight">
+                                    {s?.email}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </>
             ) : (
-              <Empty des="No student data found." />
+              <div className="flex justify-center items-center py-12">
+                <Empty des="No student data found." />
+              </div>
             )}
           </div>
         </CardContent>

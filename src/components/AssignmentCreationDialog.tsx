@@ -202,7 +202,7 @@ export const AssignmentCreationDialog = ({
           <Plus className="ml-2" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[450px] sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-[350px] sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {assignmentInfo ? "Edit Assignment" : "Create Assignment"}

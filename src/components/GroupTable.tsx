@@ -52,7 +52,7 @@ export const GroupTable = () => {
   };
 
   return (
-    <div>
+    <div className="px-2 sm:px-0">
       {isGroupLoading ? (
         <Loader />
       ) : data?.length ? (

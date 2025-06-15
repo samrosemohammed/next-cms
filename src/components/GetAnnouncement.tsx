@@ -164,7 +164,7 @@ export const GetAnnouncement = () => {
             open={isDeleteAleartOpen}
             onOpenChange={setIsDeleteAleartOpen}
           >
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[350px] sm:max-w-[425px]">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>

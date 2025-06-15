@@ -129,7 +129,7 @@ const TeacherCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent>
+      <DialogContent className="max-w-[350px] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Enroll Teacher</DialogTitle>
           <DialogDescription>

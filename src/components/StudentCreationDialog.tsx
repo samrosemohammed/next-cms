@@ -142,7 +142,7 @@ export const StudentCreationDialog = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent>
+      <DialogContent className="max-w-[350px] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {studentInfo ? "Edit Student" : "Enroll Student"}
@@ -155,27 +155,6 @@ export const StudentCreationDialog = ({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4 py-4">
-            {/* <div className="space-y-1">
-              <Label htmlFor="student-id" className="w-full">
-                ID
-              </Label>
-              <Input
-                id="student-id"
-                {...register("studentId")}
-                className={cn("w-full", {
-                  "border-destructive focus-visible:ring-destructive":
-                    errors.studentId,
-                  "border-input focus-visible:ring-ring": !errors.studentId,
-                })}
-                readOnly
-                disabled
-              />
-              {errors.studentId && (
-                <p className="text-red-500 text-sm">
-                  {errors.studentId.message?.toString()}
-                </p>
-              )}
-            </div> */}
             <div className="space-y-1">
               <Label htmlFor="student-name" className="w-full">
                 Name

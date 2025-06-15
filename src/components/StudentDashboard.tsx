@@ -6,7 +6,7 @@ export const StudentDashboard = async () => {
   const session = await getServerSession(authOptions);
 
   return (
-    <div className="p-4">
+    <div className="px-2 py-4 sm:p-4">
       <div>
         <h1 className="text-2xl font-semibold">
           Welcome, {session?.user?.name}

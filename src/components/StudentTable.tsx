@@ -63,7 +63,7 @@ export const StudentTable = () => {
         <Loader />
       ) : data?.length ? (
         <>
-          <div className="md:hidden space-y-4 py-2 px-4">
+          <div className="md:hidden space-y-4 py-2 px-2 sm:px-4">
             {data.map((s) => (
               <Card key={s._id} className="p-4">
                 <CardHeader>
@@ -110,7 +110,7 @@ export const StudentTable = () => {
                         Delete
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="max-w-[350px] sm:max-w-[425px]">
                       <AlertDialogHeader>
                         <AlertDialogTitle>
                           Are you absolutely sure?
@@ -166,7 +166,6 @@ export const StudentTable = () => {
                 {data?.map((s, i) => (
                   <TableRow key={s._id}>
                     <TableCell className="font-medium">{i + 1}</TableCell>
-                    {/* <TableCell className="font-medium">{s.rollNumber}</TableCell> */}
                     <TableCell>{s.name}</TableCell>
                     <TableCell>{s.email}</TableCell>
                     <TableCell>{s.password}</TableCell>
